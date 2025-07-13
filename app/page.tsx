@@ -57,12 +57,12 @@ export default function Home() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-4 animate-slide-up stagger-1 font-medium max-w-3xl mx-auto">
-              The first LLM memory orchestration platform that never forgets
+              The first hybrid RAG memory orchestration platform that maximizes performance
             </p>
             
             <p className="text-lg text-muted-foreground mb-8 animate-slide-up stagger-2 max-w-2xl mx-auto">
               Give your AI applications persistent memory, semantic understanding, and intelligent context retrieval. 
-              Transform any LLM from forgetful to brilliant in minutes, not months.
+              Our adaptive hybrid approach automatically optimizes for your specific query patterns to deliver superior results.
             </p>
             
             {/* Value Metrics */}
@@ -76,8 +76,12 @@ export default function Home() {
                 <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">450x faster retrieval</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
+                <div className="w-2 h-2 bg-purple-600 dark:bg-purple-600 rounded-full animate-pulse"></div>
+                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">+5.4pts multi-hop QA</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
                 <div className="w-2 h-2 bg-blue-600 dark:bg-blue-600 rounded-full animate-pulse"></div>
-                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">Facts-first architecture</span>
+                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">Hybrid RAG architecture</span>
               </div>
             </div>
             
@@ -205,6 +209,113 @@ export default function Home() {
                   </div>
           </li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Industry Showcase Section */}
+      <section id="industries" className="py-20">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold mb-4">Proven Across Industries</h2>
+            <p className="text-lg text-muted-foreground">
+              Vrin's memory orchestration platform delivers value across diverse sectors, with specialized demos and case studies.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Healthcare */}
+            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.75 12A7.25 7.25 0 0112 4.75 7.25 7.25 0 0119.25 12 7.25 7.25 0 0112 19.25 7.25 7.25 0 014.75 12zM12 8.75v6.5M8.75 12h6.5" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Healthcare</h3>
+                <p className="text-muted-foreground mb-4">
+                  Transform patient care with persistent memory for clinical conversations, treatment history, and care coordination.
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">Live Demo Available</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Finance */}
+            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Finance</h3>
+                <p className="text-muted-foreground mb-4">
+                  Enhance financial AI with persistent memory for client relationships, transaction history, and regulatory compliance.
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-400">Coming Soon</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Legal */}
+            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Legal</h3>
+                <p className="text-muted-foreground mb-4">
+                  Revolutionize legal AI with memory for case histories, precedent tracking, and client communication context.
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-400">Coming Soon</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground mb-6">
+              Each industry has unique requirements. Our platform adapts to your domain's specific needs.
+            </p>
+            <Link href="/industries">
+              <Button variant="outline" size="lg" className="bg-transparent">
+                Explore Industry Solutions
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* See It In Action - Demo Video Section */}
+      <section id="demo" className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl font-bold mb-4">See It In Action</h2>
+            <p className="text-lg text-muted-foreground">
+              Watch how Vrin transforms AI interactions with persistent memory in the <span className="gradient-text">Health Care</span> Industry.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border shadow-lg">
+            <div className="aspect-video bg-black/5 dark:bg-white/5 flex items-center justify-center">
+              {/* Video placeholder - you can replace this with your MP4 video */}
+              <div>
+                <video 
+                  controls 
+                  className="w-full h-full object-cover"
+                  // poster="/video-thumbnail.jpg" // optional thumbnail
+                >
+                  <source src="videos/Vrin HealthCare Demo.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             </div>
           </div>
         </div>
@@ -520,6 +631,178 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Hybrid RAG Architecture - Technical Differentiation */}
+      <section className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30">
+        <div className="container">
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4 px-3 py-1">
+              Technical Differentiation
+            </Badge>
+            <h2 className="text-3xl font-bold mb-4">Hybrid RAG Architecture: Best of Both Worlds</h2>
+            <p className="text-lg text-muted-foreground">
+              While others stick to single approaches, Vrin intelligently combines vector search and graph traversal 
+              to optimize performance for both single-hop and multi-hop queries. Our flexible architecture maximizes 
+              results for every customer use case.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+              <h3 className="text-2xl font-bold mb-6">Industry Performance Comparison</h3>
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
+                  <h4 className="text-lg font-semibold mb-4">Single-Hop Queries</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Traditional RAG</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
+                          <div className="w-16 h-full bg-blue-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium">68.18 F1</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Graph RAG</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-purple-100 dark:bg-purple-900/20 rounded-full overflow-hidden">
+                          <div className="w-16 h-full bg-purple-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium">65.44 F1</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold">Vrin Hybrid</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-green-100 dark:bg-green-900/20 rounded-full overflow-hidden">
+                          <div className="w-full h-full bg-green-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium text-green-600">68.18+ F1</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
+                  <h4 className="text-lg font-semibold mb-4">Multi-Hop Queries</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Traditional RAG</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
+                          <div className="w-16 h-full bg-blue-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium">65.77 Acc</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Graph RAG</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-purple-100 dark:bg-purple-900/20 rounded-full overflow-hidden">
+                          <div className="w-full h-full bg-purple-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium">71.17 Acc</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold">Vrin Hybrid</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-green-100 dark:bg-green-900/20 rounded-full overflow-hidden">
+                          <div className="w-full h-full bg-green-500 rounded-full"></div>
+                        </div>
+                        <span className="text-sm font-medium text-green-600">71.17+ Acc</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-bold mb-6">Intelligent Query Routing</h3>
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold">Smart Detection</h4>
+                      <p className="text-sm text-muted-foreground">AI classifies query complexity in real-time</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Our system automatically detects whether a query requires simple fact retrieval or complex relationship reasoning,
+                    routing it to the optimal retrieval method.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                      <Database className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold">Dual Retrieval</h4>
+                      <p className="text-sm text-muted-foreground">Vector search + Graph traversal combined</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    For complex queries, we combine both approaches, letting the LLM leverage the strengths of each system
+                    for maximum accuracy and context richness.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold">Continuous Learning</h4>
+                      <p className="text-sm text-muted-foreground">Performance optimization over time</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Our hybrid system learns from usage patterns to improve routing decisions and achieve even better 
+                    performance for your specific domain and use cases.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Multi-hop Query Focus */}
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-4">Optimized for Multi-Hop Reasoning</h3>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                Healthcare, legal, and financial domains predominantly involve multi-hop queries requiring complex 
+                relationship reasoning. Our hybrid approach delivers the performance advantages your industry needs.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg">
+                <div className="text-3xl font-bold gradient-text mb-2">+5.4pts</div>
+                <div className="text-sm font-medium mb-1">Multi-hop QA Improvement</div>
+                <div className="text-xs text-muted-foreground">Over traditional RAG systems</div>
+              </div>
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-lg">
+                <div className="text-3xl font-bold gradient-text mb-2">85%</div>
+                <div className="text-sm font-medium mb-1">Industry Query Type</div>
+                <div className="text-xs text-muted-foreground">Multi-hop reasoning required</div>
+              </div>
+              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950/30 dark:to-teal-950/30 rounded-lg">
+                <div className="text-3xl font-bold gradient-text mb-2">0</div>
+                <div className="text-sm font-medium mb-1">Performance Loss</div>
+                <div className="text-xs text-muted-foreground">On single-hop queries</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Powerful Features for Vrin */}
       <section id="features" className="py-20 bg-muted/30">
         <div className="container">
@@ -561,9 +844,9 @@ export default function Home() {
                 <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
                   <Zap className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Hybrid Retrieval Engine</h3>
+                <h3 className="text-xl font-semibold mb-2">Intelligent Query Routing</h3>
                 <p className="text-muted-foreground">
-                  Patent-pending technology combines vector embeddings and graph traversal for superior recall.
+                  AI-powered system automatically detects query complexity and routes to optimal retrieval method—vector search for detail, graph traversal for multi-hop reasoning.
                 </p>
               </CardContent>
             </Card>
@@ -917,115 +1200,6 @@ print(summary.content)
           <Testimonials />
         </div>
       </section> */}
-
-
-
-      {/* Industry Showcase Section */}
-      <section id="industries" className="py-20">
-        <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Proven Across Industries</h2>
-            <p className="text-lg text-muted-foreground">
-              Vrin's memory orchestration platform delivers value across diverse sectors, with specialized demos and case studies.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Healthcare */}
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.75 12A7.25 7.25 0 0112 4.75 7.25 7.25 0 0119.25 12 7.25 7.25 0 0112 19.25 7.25 7.25 0 014.75 12zM12 8.75v6.5M8.75 12h6.5" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Healthcare</h3>
-                <p className="text-muted-foreground mb-4">
-                  Transform patient care with persistent memory for clinical conversations, treatment history, and care coordination.
-                </p>
-                <div className="flex items-center gap-2 text-sm">
-                  <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">Live Demo Available</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Finance */}
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Finance</h3>
-                <p className="text-muted-foreground mb-4">
-                  Enhance financial AI with persistent memory for client relationships, transaction history, and regulatory compliance.
-                </p>
-                <div className="flex items-center gap-2 text-sm">
-                  <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-400">Coming Soon</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Legal */}
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <svg className="h-6 w-6 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Legal</h3>
-                <p className="text-muted-foreground mb-4">
-                  Revolutionize legal AI with memory for case histories, precedent tracking, and client communication context.
-                </p>
-                <div className="flex items-center gap-2 text-sm">
-                  <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-400">Coming Soon</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-6">
-              Each industry has unique requirements. Our platform adapts to your domain's specific needs.
-            </p>
-            <Link href="/industries">
-              <Button variant="outline" size="lg" className="bg-transparent">
-                Explore Industry Solutions
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* See It In Action - Demo Video Section */}
-      <section id="demo" className="py-20 bg-muted/30">
-        <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold mb-4">See It In Action</h2>
-            <p className="text-lg text-muted-foreground">
-              Watch how Vrin transforms AI interactions with persistent memory in the <span className="gradient-text">Health Care</span> Industry.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border shadow-lg">
-            <div className="aspect-video bg-black/5 dark:bg-white/5 flex items-center justify-center">
-              {/* Video placeholder - you can replace this with your MP4 video */}
-              <div>
-                <video 
-                  controls 
-                  className="w-full h-full object-cover"
-                  // poster="/video-thumbnail.jpg" // optional thumbnail
-                >
-                  <source src="videos/Vrin HealthCare Demo.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Final CTA Section */}
       <section id="contact" className="py-20 bg-muted/30">

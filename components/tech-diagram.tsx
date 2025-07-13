@@ -49,9 +49,9 @@ export function TechDiagram() {
             <div className="h-12 w-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold">2</span>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Vrin Memory Platform</h3>
+            <h3 className="text-lg font-semibold mb-2">Hybrid RAG Intelligence</h3>
             <p className="text-sm text-muted-foreground">
-              Our platform stores, retrieves, and optimizes memory using vector and graph databases
+              AI routes queries to vector search (single-hop) or graph traversal (multi-hop) for optimal performance
             </p>
           </div>
         </Card>
