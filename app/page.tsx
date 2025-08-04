@@ -16,6 +16,11 @@ import { AnimatedBackground } from "@/components/animated-background"
 import { Footer } from "@/components/footer"
 import { ContactForm } from "@/components/contact-form"
 import { BorderBeam } from "@/components/magicui/border-beam"
+import { HeroSection } from "@/components/hero-section"
+import { TechnicalDifferentiation } from "@/components/technical-differentiation"
+import { EnterpriseSocialProof } from "@/components/enterprise-social-proof"
+import { VrinVsZepComparison } from "@/components/vrin-vs-zep-comparison"
+import { UpdatedIntegrationSection } from "@/components/updated-integration-section"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -30,109 +35,8 @@ export default function Home() {
       <AnimatedBackground />
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
-        <MemoryNodes />
-        
-        {/* Floating Lottie Animation - Background */}
-        <div className="absolute top-1/2 right-8 transform -translate-y-1/2 z-0 opacity-20 hidden xl:block">
-          <div 
-            dangerouslySetInnerHTML={{
-              __html: `<dotlottie-wc src="https://lottie.host/8444d856-22df-42b4-a579-53816910606e/oxjTCqCzLp.lottie" style="width: 300px; height: 300px;" speed="0.8" autoplay loop></dotlottie-wc>`
-            }}
-          />
-        </div>
-
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* <Badge variant="outline" className="relative mb-6 px-3 py-1 animate-fade-in overflow-hidden"> */}
-            <Badge variant="outline" className="relative mb-6 px-3 py-1 animate-fade-in overflow-hidden">
-              Introducing Vrin
-              <BorderBeam duration={8} size={20} />
-            </Badge>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in leading-tight">
-              <span className="gradient-text block mb-2">Smart Memory</span>
-              <span className="text-foreground">for Your AI</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground mb-4 animate-slide-up stagger-1 font-medium max-w-3xl mx-auto">
-              The first hybrid RAG memory orchestration platform that maximizes performance
-            </p>
-            
-            <p className="text-lg text-muted-foreground mb-8 animate-slide-up stagger-2 max-w-2xl mx-auto">
-              Give your AI applications persistent memory, semantic understanding, and intelligent context retrieval. 
-              Our adaptive hybrid approach automatically optimizes for your specific query patterns to deliver superior results.
-            </p>
-            
-            {/* Value Metrics */}
-            <div className="flex flex-wrap items-center justify-center gap-6 mb-8 animate-slide-up stagger-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
-                <div className="w-2 h-2 bg-red-600 dark:bg-red-600 rounded-full animate-pulse"></div>
-                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">90% storage reduction</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
-                <div className="w-2 h-2 bg-green-600 dark:bg-green-600 rounded-full animate-pulse"></div>
-                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">450x faster retrieval</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
-                <div className="w-2 h-2 bg-purple-600 dark:bg-purple-600 rounded-full animate-pulse"></div>
-                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">+5.4pts multi-hop QA</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-full">
-                <div className="w-2 h-2 bg-blue-600 dark:bg-blue-600 rounded-full animate-pulse"></div>
-                <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">Hybrid RAG architecture</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up stagger-4">
-              <Button 
-                size="lg" 
-                className="gradient-bg text-white hover:opacity-90 w-full sm:w-auto"
-                onClick={() => openContactForm("Schedule a Demo")}
-              >
-                Schedule a Demo
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto bg-transparent"
-                onClick={() => openContactForm("Get Started Free")}
-              >
-                Get Started Free
-              </Button>
-            </div>
-
-            {/* Lottie Animation - Mobile/Tablet */}
-            <div className="mt-12 flex justify-center xl:hidden animate-fade-in">
-              <div 
-                dangerouslySetInnerHTML={{
-                  __html: `<dotlottie-wc src="https://lottie.host/8444d856-22df-42b4-a579-53816910606e/oxjTCqCzLp.lottie" style="width: 280px; height: 280px;" speed="1" autoplay loop></dotlottie-wc>`
-                }}
-              />
-            </div>
-            
-            {/* Concrete Examples */}
-            <div className="mt-16 animate-slide-up stagger-5">
-              <p className="text-sm text-muted-foreground mb-6">Your AI will understand and remember:</p>
-              <div className="grid md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto">
-                <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-border/50">
-                  <div className="text-sm gradient-text mb-2">Healthcare</div>
-                  <div className="text-sm font-medium">"What medications has this patient tried for their chronic condition?"</div>
-                </div>
-                <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-border/50">
-                  <div className="text-sm gradient-text mb-2">Finance</div>
-                  <div className="text-sm font-medium">"Show me this client's investment preferences from our previous meetings"</div>
-                </div>
-                <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-border/50">
-                  <div className="text-sm gradient-text mb-2">Legal</div>
-                  <div className="text-sm font-medium">"What precedents have we discussed for similar contract disputes?"</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            {/* Enhanced Hero Section */}
+      <HeroSection />
 
       {/* Problem & Solution Section */}
       <section className="py-20 bg-muted/30">
@@ -538,7 +442,7 @@ export default function Home() {
           </div>
 
           {/* Workflow Diagram */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
+          {/* <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
             <h3 className="text-xl font-bold mb-6 text-center">Vrin's Revolutionary Workflow</h3>
             <div className="grid md:grid-cols-6 gap-4 text-center">
               <div className="flex flex-col items-center">
@@ -584,10 +488,10 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">RL-optimized insights</p>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Cost Comparison */}
-          <div className="grid md:grid-cols-2 gap-8 mt-16">
+          {/* <div className="grid md:grid-cols-2 gap-8 mt-16">
             <Card className="border-2 border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10">
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4">Traditional Storage Costs</h3>
@@ -627,7 +531,7 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -773,7 +677,7 @@ export default function Home() {
           </div>
 
           {/* Multi-hop Query Focus */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
+          {/* <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold mb-4">Optimized for Multi-Hop Reasoning</h3>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -799,7 +703,7 @@ export default function Home() {
                 <div className="text-xs text-muted-foreground">On single-hop queries</div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -958,8 +862,12 @@ export default function Home() {
             </Card>
           </div>
 
+          {/* Updated Integration Section */}
+          <UpdatedIntegrationSection />
+
+
           {/* Integration Code Example */}
-          <div className="max-w-4xl mx-auto">
+          {/* <div className="max-w-4xl mx-auto">
             <Card className="border border-border/50 bg-background/50 backdrop-blur-sm">
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
@@ -1049,12 +957,23 @@ print(summary.content)
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
         </div>
       </section>
 
+      {/* Vrin vs Zep Comparison */}
+      <VrinVsZepComparison />
+
+      {/* Technical Differentiation */}
+      {/* <TechnicalDifferentiation /> */}
+
+      
+
+      {/* Enterprise Social Proof */}
+      {/* <EnterpriseSocialProof /> */}
+
       {/* Technical Moat & Innovations */}
-      <section className="py-20 bg-muted/30">
+      {/* <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-4">Our Technical Moat</h2>
@@ -1063,9 +982,9 @@ print(summary.content)
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
+          <div className="grid md:grid-cols-2 gap-8 mb-16"> */}
             {/* Patent-Pending Innovations */}
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm">
+            {/* <Card className="border border-border/50 bg-background/50 backdrop-blur-sm">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center">
@@ -1101,10 +1020,10 @@ print(summary.content)
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card>  */}
 
             {/* Competitive Advantages */}
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm">
+            {/* <Card className="border border-border/50 bg-background/50 backdrop-blur-sm">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center">
@@ -1141,20 +1060,20 @@ print(summary.content)
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
 
           {/* Technical Architecture */}
-          <div className="text-center mb-12">
+          {/* <div className="text-center mb-12">
             <h3 className="text-2xl font-bold mb-4">System Architecture</h3>
             <p className="text-muted-foreground">Patent-pending architecture combines multiple memory systems for optimal recall</p>
           </div>
 
           <div className="max-w-5xl mx-auto">
             <TechDiagram />
-          </div>
+          </div> */}
           
           {/* Performance Metrics */}
-          <div className="grid md:grid-cols-4 gap-6 mt-16">
+          {/* <div className="grid md:grid-cols-4 gap-6 mt-16">
             <div className="text-center">
               <div className="text-3xl font-bold gradient-text mb-2">98%+</div>
               <div className="text-sm text-muted-foreground">Clinical Relevance</div>
@@ -1173,7 +1092,7 @@ print(summary.content)
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Use Cases Section
       <section className="py-20 bg-muted/30">

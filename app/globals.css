@@ -101,6 +101,38 @@
   @apply bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500;
 }
 
+/* Grid background pattern */
+.bg-grid-slate-100 {
+  background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-grid-slate-800 {
+  background-image: linear-gradient(to right, #1e293b 1px, transparent 1px),
+    linear-gradient(to bottom, #1e293b 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Graph specific styles - dashboard only */
+.dashboard .graph-container {
+  @apply relative w-full h-full bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden;
+}
+
+/* Dashboard-specific button styles */
+.dashboard .btn-ghost {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 hover:text-gray-900 h-10 px-4 py-2;
+}
+
+/* Force dashboard to always use light mode */
+.dashboard {
+  color-scheme: light !important;
+}
+
+.dashboard * {
+  color-scheme: light !important;
+}
+
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
 }

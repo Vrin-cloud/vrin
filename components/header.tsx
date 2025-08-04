@@ -99,7 +99,7 @@ export function Header() {
                 Log in
               </Button>
               </Link> */}
-            <Link href="/signup">
+            <Link href="/auth">
               <Button size="sm" className="gradient-bg text-white hover:opacity-90">
                 Get Started
               </Button>
@@ -168,7 +168,7 @@ export function Header() {
                   Log in
                 </Button>
               </Link>
-              <Link href="/signup" className="flex-1">
+              <Link href="/auth" className="flex-1">
                 <Button size="sm" className="w-full gradient-bg text-white hover:opacity-90">
                   Get Started
                 </Button>
