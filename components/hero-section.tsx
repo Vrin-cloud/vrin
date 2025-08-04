@@ -14,11 +14,22 @@ import {
   CheckCircle,
   Star,
   Award,
-  Rocket
+  Rocket,
+  Calendar
 } from 'lucide-react';
 import { BorderBeam } from '@/components/magicui/border-beam';
+import { useState } from 'react';
+import { ContactForm } from '@/components/contact-form';
 
 export function HeroSection() {
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [contactFormSubject, setContactFormSubject] = useState("");
+
+  const openContactForm = (subject: string) => {
+    setContactFormSubject(subject);
+    setIsContactFormOpen(true);
+  };
+
   const competitiveAdvantages = [
     {
       icon: Zap,
@@ -109,18 +120,20 @@ export function HeroSection() {
               <Button 
                 size="lg" 
                 className="gradient-bg text-white hover:opacity-90 px-8 py-4 text-lg font-semibold"
+                onClick={() => window.location.href = '/auth'}
               >
                 <Rocket className="mr-2 h-5 w-5" />
-                Start Free Trial
+                Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
                 className="px-8 py-4 text-lg font-semibold border-2"
+                onClick={() => openContactForm("Schedule a Demo")}
               >
-                <Target className="mr-2 h-5 w-5" />
-                View Live Demo
+                <Calendar className="mr-2 h-5 w-5" />
+                Schedule a Demo
               </Button>
             </motion.div>
 
@@ -250,6 +263,13 @@ export function HeroSection() {
           </motion.div>
         </div>
       </div>
+      
+      {/* Contact Form Modal */}
+      <ContactForm 
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
+        defaultSubject={contactFormSubject}
+      />
     </section>
   );
 } 
