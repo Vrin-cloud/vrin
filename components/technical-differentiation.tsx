@@ -233,7 +233,7 @@ export function TechnicalDifferentiation() {
           >
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Vrin's Revolutionary Architecture
+                Vrin&apos;s Revolutionary Architecture
               </h3>
               <p className="text-gray-600 max-w-2xl mx-auto">
                 Our hybrid approach combines the best of dense and sparse retrieval with 

@@ -1,120 +1,93 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import type { KnowledgeGraphResponse } from '@/types/knowledge-graph';
+import { VRINService } from '@/lib/services/vrin-service';
 
-// Mock API function for demonstration
-const fetchKnowledgeGraph = async (): Promise<KnowledgeGraphResponse> => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+// Real API function using VRIN service - Single Knowledge Graph per Account
+const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphResponse> => {
+  if (!apiKey) {
+    throw new Error('API key required to fetch knowledge graph');
+  }
+
+  const vrinService = new VRINService(apiKey);
   
-  // Mock response with sample data
-  return {
-    success: true,
-    data: {
-      nodes: [
-        {
-          id: 'marie-curie',
-          name: 'Marie Curie',
-          type: 'Person',
-          confidence: 0.95,
-          connections: 8,
-          timestamp: new Date(),
-          position: { x: 200, y: 150 }
-        },
-        {
-          id: 'pierre-curie',
-          name: 'Pierre Curie',
-          type: 'Person',
-          confidence: 0.92,
-          connections: 6,
-          timestamp: new Date(),
-          position: { x: 350, y: 200 }
-        },
-        {
-          id: 'nobel-prize',
-          name: 'Nobel Prize in Physics',
-          type: 'Award',
-          confidence: 0.98,
-          connections: 12,
-          timestamp: new Date(),
-          position: { x: 300, y: 80 }
+  try {
+    // Get the unified knowledge graph for the account
+    const result = await vrinService.getKnowledgeGraph();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch knowledge graph');
+    }
+
+    return {
+      success: true,
+      data: result.data || {
+        nodes: [],
+        edges: [],
+        triples: [],
+        statistics: {
+          nodeCount: 0,
+          edgeCount: 0,
+          tripleCount: 0,
+          density: 0,
+          averageConnections: 0,
+          clusters: 0,
+          confidence: {
+            average: 0,
+            min: 0,
+            max: 0,
+            distribution: {}
+          },
+          temporal: {
+            recentUpdates: 0,
+            conflictedFacts: 0,
+            averageFactAge: 0
+          },
+          domains: {}
         }
-      ],
-      edges: [
-        {
-          id: 'edge-1',
-          from: 'marie-curie',
-          to: 'pierre-curie',
-          label: 'married to',
-          type: 'relationship',
-          confidence: 0.96,
-          timestamp: new Date()
-        },
-        {
-          id: 'edge-2',
-          from: 'marie-curie',
-          to: 'nobel-prize',
-          label: 'won',
-          type: 'achievement',
-          confidence: 0.98,
-          timestamp: new Date()
-        }
-      ],
-      triples: [
-        {
-          subject: 'Marie Curie',
-          predicate: 'married to',
-          object: 'Pierre Curie',
-          id: 'triple-1',
-          confidence: 0.96,
-          timestamp: new Date(),
-          status: 'active'
-        }
-      ],
-      statistics: {
-        nodeCount: 1247,
-        edgeCount: 3891,
-        tripleCount: 5638,
-        density: 0.73,
-        averageConnections: 6.2,
-        clusters: 12,
-        confidence: {
-          average: 0.87,
-          min: 0.34,
-          max: 0.98,
-          distribution: {
-            'high': 64,
-            'medium': 28,
-            'low': 8
-          }
-        },
-        temporal: {
-          recentUpdates: 23,
-          conflictedFacts: 3,
-          averageFactAge: 45.2
-        },
-        domains: {
-          'Science': 387,
-          'Technology': 298,
-          'Healthcare': 156,
-          'Finance': 89,
-          'Legal': 67,
-          'Other': 250
-        }
-      }
-    },
-    timestamp: new Date(),
-    version: '1.0.0'
-  };
+      },
+      timestamp: new Date(),
+      version: '0.3.2'
+    };
+  } catch (error) {
+    console.error('Knowledge graph fetch error:', error);
+    throw error;
+  }
 };
 
-export function useKnowledgeGraph() {
+// Updated hook for unified Knowledge Graph per account (v0.3.2)
+export function useKnowledgeGraph(apiKey?: string) {
   return useQuery({
-    queryKey: ['knowledge-graph'],
-    queryFn: fetchKnowledgeGraph,
+    queryKey: ['knowledge-graph-unified', apiKey], // Updated key for single KG per account
+    queryFn: () => fetchKnowledgeGraph(apiKey!),
+    enabled: !!apiKey, // Only run query if API key is provided
     staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 60000, // Refetch every minute for real-time updates
     refetchOnWindowFocus: true,
+    retry: 3, // Retry failed requests
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
+}
+
+// Helper hook to get the user's API key and return unified graph
+export function useAccountKnowledgeGraph() {
+  const [apiKey, setApiKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get API key from localStorage
+    const storedApiKey = localStorage.getItem('vrin_api_key');
+    setApiKey(storedApiKey);
+  }, []);
+
+  const graphQuery = useKnowledgeGraph(apiKey || undefined);
+
+  return {
+    ...graphQuery,
+    hasApiKey: !!apiKey,
+    // Single unified knowledge graph for the entire account
+    // All API keys associated with the account contribute to this single graph
+    isAccountGraph: true
+  };
 } 

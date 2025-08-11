@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { API_CONFIG, apiCall } from '../config/api';
+import { AuthService } from '../lib/services/vrin-service';
 
 interface User {
   user_id: string;
@@ -102,20 +103,47 @@ const saveAuthState = (state: AuthState) => {
   }
 };
 
-// Signup function
-const signupUser = async (credentials: { email: string; password: string }): Promise<SignupResponse> => {
-  return await apiCall(API_CONFIG.ENDPOINTS.SIGNUP, {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-  });
+// Initialize AuthService
+const authService = new AuthService();
+
+// Signup function - Updated to use new backend
+const signupUser = async (credentials: { email: string; password: string; name?: string }): Promise<SignupResponse> => {
+  const response = await authService.signup(credentials.email, credentials.password, credentials.name);
+  
+  // Convert AuthService response to expected format
+  if (response.success && response.user && response.api_key) {
+    return {
+      success: true,
+      user_id: response.user.user_id,
+      api_key: response.api_key,
+      email: response.user.email,
+      token: response.api_key, // Use API key as token
+      is_verified: true, // New backend auto-verifies
+      message: response.message || 'Signup successful'
+    };
+  } else {
+    throw new Error(response.error || 'Signup failed');
+  }
 };
 
-// Login function
+// Login function - Updated to use new backend
 const loginUser = async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
-  return await apiCall(API_CONFIG.ENDPOINTS.LOGIN, {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-  });
+  const response = await authService.login(credentials.email, credentials.password);
+  
+  // Convert AuthService response to expected format
+  if (response.success && response.user && response.api_key) {
+    return {
+      success: true,
+      user_id: response.user.user_id,
+      api_key: response.api_key,
+      email: response.user.email,
+      token: response.api_key, // Use API key as token
+      is_verified: true, // New backend auto-verifies
+      message: response.message || 'Login successful'
+    };
+  } else {
+    throw new Error(response.error || 'Login failed');
+  }
 };
 
 export function useAuth() {
@@ -140,9 +168,7 @@ export function useAuth() {
     console.log('Loading auth state from localStorage:', stored);
     
     if (stored.isAuthenticated && stored.apiKey) {
-      // Update global API key if we have stored credentials
-      API_CONFIG.API_KEY = stored.apiKey;
-      console.log('Setting API key from localStorage:', stored.apiKey);
+      console.log('Found stored API key:', stored.apiKey);
     }
     
     const newState = {
@@ -183,7 +209,7 @@ export function useAuth() {
           console.log('Setting new auth state for auto-verified user:', newState);
           
           // Update the global API key first
-          API_CONFIG.API_KEY = data.api_key;
+          // API key is now passed directly to API calls
           
           // Save to localStorage
           saveAuthState(newState);
@@ -235,8 +261,7 @@ export function useAuth() {
         
         console.log('Setting new auth state:', newState);
         
-        // Update the global API key first
-        API_CONFIG.API_KEY = data.api_key;
+        // API key is now passed directly to API calls
         
         // Save to localStorage
         saveAuthState(newState);
@@ -277,7 +302,7 @@ export function useAuth() {
     saveAuthState(newState);
     
     // Clear the global API key
-    API_CONFIG.API_KEY = '';
+    // Clear auth data from localStorage
     
     // Clear localStorage
     if (typeof window !== 'undefined') {
@@ -285,11 +310,14 @@ export function useAuth() {
     }
   };
 
-  // Check health status
+  // Check health status - Updated for new backend
   const checkHealth = async () => {
     try {
-      await apiCall(API_CONFIG.ENDPOINTS.HEALTH);
-      return true;
+      // Check both auth and RAG API health
+      const authHealthResponse = await fetch(`${API_CONFIG.AUTH_BASE_URL}${API_CONFIG.ENDPOINTS.AUTH_HEALTH}`);
+      const ragHealthResponse = await fetch(`${API_CONFIG.RAG_BASE_URL}${API_CONFIG.ENDPOINTS.RAG_HEALTH}`);
+      
+      return authHealthResponse.ok && ragHealthResponse.ok;
     } catch (error) {
       console.error('Health check failed:', error);
       return false;

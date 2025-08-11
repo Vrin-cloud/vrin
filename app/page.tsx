@@ -124,7 +124,7 @@ export default function Home() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-4">Proven Across Industries</h2>
             <p className="text-lg text-muted-foreground">
-              Vrin's memory orchestration platform delivers value across diverse sectors, with specialized demos and case studies.
+              Vrin&apos;s memory orchestration platform delivers value across diverse sectors, with specialized demos and case studies.
             </p>
           </div>
 
@@ -186,7 +186,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-6">
-              Each industry has unique requirements. Our platform adapts to your domain's specific needs.
+              Each industry has unique requirements. Our platform adapts to your domain&apos;s specific needs.
             </p>
             <Link href="/industries">
               <Button variant="outline" size="lg" className="bg-transparent">
@@ -353,7 +353,7 @@ export default function Home() {
                 🚀 15-20 minutes → 2 seconds
               </span>
               <span className="text-green-600 dark:text-green-400">
-                That's a 450x improvement!
+                That&apos;s a 450x improvement!
               </span>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold mb-6">Vrin's Facts-First Architecture</h3>
+              <h3 className="text-2xl font-bold mb-6">Vrin&apos;s Facts-First Architecture</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
@@ -443,7 +443,7 @@ export default function Home() {
 
           {/* Workflow Diagram */}
           {/* <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
-            <h3 className="text-xl font-bold mb-6 text-center">Vrin's Revolutionary Workflow</h3>
+            <h3 className="text-xl font-bold mb-6 text-center">Vrin&apos;s Revolutionary Workflow</h3>
             <div className="grid md:grid-cols-6 gap-4 text-center">
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mb-2">
@@ -774,7 +774,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Intelligent Analytics</h3>
                 <p className="text-muted-foreground">
-                  Track memory usage, optimize retrieval, and gain insights into your AI's learning patterns.
+                  Track memory usage, optimize retrieval, and gain insights into your AI&apos;s learning patterns.
                 </p>
               </CardContent>
             </Card>

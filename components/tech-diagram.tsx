@@ -39,7 +39,7 @@ export function TechDiagram() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Your Application</h3>
             <p className="text-sm text-muted-foreground">
-              Your healthcare application makes API calls to Vrin's memory services
+              Your healthcare application makes API calls to Vrin&apos;s memory services
             </p>
           </div>
         </Card>

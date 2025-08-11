@@ -107,7 +107,7 @@ export function HeroSection() {
             >
               The only memory platform that delivers <span className="font-semibold text-gray-900 dark:text-gray-100">450x faster retrieval</span> with 
               <span className="font-semibold text-gray-900 dark:text-gray-100"> enterprise-grade security</span>. 
-              Built for developers who can't afford to compromise on performance or reliability.
+              Built for developers who can&apos;t afford to compromise on performance or reliability.
             </motion.p>
 
             {/* CTA Buttons */}

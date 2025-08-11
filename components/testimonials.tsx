@@ -66,7 +66,7 @@ export function Testimonials() {
                 }`}
                 style={{ display: index === current ? "block" : "none" }}
               >
-                <blockquote className="text-xl md:text-2xl font-medium mb-8">"{testimonial.quote}"</blockquote>
+                <blockquote className="text-xl md:text-2xl font-medium mb-8">&ldquo;{testimonial.quote}&rdquo;</blockquote>
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-full overflow-hidden bg-muted">
                     <img

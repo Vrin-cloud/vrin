@@ -64,15 +64,15 @@ export function UseCases() {
                   <div className="bg-background rounded p-3 border border-border/50">
                     <p className="text-sm font-medium">Doctor Query</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      "Tell me about Margaret Chen's cardiac history and current medications."
+                      &ldquo;Tell me about Margaret Chen&apos;s cardiac history and current medications.&rdquo;
                     </p>
                   </div>
                   <div className="bg-primary/5 rounded p-3 border border-primary/10">
                     <p className="text-sm font-medium">Vrin-Powered Response</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      "Margaret Chen (58) has a LAD stent placed 3 months ago. Currently on Clopidogrel 75mg daily,
+                      &ldquo;Margaret Chen (58) has a LAD stent placed 3 months ago. Currently on Clopidogrel 75mg daily,
                       Atorvastatin 40mg, and Metformin 1000mg for Type 2 Diabetes (15yr history). Last troponin level
-                      was 0.02 ng/mL. Allergic to penicillin."
+                      was 0.02 ng/mL. Allergic to penicillin.&rdquo;
                     </p>
                   </div>
                 </div>
@@ -134,8 +134,8 @@ await memoryApi.storeEpisode({
                   <div className="bg-primary/5 rounded p-3 border border-primary/10">
                     <p className="text-sm font-medium">Business Outcome</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      "Enhanced clinical software value with continuous real-world evidence generation and improved
-                      medication adherence."
+                      &ldquo;Enhanced clinical software value with continuous real-world evidence generation and improved
+                      medication adherence.&rdquo;
                     </p>
                   </div>
                 </div>
@@ -185,15 +185,15 @@ await memoryApi.storeEpisode({
                   <div className="bg-background rounded p-3 border border-border/50">
                     <p className="text-sm font-medium">Before Appointment</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      "AI assistant automatically prepares a comprehensive patient summary from all previous visits
-                      across specialties."
+                      &ldquo;AI assistant automatically prepares a comprehensive patient summary from all previous visits
+                      across specialties.&rdquo;
                     </p>
                   </div>
                   <div className="bg-primary/5 rounded p-3 border border-primary/10">
                     <p className="text-sm font-medium">During Appointment</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      "Vrin provides real-time clinical decision support with relevant patient history and treatment
-                      recommendations."
+                      &ldquo;Vrin provides real-time clinical decision support with relevant patient history and treatment
+                      recommendations.&rdquo;
                     </p>
                   </div>
                 </div>

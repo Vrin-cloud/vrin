@@ -22,18 +22,28 @@ export function LoginForm() {
     setError('');
     setSuccess('');
 
+    console.log('Form submitted:', { isLogin, email, password: password.length + ' chars' });
+
     try {
       if (isLogin) {
-        await login({ email, password });
+        console.log('Attempting login...');
+        const result = await login({ email, password });
+        console.log('Login result:', result);
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
           window.location.href = '/dashboard';
-        }, 1000);
+        }, 1500);
       } else {
-        await signup({ email, password });
-        setSuccess('Account created successfully! Please check your email for verification.');
+        console.log('Attempting signup...');
+        const result = await signup({ email, password, name: email.split('@')[0] } as { email: string; password: string; name: string });
+        console.log('Signup result:', result);
+        setSuccess('Account created successfully! You can now log in.');
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 2000);
       }
     } catch (err: any) {
+      console.error('Auth error:', err);
       setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

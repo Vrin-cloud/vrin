@@ -98,7 +98,7 @@ ${formData.message}
               </div>
               <div>
                 <h2 className="text-xl font-semibold">Get in Touch</h2>
-                <p className="text-sm text-muted-foreground">We'd love to hear from you</p>
+                <p className="text-sm text-muted-foreground">We&apos;d love to hear from you</p>
               </div>
             </div>
             <Button 
@@ -118,7 +118,7 @@ ${formData.message}
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Message Sent!</h3>
                 <p className="text-muted-foreground text-sm">
-                  Thank you for reaching out. We'll get back to you soon.
+                  Thank you for reaching out. We&apos;ll get back to you soon.
                 </p>
               </div>
             ) : (

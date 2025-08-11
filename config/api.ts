@@ -1,28 +1,48 @@
-// API Configuration for VRIN Memory Orchestration Dashboard
+// API Configuration for VRIN Hybrid RAG Dashboard
 export const API_CONFIG = {
-  // Base URL for the VRIN Memory Orchestration API
-  BASE_URL: 'https://8gj3mzt6cg.execute-api.us-west-1.amazonaws.com/prod',
+  // Authentication API (Production)
+  AUTH_BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   
-  // API Key for authentication (will be set after user signup)
+  // RAG API (Production - Optimized Hybrid RAG v0.3.2 with AI Specialization)
+  RAG_BASE_URL: 'https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev',
+  
+  // Legacy support for existing code
+  BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   API_KEY: '',
   
   // API Endpoints
   ENDPOINTS: {
-    HEALTH: '/health',
+    // Auth endpoints
+    AUTH_HEALTH: '/health',
     SIGNUP: '/api/auth/signup',
     LOGIN: '/api/auth/login',
+    CREATE_API_KEY: '/api/auth/create-api-key',
+    LIST_API_KEYS: '/api/auth/api-keys',
+    DELETE_API_KEY: '/api/auth/delete-api-key',
+    DELETE_ACCOUNT: '/api/auth/delete-account',
+    
+    // RAG endpoints (Optimized Backend v0.3.2)
+    RAG_HEALTH: '/health',
+    INSERT: '/insert',
+    QUERY: '/query', 
+    GRAPH: '/graph',
+    SPECIALIZE: '/specialize', // NEW: User-defined AI specialization
+    
+    // Legacy endpoints for backward compatibility
+    HEALTH: '/health',
     VERIFY_EMAIL: '/api/auth/verify-email',
     RESEND_VERIFICATION: '/api/auth/resend-verification',
-    KNOWLEDGE_GRAPH: '/api/knowledge-graph',
-    INSERT_KNOWLEDGE: '/api/knowledge/insert',
-    QUERY_KNOWLEDGE: '/api/knowledge/query',
-    QUERY_BASIC: '/api/knowledge/query-basic',
-    GET_API_KEYS: '/api/auth/api-keys',
-    CREATE_API_KEY: '/api/auth/create-api-key',
-    DELETE_API_KEY: '/api/auth/delete-api-key',
-    DELETE_ACCOUNT: '/api/auth/delete-account'
-  }
-};
+    KNOWLEDGE_GRAPH: '/graph', // Updated to new endpoint
+    INSERT_KNOWLEDGE: '/insert', // Updated to new endpoint
+    QUERY_KNOWLEDGE: '/query', // Updated to new endpoint
+    QUERY_BASIC: '/query', // Updated to new endpoint
+    GET_API_KEYS: '/api/auth/api-keys'
+  },
+  
+  // SDK Configuration (Updated to latest)
+  SDK_VERSION: '0.3.2',
+  IMPORT_STATEMENT: 'from vrin import VRINClient'
+} as const;
 
 // Helper function to get headers with authentication
 export const getAuthHeaders = (apiKey?: string) => ({

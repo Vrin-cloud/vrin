@@ -16,7 +16,8 @@ import {
   Database,
   Globe,
   Search,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../../hooks/use-auth';
 
@@ -43,6 +44,14 @@ const navigationItems = [
     icon: Brain,
     description: 'Interactive visualization',
     color: 'purple'
+  },
+  {
+    id: 'ai-specialization',
+    label: 'AI Specialization',
+    icon: Sparkles,
+    description: 'Custom expert configuration',
+    color: 'purple',
+    badge: 'NEW'
   },
   {
     id: 'api-keys',
@@ -170,7 +179,14 @@ export function Sidebar({
                   animate={{ opacity: 1 }}
                   className="flex-1 text-left"
                 >
-                  <div className="font-medium">{item.label}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && (
+                      <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-gray-500">{item.description}</div>
                 </motion.div>
               )}
