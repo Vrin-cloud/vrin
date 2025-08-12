@@ -273,7 +273,7 @@ export function HeroSection() {
               {/* UC Davis Logo */}
               <div className="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
                 <img 
-                  src="https://logos-world.net/wp-content/uploads/2021/11/UC-Davis-Logo.png"
+                  src="/UC Davis logo.png"
                   alt="UC Davis"
                   className="h-12 w-auto filter grayscale hover:grayscale-0 transition-all duration-300"
                 />
