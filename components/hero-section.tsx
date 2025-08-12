@@ -58,17 +58,32 @@ export function HeroSection() {
   ];
 
   const comparisonMetrics = [
-    { metric: "Retrieval Speed", vrin: "450x faster", competitor: "Standard", unit: "" },
-    { metric: "Memory Accuracy", vrin: "98.7%", competitor: "94.2%", unit: "%" },
-    { metric: "Context Window Efficiency", vrin: "90%", competitor: "65%", unit: "%" },
+    { metric: "Expert Query Response", vrin: "< 20s", competitor: "15-20 min", unit: "" },
+    { metric: "Storage Efficiency", vrin: "40-60%", competitor: "0%", unit: "reduction" },
+    { metric: "Expert Validation", vrin: "8.5/10", competitor: "6.2/10", unit: "score" },
     { metric: "Multi-hop Reasoning", vrin: "+5.4pts", competitor: "Baseline", unit: "" }
   ];
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" />
-      <div className="absolute top-0 left-0 w-full h-full bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+      <div className="absolute inset-0 opacity-30 dark:opacity-20">
+        <svg width="100%" height="100%" className="absolute inset-0">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path 
+                d="M 40 0 L 0 0 0 40" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="1"
+                className="text-slate-300 dark:text-slate-600"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+      </div>
       
       <div className="container relative z-10">
         <div className="max-w-7xl mx-auto">
@@ -82,7 +97,7 @@ export function HeroSection() {
               className="mb-6"
             >
               <Badge variant="outline" className="relative px-4 py-2 text-sm font-medium overflow-hidden">
-                <span className="relative z-10">🚀 Now Available - Memory Orchestration That Actually Works</span>
+                <span className="relative z-10">Now Available</span>
                 <BorderBeam duration={8} size={20} />
               </Badge>
             </motion.div>
@@ -92,10 +107,10 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-light mb-6 leading-tight"
             >
-              <span className="gradient-text block mb-2">Memory Orchestration</span>
-              <span className="text-gray-900 dark:text-gray-100">That Actually Works</span>
+              <span className="gradient-text block mb-2">HybridRAG Memory</span>
+              <span className="text-gray-900 dark:text-gray-100">Operating System</span>
             </motion.h1>
 
             {/* Subtitle */}
@@ -103,11 +118,12 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed"
+              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed font-light"
             >
-              The only memory platform that delivers <span className="font-semibold text-gray-900 dark:text-gray-100">450x faster retrieval</span> with 
-              <span className="font-semibold text-gray-900 dark:text-gray-100"> enterprise-grade security</span>. 
-              Built for developers who can&apos;t afford to compromise on performance or reliability.
+              Enterprise context orchestration layer for AI agents. HybridRAG architecture delivers 
+              <span className="font-medium text-gray-900 dark:text-gray-100"> 450x faster retrieval</span> with 
+              <span className="font-medium text-gray-900 dark:text-gray-100"> user-defined specialization</span> and 
+              <span className="text-blue-600 dark:text-blue-400">sub-20s expert analysis</span>.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -119,7 +135,7 @@ export function HeroSection() {
             >
               <Button 
                 size="lg" 
-                className="gradient-bg text-white hover:opacity-90 px-8 py-4 text-lg font-semibold"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-medium"
                 onClick={() => window.location.href = '/auth'}
               >
                 <Rocket className="mr-2 h-5 w-5" />
@@ -129,7 +145,7 @@ export function HeroSection() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="px-8 py-4 text-lg font-semibold border-2"
+                className="px-8 py-4 text-lg font-medium border border-gray-300 dark:border-gray-600"
                 onClick={() => openContactForm("Schedule a Demo")}
               >
                 <Calendar className="mr-2 h-5 w-5" />
@@ -195,13 +211,13 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
-            className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 mb-16"
+            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-gray-200 dark:border-slate-700 rounded-2xl p-8 mb-16"
           >
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 Performance That Speaks for Itself
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Independent benchmarks show Vrin consistently outperforms competitors in every critical metric
               </p>
             </div>
@@ -215,20 +231,20 @@ export function HeroSection() {
                   transition={{ duration: 0.6, delay: 1.6 + index * 0.1 }}
                   className="text-center"
                 >
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
-                    <h3 className="text-sm font-medium text-gray-600 mb-3">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-blue-100 dark:border-blue-800">
+                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">
                       {metric.metric}
                     </h3>
                     <div className="space-y-2">
                       <div className="flex items-center justify-center space-x-2">
-                        <span className="text-2xl font-bold text-blue-600">
+                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                           {metric.vrin}
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {metric.unit}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         vs {metric.competitor}
                       </div>
                     </div>
@@ -252,13 +268,16 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 1.8 }}
             className="text-center"
           >
-            <p className="text-sm text-gray-500 mb-4">Trusted by developers worldwide</p>
-            <div className="flex items-center justify-center space-x-8 opacity-60">
-              {/* Add your customer logos here */}
-              <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Trusted by Developers at</p>
+            <div className="flex items-center justify-center space-x-8">
+              {/* UC Davis Logo */}
+              <div className="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <img 
+                  src="https://logos-world.net/wp-content/uploads/2021/11/UC-Davis-Logo.png"
+                  alt="UC Davis"
+                  className="h-12 w-auto filter grayscale hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
             </div>
           </motion.div>
         </div>

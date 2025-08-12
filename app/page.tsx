@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Brain, Zap, Shield, BarChart3, Clock, Database, Check } from "lucide-react"
+import { Brain, Zap, Shield, BarChart3, Clock, Database, Check, Target } from "lucide-react"
 import { MemoryNodes } from "@/components/memory-nodes"
 import { TrustedBy } from "@/components/trusted-by"
 import { Header } from "@/components/header"
@@ -20,7 +21,9 @@ import { HeroSection } from "@/components/hero-section"
 import { TechnicalDifferentiation } from "@/components/technical-differentiation"
 import { EnterpriseSocialProof } from "@/components/enterprise-social-proof"
 import { VrinVsZepComparison } from "@/components/vrin-vs-zep-comparison"
-import { UpdatedIntegrationSection } from "@/components/updated-integration-section"
+import ProfessionalIntegrationSection from "@/components/professional-integration-section"
+import Circular3DCarousel from "@/components/circular-3d-carousel"
+import ModernSystemArchitecture from "@/components/modern-system-architecture"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -38,85 +41,129 @@ export default function Home() {
             {/* Enhanced Hero Section */}
       <HeroSection />
 
-      {/* Problem & Solution Section */}
-      <section className="py-20 bg-muted/30">
+      {/* Modern Problem & Solution Section */}
+      <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="animate-slide-in-left">
-              <h2 className="text-3xl font-bold mb-6">The Problem</h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                LLMs across all industries suffer from memory limitations, causing:
-              </p>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                    <span className="text-red-600 dark:text-red-400">✕</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">Context Amnesia</p>
-                    <p className="text-muted-foreground">LLMs forget critical conversation history between sessions</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                    <span className="text-red-600 dark:text-red-400">✕</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">Token Waste</p>
-                    <p className="text-muted-foreground">15-20 minutes spent re-feeding context in each session</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                    <span className="text-red-600 dark:text-red-400">✕</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">Knowledge Gaps</p>
-                    <p className="text-muted-foreground">
-                      Missing critical domain-specific context and relationship data
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div className="animate-slide-in-right">
-              <h2 className="text-3xl font-bold mb-6">Our Solution</h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                Vrin provides a comprehensive memory orchestration platform:
-              </p>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                    <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Persistent Memory</p>
-                    <p className="text-muted-foreground">Store and retrieve context across sessions for any domain</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                    <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Intelligent Retrieval</p>
-                    <p className="text-muted-foreground">Reduce information gathering from 15 minutes to 2 seconds</p>
-                  </div>
-          </li>
-                <li className="flex items-start gap-3">
-                  <div className="mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                    <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Enterprise Security</p>
-                    <p className="text-muted-foreground">Industry-grade security with complete audit logging</p>
-                  </div>
-          </li>
-              </ul>
-            </div>
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4 px-3 py-1">
+              The Challenge & Our Innovation
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-light mb-6">
+              Why Enterprise AI Falls Short
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Traditional AI systems lose context and struggle with domain expertise. 
+              VRIN&apos;s revolutionary architecture solves this with persistent memory and user-defined specialization.
+            </p>
           </div>
+
+          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
+            {/* Problem Side */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
+            >
+              <div className="text-center lg:text-left">
+                <h3 className="text-2xl font-medium text-gray-700 dark:text-gray-300 mb-6">
+                  Traditional AI Limitations
+                </h3>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-medium">!</div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">No Domain Expertise</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Generic responses lack specialized knowledge required for professional analysis</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-medium">!</div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Context Amnesia</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">AI forgets critical information between sessions, requiring manual context rebuilding</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-medium">!</div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Inefficient Processing</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Hours wasted re-feeding context and waiting for superficial analysis</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Solution Side */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-8"
+            >
+              <div className="text-center lg:text-left">
+                <h3 className="text-2xl font-medium text-gray-700 dark:text-gray-300 mb-6">
+                  VRIN&apos;s HybridRAG Solution
+                </h3>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">User-Defined AI Experts</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">Transform any LLM into a domain specialist with custom prompts and reasoning focus</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Persistent Memory</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">Facts-first architecture stores knowledge efficiently with 40-60% space reduction</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Sub-20s Expert Analysis</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">Multi-hop reasoning delivers professional-grade insights in seconds, not hours</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Key Innovation Highlight */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-4 px-8 py-4 bg-blue-600 text-white rounded-lg shadow-md">
+              <Zap className="w-6 h-6" />
+              <span className="font-medium text-lg">
+                HybridRAG: User-defined specialization + Multi-hop reasoning + Persistent memory
+              </span>
+            </div>
+          </motion.div>
         </div>
       </section>
+
+      {/* 3D Circular Carousel Product Section */}
+      <Circular3DCarousel />
 
       {/* Industry Showcase Section */}
       <section id="industries" className="py-20">
@@ -225,138 +272,136 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Traditional vs Vrin Comparison */}
-      <section className="py-20">
+      {/* Modern Architecture Comparison */}
+      <section className="py-24 bg-background">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Traditional LLMs vs AI-Native Memory</h2>
-            <p className="text-lg text-muted-foreground">
-              See how Vrin transforms the fundamental approach to LLM memory and context management.
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4 px-3 py-1">
+              Next-Generation Architecture
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Beyond Traditional RAG Systems
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              VRIN&apos;s hybrid architecture combines the best of vector search and graph traversal, 
+              enhanced with user-defined specialization for unmatched domain expertise.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* Traditional Approach */}
-            <Card className="border-2 border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10">
-              <CardContent className="pt-8">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-                    <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-red-800 dark:text-red-200">Traditional LLMs</h3>
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            {/* Traditional RAG */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <Card className="p-8 h-full border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                  <Database className="w-8 h-8 text-gray-600 dark:text-gray-400" />
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                      <span className="text-red-600 dark:text-red-400 text-xs">✕</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-red-800 dark:text-red-200">Context Amnesia</p>
-                      <p className="text-sm text-red-600 dark:text-red-400">Forget everything between sessions</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                      <span className="text-red-600 dark:text-red-400 text-xs">✕</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-red-800 dark:text-red-200">Manual Context Loading</p>
-                      <p className="text-sm text-red-600 dark:text-red-400">15-20 minutes re-feeding context each time</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                      <span className="text-red-600 dark:text-red-400 text-xs">✕</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-red-800 dark:text-red-200">Token Limits</p>
-                      <p className="text-sm text-red-600 dark:text-red-400">Constrained by context window size</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                      <span className="text-red-600 dark:text-red-400 text-xs">✕</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-red-800 dark:text-red-200">No Relationship Understanding</p>
-                      <p className="text-sm text-red-600 dark:text-red-400">Cannot connect related information across time</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                <h3 className="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4">Traditional RAG</h3>
+                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                  <li>• Vector-only retrieval</li>
+                  <li>• No domain specialization</li>
+                  <li>• Limited context understanding</li>
+                  <li>• 68.18 F1 performance</li>
+                </ul>
+              </Card>
+            </motion.div>
 
-            {/* Vrin Approach */}
-            <Card className="border-2 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/10">
-              <CardContent className="pt-8">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 mb-4">
-                    <Brain className="w-8 h-8 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-green-800 dark:text-green-200">Vrin AI-Native Memory</h3>
+            {/* Graph RAG */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-center"
+            >
+              <Card className="p-8 h-full border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                  <BarChart3 className="w-8 h-8 text-slate-600 dark:text-slate-400" />
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Persistent Memory</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Remembers everything across all sessions</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Instant Context Retrieval</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">2-second intelligent context loading</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Unlimited Scale</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Store millions of interactions and facts</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Semantic Knowledge Graph</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Understands and connects related concepts</p>
-                    </div>
-                  </div>
+                <h3 className="text-xl font-medium text-slate-800 dark:text-slate-200 mb-4">Graph RAG</h3>
+                <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                  <li>• Graph-only traversal</li>
+                  <li>• Better for multi-hop queries</li>
+                  <li>• Still lacks specialization</li>
+                  <li>• 71.17 Acc on complex tasks</li>
+                </ul>
+              </Card>
+            </motion.div>
+
+            {/* VRIN Hybrid */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-center"
+            >
+              <Card className="p-8 h-full border-2 border-blue-200 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 relative overflow-hidden">
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-blue-600 text-white">Best</Badge>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-blue-600 dark:text-blue-300" />
+                </div>
+                <h3 className="text-xl font-medium text-blue-800 dark:text-blue-200 mb-4">VRIN Hybrid</h3>
+                <ul className="space-y-3 text-sm text-blue-700 dark:text-blue-300">
+                  <li>• Intelligent query routing</li>
+                  <li>• User-defined AI experts</li>
+                  <li>• Multi-hop reasoning</li>
+                  <li>• 71.17+ Acc with specialization</li>
+                </ul>
+              </Card>
+            </motion.div>
           </div>
-          
-          <div className="text-center mt-12">
-            <div className="inline-flex items-center gap-4 px-6 py-3 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-full border border-green-200 dark:border-green-800">
-              <span className="text-green-700 dark:text-green-300 font-medium">
-                🚀 15-20 minutes → 2 seconds
-              </span>
-              <span className="text-green-600 dark:text-green-400">
-                That&apos;s a 450x improvement!
-              </span>
+
+          {/* Key Differentiators */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-3xl p-8 md:p-12"
+          >
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold mb-4">What Makes VRIN Revolutionary</h3>
+              <p className="text-lg text-muted-foreground">
+                Three breakthrough innovations that transform AI from generic to expert-level performance
+              </p>
             </div>
-          </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-lg font-bold mb-2">Smart Query Routing</h4>
+                <p className="text-sm text-muted-foreground">
+                  AI automatically detects query complexity and routes to optimal retrieval method
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-lg font-bold mb-2">Domain Specialization</h4>
+                <p className="text-sm text-muted-foreground">
+                  Transform any LLM into a domain expert with custom prompts and reasoning focus
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-lg font-bold mb-2">Facts-First Storage</h4>
+                <p className="text-sm text-muted-foreground">
+                  Memory-efficient architecture stores only essential facts with 40-60% space reduction
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -535,264 +580,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hybrid RAG Architecture - Technical Differentiation */}
-      <section className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30">
-        <div className="container">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <Badge variant="outline" className="mb-4 px-3 py-1">
-              Technical Differentiation
-            </Badge>
-            <h2 className="text-3xl font-bold mb-4">Hybrid RAG Architecture: Best of Both Worlds</h2>
-            <p className="text-lg text-muted-foreground">
-              While others stick to single approaches, Vrin intelligently combines vector search and graph traversal 
-              to optimize performance for both single-hop and multi-hop queries. Our flexible architecture maximizes 
-              results for every customer use case.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Industry Performance Comparison</h3>
-              <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
-                  <h4 className="text-lg font-semibold mb-4">Single-Hop Queries</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Traditional RAG</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
-                          <div className="w-16 h-full bg-blue-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium">68.18 F1</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Graph RAG</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-purple-100 dark:bg-purple-900/20 rounded-full overflow-hidden">
-                          <div className="w-16 h-full bg-purple-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium">65.44 F1</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-semibold">Vrin Hybrid</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-green-100 dark:bg-green-900/20 rounded-full overflow-hidden">
-                          <div className="w-full h-full bg-green-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium text-green-600">68.18+ F1</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
-                  <h4 className="text-lg font-semibold mb-4">Multi-Hop Queries</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Traditional RAG</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
-                          <div className="w-16 h-full bg-blue-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium">65.77 Acc</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Graph RAG</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-purple-100 dark:bg-purple-900/20 rounded-full overflow-hidden">
-                          <div className="w-full h-full bg-purple-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium">71.17 Acc</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-semibold">Vrin Hybrid</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-green-100 dark:bg-green-900/20 rounded-full overflow-hidden">
-                          <div className="w-full h-full bg-green-500 rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-medium text-green-600">71.17+ Acc</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Intelligent Query Routing</h3>
-              <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold">Smart Detection</h4>
-                      <p className="text-sm text-muted-foreground">AI classifies query complexity in real-time</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Our system automatically detects whether a query requires simple fact retrieval or complex relationship reasoning,
-                    routing it to the optimal retrieval method.
-                  </p>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                      <Database className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold">Dual Retrieval</h4>
-                      <p className="text-sm text-muted-foreground">Vector search + Graph traversal combined</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    For complex queries, we combine both approaches, letting the LLM leverage the strengths of each system
-                    for maximum accuracy and context richness.
-                  </p>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-border/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold">Continuous Learning</h4>
-                      <p className="text-sm text-muted-foreground">Performance optimization over time</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Our hybrid system learns from usage patterns to improve routing decisions and achieve even better 
-                    performance for your specific domain and use cases.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Multi-hop Query Focus */}
-          {/* <div className="bg-white dark:bg-slate-800 rounded-lg p-8 border border-border/50">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-4">Optimized for Multi-Hop Reasoning</h3>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Healthcare, legal, and financial domains predominantly involve multi-hop queries requiring complex 
-                relationship reasoning. Our hybrid approach delivers the performance advantages your industry needs.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg">
-                <div className="text-3xl font-bold gradient-text mb-2">+5.4pts</div>
-                <div className="text-sm font-medium mb-1">Multi-hop QA Improvement</div>
-                <div className="text-xs text-muted-foreground">Over traditional RAG systems</div>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-lg">
-                <div className="text-3xl font-bold gradient-text mb-2">85%</div>
-                <div className="text-sm font-medium mb-1">Industry Query Type</div>
-                <div className="text-xs text-muted-foreground">Multi-hop reasoning required</div>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950/30 dark:to-teal-950/30 rounded-lg">
-                <div className="text-3xl font-bold gradient-text mb-2">0</div>
-                <div className="text-sm font-medium mb-1">Performance Loss</div>
-                <div className="text-xs text-muted-foreground">On single-hop queries</div>
-              </div>
-            </div>
-          </div> */}
-        </div>
-      </section>
-
-      {/* Powerful Features for Vrin */}
-      <section id="features" className="py-20 bg-muted/30">
-        <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Powerful Features for Vrin</h2>
-            <p className="text-lg text-muted-foreground">
-              Our platform provides everything you need to give your LLMs a reliable, secure memory system.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <Brain className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Episodic Memory</h3>
-                <p className="text-muted-foreground">
-                  Store conversational episodes with vector embeddings optimized for domain-specific terminology and semantic
-                  search.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <Database className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Semantic Knowledge Graph</h3>
-                <p className="text-muted-foreground">
-                  Extract and store domain facts, relationships, and entities for complex industry-specific queries.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Intelligent Query Routing</h3>
-                <p className="text-muted-foreground">
-                  AI-powered system automatically detects query complexity and routes to optimal retrieval method—vector search for detail, graph traversal for multi-hop reasoning.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Enterprise Security</h3>
-                <p className="text-muted-foreground">
-                  Enterprise-ready with end-to-end encryption, audit logging, and complete data isolation.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <BarChart3 className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Intelligent Analytics</h3>
-                <p className="text-muted-foreground">
-                  Track memory usage, optimize retrieval, and gain insights into your AI&apos;s learning patterns.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-border/50 bg-background/50 backdrop-blur-sm hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg gradient-bg flex items-center justify-center mb-6">
-                  <Clock className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Automated Memory Management</h3>
-                <p className="text-muted-foreground">
-                  Smart consolidation and forgetting policies based on domain importance and usage patterns.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* Modern System Architecture Section */}
+      <ModernSystemArchitecture />
 
       {/* Integration Showcase */}
       <section className="py-20">
@@ -862,8 +651,8 @@ export default function Home() {
             </Card>
           </div>
 
-          {/* Updated Integration Section */}
-          <UpdatedIntegrationSection />
+          {/* Professional Integration Section */}
+          <ProfessionalIntegrationSection />
 
 
           {/* Integration Code Example */}
@@ -962,7 +751,7 @@ print(summary.content)
       </section>
 
       {/* Vrin vs Zep Comparison */}
-      <VrinVsZepComparison />
+      {/* <VrinVsZepComparison /> */}
 
       {/* Technical Differentiation */}
       {/* <TechnicalDifferentiation /> */}
@@ -1120,34 +909,6 @@ print(summary.content)
         </div>
       </section> */}
 
-      {/* Final CTA Section */}
-      <section id="contact" className="py-20 bg-muted/30">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-2xl p-12">
-            <h2 className="text-3xl font-bold mb-4">Ready to Give Your AI a Memory?</h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join leading organizations across industries using Vrin to build more intelligent, context-aware AI applications.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="gradient-bg text-white hover:opacity-90 w-full sm:w-auto"
-                onClick={() => openContactForm("Get Started Free")}
-              >
-                Get Started Free
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto bg-transparent"
-                onClick={() => openContactForm("Schedule a Demo")}
-              >
-                Schedule a Demo
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
       
       <Footer />
       

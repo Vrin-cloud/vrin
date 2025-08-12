@@ -123,7 +123,7 @@ export function GraphStatistics({
             )}
           </div>
           <div className={`p-3 rounded-lg ${colorClasses[color as keyof typeof colorClasses] || colorClasses.blue}`}>
-            <Icon className="h-6 w-6" />
+            {React.createElement(Icon, { className: "h-6 w-6" })}
           </div>
         </div>
       </motion.div>

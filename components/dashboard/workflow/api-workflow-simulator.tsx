@@ -218,7 +218,7 @@ export function ApiWorkflowSimulator() {
     if (step.status === 'running') {
       return <RefreshCw className="h-5 w-5 animate-spin" />;
     }
-    return <Icon className="h-5 w-5" />;
+    return React.createElement(Icon, { className: "h-5 w-5" });
   };
 
   const getStepColor = (status: WorkflowStep['status']) => {
