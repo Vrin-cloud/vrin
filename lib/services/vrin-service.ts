@@ -179,7 +179,7 @@ export class VRINService {
    */
   async getKnowledgeGraph(): Promise<any> {
     try {
-      const response = await fetch('/api/rag/graph', {
+      const response = await fetch('/api/rag/graph?show_all=true', {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
         },
@@ -190,7 +190,84 @@ export class VRINService {
         throw new Error(`Graph request failed: ${response.status} - ${errorText}`);
       }
 
-      return await response.json();
+      const rawData = await response.json();
+      console.log('Raw graph response:', rawData);
+      console.log('Raw nodes sample:', rawData.data?.nodes?.slice(0, 2));
+      console.log('Raw edges sample:', rawData.data?.edges?.slice(0, 2));
+
+      // Transform backend response to match frontend expectations
+      if (rawData.success && rawData.data) {
+        // Transform nodes - handle Neptune graph database format
+        const transformedNodes = (rawData.data.nodes || []).map((node: any) => {
+          const nodeName = node.name || `Entity-${node.id}`;
+          return {
+            id: node.id,
+            name: nodeName,
+            label: nodeName,
+            type: node.type || 'entity',
+            confidence: node.confidence || node.properties?.confidence || 0.8,
+            connections: node.connections || 0,
+            description: node.properties?.description || node.properties?.content,
+            metadata: {
+              ...node.properties,
+              neptune_label: node.label,
+              source: 'neptune_graph',
+              timestamp: node.properties?.timestamp || new Date().toISOString(),
+              user_id: node.properties?.user_id
+            }
+          };
+        });
+
+        // Transform edges - handle Neptune graph database format
+        const transformedEdges = (rawData.data.edges || []).map((edge: any) => ({
+          id: edge.id,
+          from: edge.source || edge.from,
+          to: edge.target || edge.to,
+          label: edge.label || edge.predicate || 'related_to',
+          type: edge.type || 'fact',
+          confidence: edge.confidence || edge.properties?.confidence || 0.8,
+          weight: edge.weight || 1.0,
+          metadata: {
+            ...edge.properties,
+            fact_id: edge.id,
+            predicate: edge.label || edge.predicate,
+            source: 'neptune_graph',
+            timestamp: edge.properties?.timestamp || new Date().toISOString(),
+            user_id: edge.properties?.user_id
+          }
+        }));
+
+        console.log(`✅ Neptune edges processed: ${transformedEdges.length} real relationships`);
+
+        const transformedData = {
+          success: true,
+          data: {
+            nodes: transformedNodes,
+            edges: transformedEdges,
+            triples: rawData.data.triples || [],
+            statistics: {
+              nodeCount: transformedNodes.length,
+              edgeCount: transformedEdges.length,
+              tripleCount: rawData.data.triples?.length || 0,
+              density: transformedNodes.length > 0 ? transformedEdges.length / (transformedNodes.length * (transformedNodes.length - 1)) : 0,
+              ...rawData.metadata
+            }
+          },
+          timestamp: new Date(),
+          version: '0.3.2'
+        };
+
+        console.log('🎯 NEPTUNE GRAPH DATA TRANSFORMED:');
+        console.log(`📊 Nodes: ${transformedData.data.nodes.length} entities`);
+        console.log(`🔗 Edges: ${transformedData.data.edges.length} relationships`);
+        console.log('📝 Sample node:', transformedData.data.nodes[0]);
+        console.log('🔗 Sample edge:', transformedData.data.edges[0]);
+        console.log('📈 Statistics:', transformedData.data.statistics);
+        
+        return transformedData;
+      }
+
+      return rawData;
     } catch (error) {
       console.error('Get knowledge graph error:', error);
       throw new Error(`Failed to get knowledge graph: ${error instanceof Error ? error.message : 'Unknown error'}`);

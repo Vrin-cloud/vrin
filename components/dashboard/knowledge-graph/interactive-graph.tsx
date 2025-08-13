@@ -43,25 +43,36 @@ export function InteractiveGraph({
 
   // Convert data to Cytoscape format
   const getCytoscapeData = useCallback(() => {
-    if (!data?.nodes || !data?.edges) return { nodes: [], edges: [] };
+    console.log('getCytoscapeData called with data:', data);
+    console.log('Raw data.nodes:', data?.nodes);
+    console.log('Raw data.edges:', data?.edges);
+    
+    if (!data?.nodes || !data?.edges) {
+      console.log('No nodes or edges available:', { nodes: data?.nodes?.length, edges: data?.edges?.length });
+      return { nodes: [], edges: [] };
+    }
+
+    // Log first few nodes and edges for debugging
+    console.log('First 3 nodes:', data.nodes.slice(0, 3));
+    console.log('First 3 edges:', data.edges.slice(0, 3));
 
     const nodes = data.nodes.map(node => {
       // Create shorter labels for display
-      let displayLabel = node.name;
-      if (node.name.length > 12) {
-        const words = node.name.split(' ');
+      let displayLabel = node.name || `Node-${node.id}`;
+      if (displayLabel.length > 12) {
+        const words = displayLabel.split(' ');
         if (words.length > 1 && words[0].length <= 8) {
           displayLabel = words[0];
         } else {
-          displayLabel = node.name.substring(0, 8);
+          displayLabel = displayLabel.substring(0, 8);
         }
       }
       
       return {
         data: {
-          id: node.id,
+          id: String(node.id), // Ensure ID is string
           label: displayLabel,
-          fullName: node.name, // Keep full name for tooltips/details
+          fullName: node.name || displayLabel, // Keep full name for tooltips/details
           type: node.type || 'entity',
           confidence: node.confidence || 0.8,
           connections: node.connections || 0,
@@ -72,15 +83,19 @@ export function InteractiveGraph({
 
     const edges = data.edges.map(edge => ({
       data: {
-        id: edge.id,
-        source: edge.from,
-        target: edge.to,
+        id: String(edge.id),
+        source: String(edge.from), // Now backend sends 'from' field
+        target: String(edge.to),   // Now backend sends 'to' field
         label: edge.label,
         type: edge.type || 'relationship',
         confidence: edge.confidence || 0.8,
         originalEdge: edge
       }
     }));
+
+    console.log('Converted cytoscape data:', { nodes: nodes.length, edges: edges.length });
+    console.log('Sample node:', nodes[0]);
+    console.log('Sample edge:', edges[0]);
 
     return { nodes, edges };
   }, [data]);

@@ -14,14 +14,21 @@ const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphRespon
   const vrinService = new VRINService(apiKey);
   
   try {
+    console.log('🔍 Fetching knowledge graph with API key:', apiKey.substring(0, 8) + '...');
+    
     // Get the unified knowledge graph for the account
     const result = await vrinService.getKnowledgeGraph();
+    
+    console.log('📊 Knowledge graph service result:', result);
+    console.log('📊 Result success:', result.success);
+    console.log('📊 Result data nodes count:', result.data?.nodes?.length);
+    console.log('📊 Result data edges count:', result.data?.edges?.length);
     
     if (!result.success) {
       throw new Error(result.error || 'Failed to fetch knowledge graph');
     }
 
-    return {
+    const response = {
       success: true,
       data: result.data || {
         nodes: [],
@@ -51,6 +58,12 @@ const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphRespon
       timestamp: new Date(),
       version: '0.3.2'
     };
+
+    console.log('🎯 Final hook response:', response);
+    console.log('🎯 Final nodes count:', response.data?.nodes?.length);
+    console.log('🎯 Final edges count:', response.data?.edges?.length);
+
+    return response;
   } catch (error) {
     console.error('Knowledge graph fetch error:', error);
     throw error;

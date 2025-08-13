@@ -234,7 +234,7 @@ export default function Circular3DCarousel() {
           </span>
           
           <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
-            What Vrin Is
+            What is Vrin
           </h2>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">

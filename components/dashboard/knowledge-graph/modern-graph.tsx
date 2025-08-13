@@ -71,9 +71,9 @@ export function ModernGraph({
   const [settings, setSettings] = useState<GraphSettings>({
     layout: 'cose',
     showLabels: true,
-    showEdgeLabels: false,
+    showEdgeLabels: true, // Show edge labels by default
     physics: true,
-    nodeSize: 20,
+    nodeSize: 25, // Slightly larger nodes
     edgeWidth: 2,
     colorScheme: 'semantic'
   });
@@ -86,38 +86,52 @@ export function ModernGraph({
 
   // Convert data to Cytoscape format
   const getCytoscapeData = useCallback(() => {
-    if (!data?.nodes || !data?.edges) return { nodes: [], edges: [] };
+    console.log('getCytoscapeData called with data:', data);
+    
+    if (!data?.nodes || !data?.edges) {
+      console.log('No nodes or edges available:', { nodes: data?.nodes?.length, edges: data?.edges?.length });
+      return { nodes: [], edges: [] };
+    }
 
     const nodes = data.nodes
       .filter(node => {
+        // Handle different node name formats
+        const nodeName = node.name || node.id || '';
+        
         // Apply search filter
-        if (searchQuery && !node.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        if (searchQuery && !nodeName.toLowerCase().includes(searchQuery.toLowerCase())) {
           return false;
         }
         // Apply type filter
-        if (filteredTypes.length > 0 && !filteredTypes.includes(node.type)) {
+        if (filteredTypes.length > 0 && !filteredTypes.includes(node.type || 'entity')) {
           return false;
         }
         return true;
       })
       .map(node => {
-        let displayLabel = node.name;
+        // Handle different node name formats from backend
+        const nodeName = node.name || `Node-${node.id}`;
+        
+        // Log node data for debugging
+        console.log('Processing node:', { id: node.id, name: node.name, type: node.type });
+        
+        let displayLabel = nodeName;
         if (!settings.showLabels) {
           displayLabel = '';
-        } else if (node.name.length > 15) {
-          const words = node.name.split(' ');
+        } else if (nodeName.length > 15) {
+          const words = nodeName.split(' ');
           if (words.length > 1 && words[0].length <= 10) {
             displayLabel = words[0] + '...';
           } else {
-            displayLabel = node.name.substring(0, 10) + '...';
+            displayLabel = nodeName.substring(0, 10) + '...';
           }
         }
         
         return {
           data: {
-            id: node.id,
+            id: String(node.id), // Ensure ID is string
             label: displayLabel,
-            fullName: node.name,
+            fullName: nodeName,
             type: node.type || 'entity',
             confidence: node.confidence || 0.8,
             connections: node.connections || 0,
@@ -128,22 +142,37 @@ export function ModernGraph({
 
     const edges = data.edges
       .filter(edge => {
+        // Handle different edge format from backend
+        const source = edge.from;
+        const target = edge.to;
+        
         // Only include edges where both nodes are visible
-        const sourceVisible = nodes.some(n => n.data.id === edge.from);
-        const targetVisible = nodes.some(n => n.data.id === edge.to);
+        const sourceVisible = nodes.some(n => n.data.id === String(source));
+        const targetVisible = nodes.some(n => n.data.id === String(target));
         return sourceVisible && targetVisible;
       })
-      .map(edge => ({
-        data: {
-          id: edge.id,
-          source: edge.from,
-          target: edge.to,
-          label: settings.showEdgeLabels ? edge.label : '',
-          type: edge.type || 'relationship',
-          confidence: edge.confidence || 0.8,
-          originalEdge: edge
-        }
-      }));
+      .map(edge => {
+        // Handle different edge data formats from backend
+        const source = edge.from;
+        const target = edge.to;
+        const label = edge.label || edge.type || 'related';
+        
+        return {
+          data: {
+            id: String(edge.id || `${source}-${target}-${label}`), // Generate ID if missing
+            source: String(source),
+            target: String(target),
+            label: settings.showEdgeLabels ? label : '',
+            type: edge.type || 'relationship',
+            confidence: edge.confidence || 0.8,
+            originalEdge: edge
+          }
+        };
+      });
+
+    console.log('Converted cytoscape data:', { nodes: nodes.length, edges: edges.length });
+    console.log('Sample node:', nodes[0]);
+    console.log('Sample edge:', edges[0]);
 
     return { nodes, edges };
   }, [data, searchQuery, filteredTypes, settings.showLabels, settings.showEdgeLabels]);
@@ -291,21 +320,24 @@ export function ModernGraph({
         layout: {
           name: settings.layout,
           animate: settings.physics,
-          animationDuration: 1000,
+          animationDuration: 1500,
           nodeDimensionsIncludeLabels: true,
           fit: true,
-          padding: 50,
-          // Cose-specific options
-          nodeRepulsion: 8000,
-          nodeOverlap: 20,
-          idealEdgeLength: 100,
-          edgeElasticity: 200,
+          padding: 80,
+          // Cose-specific options for better spacing
+          nodeRepulsion: 20000, // Increased repulsion
+          nodeOverlap: 50, // Increased overlap prevention
+          idealEdgeLength: 200, // Longer edges for better spacing
+          edgeElasticity: 100,
           nestingFactor: 0.1,
           gravity: 80,
-          numIter: 1000,
-          initialTemp: 200,
-          coolingFactor: 0.95,
-          minTemp: 1.0
+          numIter: 1500, // More iterations for better layout
+          initialTemp: 300, // Higher initial temperature
+          coolingFactor: 0.90, // Slower cooling
+          minTemp: 1.0,
+          // Additional spacing parameters
+          componentSpacing: 100,
+          randomize: true // Randomize initial positions
         },
         userZoomingEnabled: true,
         userPanningEnabled: true,
@@ -352,9 +384,27 @@ export function ModernGraph({
 
       // Fit to view after layout
       cy.on('layoutstop', () => {
-        cy.fit();
-        cy.center();
+        setTimeout(() => {
+          cy.fit();
+          cy.center();
+          console.log('Layout completed and graph fitted to view');
+        }, 100);
       });
+
+      // Force a layout run after initialization
+      setTimeout(() => {
+        if (cy) {
+          const layout = cy.layout({
+            name: settings.layout,
+            animate: true,
+            animationDuration: 1500,
+            nodeRepulsion: 20000,
+            idealEdgeLength: 200,
+            randomize: true
+          });
+          layout.run();
+        }
+      }, 500);
 
     } catch (error) {
       console.error('Error creating Cytoscape instance:', error);
@@ -389,12 +439,36 @@ export function ModernGraph({
 
   const runLayout = () => {
     if (cyRef.current) {
+      console.log('Running manual layout with settings:', settings.layout);
       const layout = cyRef.current.layout({
         name: settings.layout,
-        animate: settings.physics,
-        animationDuration: 1000
+        animate: true,
+        animationDuration: 1500,
+        nodeDimensionsIncludeLabels: true,
+        fit: true,
+        padding: 80,
+        nodeRepulsion: 20000,
+        nodeOverlap: 50,
+        idealEdgeLength: 200,
+        edgeElasticity: 100,
+        nestingFactor: 0.1,
+        gravity: 80,
+        numIter: 1500,
+        initialTemp: 300,
+        coolingFactor: 0.90,
+        minTemp: 1.0,
+        componentSpacing: 100,
+        randomize: true
       });
       layout.run();
+      
+      // Fit view after layout completes
+      setTimeout(() => {
+        if (cyRef.current) {
+          cyRef.current.fit();
+          cyRef.current.center();
+        }
+      }, 2000);
     }
   };
 
@@ -618,6 +692,10 @@ export function ModernGraph({
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
             <span>{data?.edges?.length || 0} edges</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>Neptune DB</span>
           </div>
           <div className="flex items-center gap-1">
             <span>Zoom: {Math.round(zoom * 100)}%</span>

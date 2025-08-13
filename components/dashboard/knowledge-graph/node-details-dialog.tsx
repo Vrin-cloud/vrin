@@ -194,17 +194,39 @@ export function NodeDetailsDialog({
                   <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <span className="text-sm text-gray-600">Source:</span>
                     <span className="text-sm font-medium text-gray-900">
-                      {selectedNode?.metadata?.source || selectedEdge?.metadata?.source || 'API'}
+                      {selectedNode?.metadata?.source || selectedEdge?.metadata?.source || 'Neptune Graph'}
                     </span>
                   </div>
 
-                  {/* Status */}
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm text-gray-600">Status:</span>
-                    <span className="text-sm font-medium text-green-600">
-                      {selectedNode?.metadata?.status || selectedEdge?.metadata?.status || 'Active'}
-                    </span>
-                  </div>
+                  {/* User ID */}
+                  {(selectedNode?.metadata?.user_id || selectedEdge?.metadata?.user_id) && (
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm text-gray-600">User ID:</span>
+                      <span className="text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                        {selectedNode?.metadata?.user_id || selectedEdge?.metadata?.user_id}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Fact ID for edges */}
+                  {selectedEdge?.metadata?.fact_id && (
+                    <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
+                      <span className="text-sm text-blue-600">Fact ID:</span>
+                      <span className="text-sm font-mono text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                        {selectedEdge.metadata.fact_id}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Neptune Label */}
+                  {selectedNode?.metadata?.neptune_label && (
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm text-gray-600">Neptune Label:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {selectedNode.metadata.neptune_label}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Properties */}
                   {((selectedNode?.metadata && Object.keys(selectedNode.metadata).length > 0) || 

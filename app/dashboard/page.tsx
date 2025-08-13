@@ -33,6 +33,7 @@ import { AuthService, VRINService } from '../../lib/services/vrin-service';
 import type { VRINInsertResult, VRINQueryResult } from '../../lib/services/vrin-service';
 import { ModernApiKeysSection } from '../../components/dashboard/sections/modern-api-keys';
 import { ModernGraph } from '../../components/dashboard/knowledge-graph/modern-graph';
+import { NodeDetailsDialog } from '../../components/dashboard/knowledge-graph/node-details-dialog';
 import { ModernDocumentationSection } from '../../components/dashboard/sections/modern-documentation';
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
 import { useAccountKnowledgeGraph } from '../../hooks/use-knowledge-graph';
@@ -66,6 +67,9 @@ export default function Dashboard() {
   const [queryResult, setQueryResult] = useState<VRINQueryResult | null>(null);
   const [insertResult, setInsertResult] = useState<VRINInsertResult | null>(null);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [selectedGraphNode, setSelectedGraphNode] = useState<Node | null>(null);
+  const [selectedGraphEdge, setSelectedGraphEdge] = useState<Edge | null>(null);
+  const [showNodeDialog, setShowNodeDialog] = useState(false);
 
   const authService = new AuthService();
   const [vrinService, setVrinService] = useState<VRINService | null>(null);
@@ -161,6 +165,24 @@ export default function Dashboard() {
     window.location.href = '/auth';
   };
 
+  const handleNodeSelect = (node: Node) => {
+    setSelectedGraphNode(node);
+    setSelectedGraphEdge(null);
+    setShowNodeDialog(true);
+  };
+
+  const handleEdgeSelect = (edge: Edge) => {
+    setSelectedGraphEdge(edge);
+    setSelectedGraphNode(null);
+    setShowNodeDialog(true);
+  };
+
+  const handleCloseNodeDialog = () => {
+    setShowNodeDialog(false);
+    setSelectedGraphNode(null);
+    setSelectedGraphEdge(null);
+  };
+
   if (!user || !apiKey) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -244,12 +266,22 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Knowledge Graph</h2>
               <p className="text-gray-600">Interactive visualization of your knowledge connections</p>
             </div>
-            <div className="h-[700px] bg-white rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden">
+            <div className="h-[700px] bg-white rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden relative">
               <ModernGraph 
                 data={graphData || undefined} 
                 selectedProject="Default Project"
                 isLoading={isGraphLoading}
                 error={graphError?.message || null}
+                onNodeSelect={handleNodeSelect}
+                onEdgeSelect={handleEdgeSelect}
+              />
+              
+              {/* Node Details Dialog */}
+              <NodeDetailsDialog
+                isOpen={showNodeDialog}
+                onClose={handleCloseNodeDialog}
+                selectedNode={selectedGraphNode}
+                selectedEdge={selectedGraphEdge}
               />
             </div>
           </div>
