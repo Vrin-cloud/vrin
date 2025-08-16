@@ -64,7 +64,7 @@ export default function Home() {
                   className="w-full h-full object-contain"
                   preload="metadata"
                 >
-                  <source src="/videos/Vrin Product Demo.mp4" type="video/mp4" />
+                  <source src="/videos/Vrin Product Demo Compressed.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
