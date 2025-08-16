@@ -41,6 +41,84 @@ export default function Home() {
             {/* Enhanced Hero Section */}
       <HeroSection />
 
+      {/* Product Demo Video Section - Priority Placement */}
+      <section id="product-demo" className="py-20 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="container">
+          <div className="text-center max-w-4xl mx-auto mb-12">
+            <Badge variant="outline" className="mb-4 px-3 py-1">
+              Product Demonstration
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              See VRIN in Action
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Watch how VRIN transforms AI applications with persistent memory, user-defined specialization, and <span className="gradient-text font-semibold">expert-level reasoning</span>.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="relative rounded-2xl overflow-hidden border-2 border-blue-200/50 dark:border-blue-800/50 shadow-2xl bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-950/30 p-2">
+              <div className="aspect-video bg-black/5 dark:bg-white/5 rounded-xl overflow-hidden">
+                <video 
+                  controls 
+                  className="w-full h-full object-contain"
+                  preload="metadata"
+                >
+                  <source src="/videos/Vrin Product Demo.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+              <div className="flex flex-col items-center p-6 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-blue-200/30 dark:border-blue-700/30">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
+                  <Brain className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="font-semibold mb-2">User-Defined Experts</h3>
+                <p className="text-sm text-muted-foreground">Transform any LLM into a domain specialist</p>
+              </div>
+              
+              <div className="flex flex-col items-center p-6 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-blue-200/30 dark:border-blue-700/30">
+                <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
+                  <Database className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="font-semibold mb-2">Persistent Memory</h3>
+                <p className="text-sm text-muted-foreground">40-60% storage optimization without information loss</p>
+              </div>
+              
+              <div className="flex flex-col items-center p-6 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-blue-200/30 dark:border-blue-700/30">
+                <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
+                  <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="font-semibold mb-2">Sub-20s Analysis</h3>
+                <p className="text-sm text-muted-foreground">Multi-hop reasoning for expert insights</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <Button 
+                asChild 
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+              >
+                <Link href="/auth">Try VRIN Now</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => openContactForm("Schedule a Live Demo")}
+                className="px-8"
+              >
+                Schedule Live Demo
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Modern Problem & Solution Section */}
       <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container">
@@ -244,29 +322,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* See It In Action - Demo Video Section */}
-      <section id="demo" className="py-20 bg-muted/30">
+      {/* Healthcare Industry Demo Section */}
+      <section id="healthcare-demo" className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold mb-4">See It In Action</h2>
+            <h2 className="text-3xl font-bold mb-4">Healthcare Industry Demo</h2>
             <p className="text-lg text-muted-foreground">
-              Watch how Vrin transforms AI interactions with persistent memory in the <span className="gradient-text">Health Care</span> Industry.
+              Watch how VRIN transforms AI interactions with persistent memory in the <span className="gradient-text">Healthcare</span> Industry.
             </p>
           </div>
 
           <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border shadow-lg">
             <div className="aspect-video bg-black/5 dark:bg-white/5 flex items-center justify-center">
-              {/* Video placeholder - you can replace this with your MP4 video */}
-              <div>
+              <div className="w-full h-full">
                 <video 
                   controls 
-                  className="w-full h-full object-cover"
-                  // poster="/video-thumbnail.jpg" // optional thumbnail
+                  className="w-full h-full object-contain rounded-lg"
+                  preload="metadata"
                 >
-                  <source src="videos/Vrin HealthCare Demo.mp4" type="video/mp4" />
+                  <source src="/videos/Vrin HealthCare Demo.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground mb-4">
+              See how VRIN enhances patient care with persistent clinical memory and specialized AI reasoning
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button 
+                asChild 
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Link href="/auth">Try Healthcare Demo</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => openContactForm("Healthcare Partnership")}
+              >
+                Healthcare Partnership
+              </Button>
             </div>
           </div>
         </div>
