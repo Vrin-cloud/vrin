@@ -58,7 +58,7 @@ export function HeroSection() {
   ];
 
   const comparisonMetrics = [
-    { metric: "Expert Query Response", vrin: "< 20s", competitor: "15-20 min", unit: "" },
+    { metric: "Fact Retrieval Speed", vrin: "< 3s", competitor: "5-30s", unit: "" },
     { metric: "Storage Efficiency", vrin: "40-60%", competitor: "0%", unit: "reduction" },
     { metric: "Expert Validation", vrin: "8.5/10", competitor: "6.2/10", unit: "score" },
     { metric: "Multi-hop Reasoning", vrin: "+5.4pts", competitor: "Baseline", unit: "" }
@@ -123,7 +123,7 @@ export function HeroSection() {
               Enterprise context orchestration layer for AI agents. HybridRAG architecture delivers 
               <span className="font-medium text-gray-900 dark:text-gray-100"> 450x faster retrieval</span> with 
               <span className="font-medium text-gray-900 dark:text-gray-100"> user-defined specialization</span> and 
-              <span className="text-blue-600 dark:text-blue-400">sub-20s expert analysis</span>.
+              <span className="text-blue-600 dark:text-blue-400">sub-3s fact retrieval</span>.
             </motion.p>
 
             {/* CTA Buttons */}

@@ -24,6 +24,8 @@ import { VrinVsZepComparison } from "@/components/vrin-vs-zep-comparison"
 import ProfessionalIntegrationSection from "@/components/professional-integration-section"
 import Circular3DCarousel from "@/components/circular-3d-carousel"
 import ModernSystemArchitecture from "@/components/modern-system-architecture"
+import { DIYRAGCostComparison } from "@/components/diy-rag-cost-comparison"
+import { PricingSection } from "@/components/pricing-section"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -118,6 +120,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* DIY RAG Cost Comparison */}
+      <DIYRAGCostComparison openContactForm={openContactForm} />
 
       {/* Modern Problem & Solution Section */}
       <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -1006,6 +1011,8 @@ print(summary.content)
         </div>
       </section> */}
 
+      {/* Pricing Section */}
+      <PricingSection openContactForm={openContactForm} />
       
       <Footer />
       
