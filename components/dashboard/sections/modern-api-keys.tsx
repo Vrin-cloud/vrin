@@ -402,7 +402,7 @@ export function ModernApiKeysSection() {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Install VRIN SDK</h4>
               <div className="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm">
-                pip install vrin==0.3.2
+                pip install vrin==0.3.4
               </div>
             </div>
             

@@ -240,13 +240,13 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
                   language: 'bash',
                   title: 'Install VRIN SDK',
                   code: `# Install latest version with AI specialization
-pip install vrin==0.3.2
+pip install vrin==0.3.4
 
 # Force reinstall to get latest features
-pip install vrin==0.3.2 --force-reinstall
+pip install vrin==0.3.4 --force-reinstall
 
 # Verify installation
-python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.2 ready')"`
+python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.4 ready')"`
                 }}
               />
             </div>
@@ -557,7 +557,7 @@ if register_result['success']:
                 <code className="text-lg font-mono">/query</code>
               </div>
               <p className="text-gray-600 mb-6">
-                Hybrid query with sub-3s performance. Combines graph reasoning and vector similarity for comprehensive results.
+                Hybrid query with sub-1.8s performance. Combines graph reasoning and vector similarity for comprehensive results.
               </p>
               
               <div className="grid md:grid-cols-2 gap-6">
@@ -638,10 +638,10 @@ if register_result['success']:
                   language: 'bash',
                   title: 'Install VRIN SDK',
                   code: `# Install latest version with AI specialization
-pip install vrin==0.3.2
+pip install vrin==0.3.4
 
 # Force reinstall to get latest features  
-pip install vrin==0.3.2 --force-reinstall
+pip install vrin==0.3.4 --force-reinstall
 
 # Development installation
 git clone https://github.com/vrin-ai/vrin-python-sdk
@@ -649,7 +649,7 @@ cd vrin-python-sdk
 pip install -e ".[dev]"
 
 # Verify installation
-python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.2 ready')"`
+python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.4 ready')"`
                 }}
               />
             </div>
@@ -688,6 +688,43 @@ print(f"🔍 Entities: {response['entities_found']}")`
                 }}
               />
             </div>
+
+            <div className="border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">New in v0.3.4: Raw Fact Retrieval</h3>
+              <p className="text-gray-600 mb-4">
+                Get raw facts without AI summarization for fastest possible response times and competitive benchmarking.
+              </p>
+              <CodeBlock
+                id="sdk-raw-facts"
+                example={{
+                  language: 'python',
+                  title: 'Raw Fact Retrieval (NEW)',
+                  code: `# Get raw facts only (no summarization) - fastest response
+raw_facts = client.get_raw_facts_only("TechGlobal acquisition strategy")
+
+print(f"⚡ Raw fact retrieval: {raw_facts['search_time']}")  # Typically <1.8s
+print(f"📊 Total facts: {raw_facts['total_facts']}")
+print(f"🔍 Entities found: {len(raw_facts['entities_found'])}")
+
+# Enhanced query with include_summary parameter
+response = client.query(
+    "What are the key risks?", 
+    include_summary=False  # Skip AI summarization for speed
+)
+
+# Compare timing breakdown
+full_response = client.query("What are the key risks?")  # With summarization
+print(f"Without summarization: {response['search_time']}")
+print(f"With summarization: {full_response['search_time']}")
+
+# Advanced: Get detailed facts without summary
+facts_data = client.get_facts("patent portfolio analysis", max_results=20)
+print(f"Graph facts: {facts_data['total_facts']}")
+print(f"Vector chunks: {facts_data['total_chunks']}")
+print(f"Multi-hop chains: {facts_data['multi_hop_chains']}")`
+                }}
+              />
+            </div>
           </div>
         </div>
       )
@@ -701,7 +738,7 @@ print(f"🔍 Entities: {response['entities_found']}")`
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">User-Defined AI Specialization</h2>
             <p className="text-gray-600 mb-6">
-              NEW in v0.3.2: Define your own AI expert with custom prompt engineering for domain-specific analysis and multi-hop reasoning.
+              NEW in v0.3.4: Define your own AI expert with custom prompt engineering for domain-specific analysis and multi-hop reasoning.
             </p>
           </div>
 

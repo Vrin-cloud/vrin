@@ -32,9 +32,9 @@ const integrationSteps = [
   {
     id: 'install',
     title: 'Install SDK',
-    description: 'Get started with VRIN SDK v0.3.3 in seconds',
+    description: 'Get started with VRIN SDK v0.3.4 in seconds',
     icon: Package,
-    command: 'pip install vrin==0.3.3',
+    command: 'pip install vrin==0.3.4',
     language: 'bash',
     notes: 'Latest stable version with enhanced multi-hop reasoning'
   },

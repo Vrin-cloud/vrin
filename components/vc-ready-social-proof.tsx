@@ -78,7 +78,7 @@ const achievements = [
   },
   {
     title: "Developer Adoption",
-    value: "SDK v0.3.3",
+    value: "SDK v0.3.4",
     description: "Published on PyPI with comprehensive documentation",
     icon: Code,
     trend: "Python 3.12 ready",

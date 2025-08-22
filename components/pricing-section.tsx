@@ -226,7 +226,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     <li>• Multi-hop reasoning across documents</li>
                     <li>• Smart deduplication (40-60% savings)</li>
                     <li>• Temporal knowledge graphs</li>
-                    <li>• Lightning-fast fact retrieval (&lt;3s)</li>
+                    <li>• Lightning-fast fact retrieval (&lt;1.8s)</li>
                   </ul>
                 </div>
                 

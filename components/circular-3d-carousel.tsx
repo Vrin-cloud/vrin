@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 const productCards = [
   {
     title: "Adaptive Hybrid Retrieval",
-    description: "NLP-powered entity extraction → graph lookup via Neptune → vector search in OpenSearch → intelligent fusion with sub-3s response times.",
+    description: "NLP-powered entity extraction → graph lookup via Neptune → vector search in OpenSearch → intelligent fusion with sub-1.8s response times.",
     icon: "🔍",
     color: "bg-blue-500/10 dark:bg-blue-500/20",
     iconBg: "bg-blue-500/20 dark:bg-blue-500/30",
