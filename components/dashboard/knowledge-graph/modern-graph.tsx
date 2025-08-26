@@ -71,15 +71,27 @@ export function ModernGraph({
   const [settings, setSettings] = useState<GraphSettings>({
     layout: 'cose',
     showLabels: true,
-    showEdgeLabels: true, // Show edge labels by default
+    showEdgeLabels: data?.edges && data.edges.length > 100 ? false : true, // Hide edge labels for large graphs
     physics: true,
-    nodeSize: 25, // Slightly larger nodes
-    edgeWidth: 2,
+    nodeSize: data?.nodes && data.nodes.length > 500 ? 20 : 25, // Smaller nodes for large graphs
+    edgeWidth: data?.edges && data.edges.length > 500 ? 1 : 2, // Thinner edges for large graphs
     colorScheme: 'semantic'
   });
 
-  console.log('ModernGraph - received data:', data);
-  console.log('ModernGraph - selected project:', selectedProject);
+  console.log('📊 ModernGraph - received props:', {
+    hasData: !!data,
+    nodesCount: data?.nodes?.length || 0,
+    edgesCount: data?.edges?.length || 0,
+    selectedProject,
+    isLoading,
+    error,
+    statistics: data?.statistics
+  });
+  
+  // Log the actual error to help with debugging
+  if (error) {
+    console.warn('⚠️ ModernGraph - Error received:', error);
+  }
 
   // Get unique node types for filtering
   const nodeTypes = Array.from(new Set(data?.nodes?.map(node => node.type) || []));
@@ -220,7 +232,12 @@ export function ModernGraph({
     }
 
     if (!data?.nodes || data.nodes.length === 0) {
-      console.log('No nodes data available:', data);
+      console.log('No nodes data available for graph rendering:', { 
+        hasData: !!data,
+        nodesCount: data?.nodes?.length,
+        edgesCount: data?.edges?.length,
+        statistics: data?.statistics
+      });
       return;
     }
 
@@ -320,23 +337,22 @@ export function ModernGraph({
         layout: {
           name: settings.layout,
           animate: settings.physics,
-          animationDuration: 1500,
+          animationDuration: data?.nodes && data.nodes.length > 500 ? 800 : 1500, // Faster for large graphs
           nodeDimensionsIncludeLabels: true,
           fit: true,
-          padding: 80,
-          // Cose-specific options for better spacing
-          nodeRepulsion: 20000, // Increased repulsion
-          nodeOverlap: 50, // Increased overlap prevention
-          idealEdgeLength: 200, // Longer edges for better spacing
-          edgeElasticity: 100,
+          padding: data?.nodes && data.nodes.length > 500 ? 50 : 80, // Less padding for large graphs
+          // Optimize for large graphs
+          nodeRepulsion: data?.nodes && data.nodes.length > 500 ? 10000 : 20000, // Less repulsion for performance
+          nodeOverlap: 30, // Tighter packing for large graphs
+          idealEdgeLength: data?.nodes && data.nodes.length > 500 ? 100 : 200, // Shorter edges for large graphs
+          edgeElasticity: 50,
           nestingFactor: 0.1,
-          gravity: 80,
-          numIter: 1500, // More iterations for better layout
-          initialTemp: 300, // Higher initial temperature
-          coolingFactor: 0.90, // Slower cooling
+          gravity: 60,
+          numIter: data?.nodes && data.nodes.length > 500 ? 800 : 1500, // Fewer iterations for large graphs
+          initialTemp: 200, // Lower initial temperature for performance
+          coolingFactor: 0.85, // Faster cooling for large graphs
           minTemp: 1.0,
-          // Additional spacing parameters
-          componentSpacing: 100,
+          componentSpacing: data?.nodes && data.nodes.length > 500 ? 50 : 100, // Tighter spacing
           randomize: true // Randomize initial positions
         },
         userZoomingEnabled: true,
@@ -532,27 +548,64 @@ export function ModernGraph({
 
   // Empty state
   if (!data?.nodes || data.nodes.length === 0) {
+    // Check if this is due to a backend connection issue
+    // The error could be in the `error` prop or in the data.error field
+    const backendError = (data as any)?.error || error;
+    const hasConnectionIssue = backendError?.includes('Neptune connection') || 
+                              backendError?.includes('connection unavailable') ||
+                              backendError?.includes('Neptune connection unavailable');
+    
     return (
       <div className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Move className="h-10 w-10 text-blue-600" />
+        <div className="text-center max-w-lg">
+          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 ${
+            hasConnectionIssue ? 'bg-yellow-100' : 'bg-blue-100'
+          }`}>
+            {hasConnectionIssue ? (
+              <span className="text-2xl">⚠️</span>
+            ) : (
+              <Move className="h-10 w-10 text-blue-600" />
+            )}
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">No Knowledge Graph Data</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">
+            {hasConnectionIssue ? 'Backend Connection Issue' : 'No Knowledge Graph Data'}
+          </h3>
           <p className="text-gray-600 mb-6 max-w-md">
-            {selectedProject 
-              ? `No knowledge has been added to the "${selectedProject}" project yet.`
-              : 'Start by inserting knowledge to build your graph visualization.'
-            }
+            {hasConnectionIssue ? (
+              <>
+                The knowledge graph database (Neptune) is currently unavailable. 
+                This is usually a temporary connection issue that will resolve automatically.
+                <br /><br />
+                <span className="text-sm text-gray-500">
+                  If you recently inserted knowledge, it may take a few minutes for the graph database to be accessible.
+                </span>
+              </>
+            ) : selectedProject ? (
+              `No knowledge has been added to the "${selectedProject}" project yet.`
+            ) : (
+              'Start by inserting knowledge to build your graph visualization.'
+            )}
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium"
-            onClick={() => window.location.href = '/dashboard'}
-          >
-            Add Knowledge
-          </motion.button>
+          {!hasConnectionIssue && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium"
+              onClick={() => window.location.href = '/dashboard'}
+            >
+              Add Knowledge
+            </motion.button>
+          )}
+          {hasConnectionIssue && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium text-sm"
+              onClick={() => window.location.reload()}
+            >
+              Refresh Page
+            </motion.button>
+          )}
         </div>
       </div>
     );
@@ -697,6 +750,12 @@ export function ModernGraph({
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             <span>Neptune DB</span>
           </div>
+          {data?.statistics?.nodeCount && (
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>Total: {data.statistics.nodeCount}</span>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             <span>Zoom: {Math.round(zoom * 100)}%</span>
           </div>
@@ -767,6 +826,22 @@ export function ModernGraph({
                       <p className="text-gray-700 text-sm">{selectedNode.description}</p>
                     </div>
                   )}
+                  
+                  {selectedNode.metadata?.user_id && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">User ID</label>
+                      <p className="text-gray-700 text-sm font-mono">{selectedNode.metadata.user_id}</p>
+                    </div>
+                  )}
+                  
+                  {selectedNode.metadata?.timestamp && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Created</label>
+                      <p className="text-gray-700 text-sm">
+                        {new Date(selectedNode.metadata.timestamp).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -817,6 +892,22 @@ export function ModernGraph({
                           {Math.round(selectedEdge.confidence * 100)}%
                         </span>
                       </div>
+                    </div>
+                  )}
+                  
+                  {selectedEdge.metadata?.predicate && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Predicate</label>
+                      <p className="text-gray-700 text-sm font-mono">{selectedEdge.metadata.predicate}</p>
+                    </div>
+                  )}
+                  
+                  {selectedEdge.metadata?.timestamp && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Created</label>
+                      <p className="text-gray-700 text-sm">
+                        {new Date(selectedEdge.metadata.timestamp).toLocaleDateString()}
+                      </p>
                     </div>
                   )}
                 </div>

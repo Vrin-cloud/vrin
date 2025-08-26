@@ -6,7 +6,7 @@ import type { KnowledgeGraphResponse } from '@/types/knowledge-graph';
 import { VRINService } from '@/lib/services/vrin-service';
 
 // Real API function using VRIN service - Single Knowledge Graph per Account
-const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphResponse> => {
+const fetchKnowledgeGraph = async (apiKey: string, options?: { limit?: number }): Promise<KnowledgeGraphResponse> => {
   if (!apiKey) {
     throw new Error('API key required to fetch knowledge graph');
   }
@@ -14,10 +14,10 @@ const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphRespon
   const vrinService = new VRINService(apiKey);
   
   try {
-    console.log('🔍 Fetching knowledge graph with API key:', apiKey.substring(0, 8) + '...');
+    console.log('🔍 Fetching knowledge graph with API key:', apiKey.substring(0, 8) + '...', 'options:', options);
     
     // Get the unified knowledge graph for the account
-    const result = await vrinService.getKnowledgeGraph();
+    const result = await vrinService.getKnowledgeGraph(options?.limit);
     
     console.log('📊 Knowledge graph service result:', result);
     console.log('📊 Result success:', result.success);
@@ -62,6 +62,11 @@ const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphRespon
     console.log('🎯 Final hook response:', response);
     console.log('🎯 Final nodes count:', response.data?.nodes?.length);
     console.log('🎯 Final edges count:', response.data?.edges?.length);
+    
+    // If there's an error in the response, log it but don't throw
+    if ('error' in response && response.error) {
+      console.warn('⚠️ Knowledge graph warning:', response.error);
+    }
 
     return response;
   } catch (error) {
@@ -71,10 +76,10 @@ const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphRespon
 };
 
 // Updated hook for unified Knowledge Graph per account (v0.3.2)
-export function useKnowledgeGraph(apiKey?: string) {
+export function useKnowledgeGraph(apiKey?: string, options?: { limit?: number }) {
   return useQuery({
-    queryKey: ['knowledge-graph-unified', apiKey], // Updated key for single KG per account
-    queryFn: () => fetchKnowledgeGraph(apiKey!),
+    queryKey: ['knowledge-graph-unified', apiKey, options?.limit], // Include limit in cache key
+    queryFn: () => fetchKnowledgeGraph(apiKey!, options),
     enabled: !!apiKey, // Only run query if API key is provided
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // Refetch every minute for real-time updates
@@ -85,7 +90,7 @@ export function useKnowledgeGraph(apiKey?: string) {
 }
 
 // Helper hook to get the user's API key and return unified graph
-export function useAccountKnowledgeGraph() {
+export function useAccountKnowledgeGraph(options?: { limit?: number }) {
   const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -94,7 +99,7 @@ export function useAccountKnowledgeGraph() {
     setApiKey(storedApiKey);
   }, []);
 
-  const graphQuery = useKnowledgeGraph(apiKey || undefined);
+  const graphQuery = useKnowledgeGraph(apiKey || undefined, options);
 
   return {
     ...graphQuery,

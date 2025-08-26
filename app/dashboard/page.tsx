@@ -74,6 +74,10 @@ export default function Dashboard() {
   const authService = new AuthService();
   const [vrinService, setVrinService] = useState<VRINService | null>(null);
   
+  // For large datasets, offer performance optimization
+  const [usePerformanceMode, setUsePerformanceMode] = useState(false);
+  const [graphLimit, setGraphLimit] = useState<number | undefined>(undefined);
+  
   // Use the proper knowledge graph hook for unified account data
   const { 
     data: knowledgeGraphResponse, 
@@ -81,7 +85,9 @@ export default function Dashboard() {
     error: graphError,
     hasApiKey,
     refetch: refetchGraph
-  } = useAccountKnowledgeGraph();
+  } = useAccountKnowledgeGraph({ 
+    limit: usePerformanceMode ? (graphLimit || 100) : undefined 
+  });
 
   useEffect(() => {
     // Check for existing auth
@@ -117,6 +123,19 @@ export default function Dashboard() {
 
   // Extract graph data from the hook response
   const graphData = knowledgeGraphResponse?.data || null;
+  
+  // Extract error from response data or hook error
+  const actualGraphError = knowledgeGraphResponse?.error || graphError?.message || null;
+  
+  console.log('📊 Dashboard - Knowledge graph state:', {
+    hasResponse: !!knowledgeGraphResponse,
+    hasData: !!graphData,
+    nodesCount: graphData?.nodes?.length || 0,
+    edgesCount: graphData?.edges?.length || 0,
+    hookError: graphError?.message,
+    responseError: knowledgeGraphResponse?.error,
+    actualError: actualGraphError
+  });
 
   const handleSearch = async () => {
     if (!searchQuery.trim() || !vrinService) return;
@@ -265,13 +284,73 @@ export default function Dashboard() {
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Knowledge Graph</h2>
               <p className="text-gray-600">Interactive visualization of your knowledge connections</p>
+              
+              {/* Performance optimization notice for large graphs */}
+              {graphData && graphData.nodes && graphData.nodes.length > 500 && !usePerformanceMode && (
+                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
+                      <div>
+                        <h4 className="font-medium text-yellow-800">Large Graph Detected</h4>
+                        <p className="text-sm text-yellow-700">
+                          Your graph has {graphData.nodes.length} nodes and {graphData.edges?.length || 0} edges. 
+                          Consider enabling performance mode for better rendering.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setUsePerformanceMode(true);
+                        setGraphLimit(100);
+                      }}
+                      className="ml-4 px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700"
+                    >
+                      Enable Performance Mode
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Performance mode controls */}
+              {usePerformanceMode && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-blue-800">Performance Mode Active</h4>
+                      <p className="text-sm text-blue-700">Showing limited data for better performance</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-blue-700">Limit:</label>
+                        <select 
+                          value={graphLimit} 
+                          onChange={(e) => setGraphLimit(Number(e.target.value))}
+                          className="px-2 py-1 border border-blue-300 rounded text-sm"
+                        >
+                          <option value={50}>50 nodes</option>
+                          <option value={100}>100 nodes</option>
+                          <option value={200}>200 nodes</option>
+                          <option value={500}>500 nodes</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => setUsePerformanceMode(false)}
+                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                      >
+                        Show Full Graph
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="h-[700px] bg-white rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden relative">
               <ModernGraph 
                 data={graphData || undefined} 
                 selectedProject="Default Project"
                 isLoading={isGraphLoading}
-                error={graphError?.message || null}
+                error={actualGraphError}
                 onNodeSelect={handleNodeSelect}
                 onEdgeSelect={handleEdgeSelect}
               />

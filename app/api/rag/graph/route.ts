@@ -8,17 +8,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying graph request');
+    // Extract query parameters and forward them to the backend
+    const { searchParams } = new URL(request.url);
+    const queryString = searchParams.toString();
+    const backendUrl = `https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev/graph${queryString ? '?' + queryString : ''}`;
 
-    const response = await fetch('https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev/graph', {
+    console.log('📡 Proxying graph request to:', backendUrl);
+    console.log('📊 Query params:', {
+      user_only: searchParams.get('user_only'),
+      show_all: searchParams.get('show_all'),
+      limit: searchParams.get('limit')
+    });
+
+    const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
         'Authorization': authorization,
+        'Content-Type': 'application/json',
       },
     });
 
     const data = await response.json();
-    console.log('RAG graph response:', data);
+    console.log('📊 RAG graph response summary:', {
+      success: data.success,
+      nodesCount: data.data?.nodes?.length || 0,
+      edgesCount: data.data?.edges?.length || 0,
+      hasMetadata: !!data.metadata,
+      warning: data.metadata?.warning
+    });
 
     if (!response.ok) {
       return NextResponse.json({ success: false, error: data.message || 'Graph request failed' }, { status: response.status });

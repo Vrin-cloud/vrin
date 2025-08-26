@@ -177,11 +177,29 @@ export class VRINService {
   /**
    * Get knowledge graph visualization data
    */
-  async getKnowledgeGraph(): Promise<any> {
+  async getKnowledgeGraph(limit?: number): Promise<any> {
     try {
-      const response = await fetch('/api/rag/graph?show_all=true', {
+      // Use optimal backend parameters based on backend team's recommendations
+      const params = new URLSearchParams();
+      params.append('user_only', 'true'); // Get user-specific data only
+      
+      if (limit && limit > 0) {
+        // For performance optimization - limit nodes/edges returned
+        params.append('limit', limit.toString());
+      } else {
+        // Get complete user graph
+        params.append('show_all', 'true');
+      }
+      
+      const queryString = params.toString();
+      console.log('🔍 Fetching knowledge graph with params:', queryString);
+      
+      // Use the local API route which proxies to the RAG backend (handles CORS)
+      const response = await fetch(`/api/rag/graph?${queryString}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -191,9 +209,16 @@ export class VRINService {
       }
 
       const rawData = await response.json();
-      console.log('Raw graph response:', rawData);
-      console.log('Raw nodes sample:', rawData.data?.nodes?.slice(0, 2));
-      console.log('Raw edges sample:', rawData.data?.edges?.slice(0, 2));
+      console.log('🔍 Raw graph response:', rawData);
+      console.log('📊 Response success:', rawData.success);
+      console.log('📊 Response metadata:', rawData.metadata);
+      console.log('📊 Raw nodes sample:', rawData.data?.nodes?.slice(0, 2));
+      console.log('📊 Raw edges sample:', rawData.data?.edges?.slice(0, 2));
+      
+      // Check for Neptune connection issues
+      if (rawData.metadata?.warning) {
+        console.warn('⚠️ Backend warning:', rawData.metadata.warning);
+      }
 
       // Transform backend response to match frontend expectations
       if (rawData.success && rawData.data) {
@@ -218,11 +243,11 @@ export class VRINService {
           };
         });
 
-        // Transform edges - handle Neptune graph database format
+        // Transform edges - handle updated Neptune graph database format
         const transformedEdges = (rawData.data.edges || []).map((edge: any) => ({
           id: edge.id,
-          from: edge.source || edge.from,
-          to: edge.target || edge.to,
+          from: edge.from, // Backend now consistently uses 'from' 
+          to: edge.to,     // Backend now consistently uses 'to'
           label: edge.label || edge.predicate || 'related_to',
           type: edge.type || 'fact',
           confidence: edge.confidence || edge.properties?.confidence || 0.8,
@@ -249,7 +274,22 @@ export class VRINService {
               nodeCount: transformedNodes.length,
               edgeCount: transformedEdges.length,
               tripleCount: rawData.data.triples?.length || 0,
-              density: transformedNodes.length > 0 ? transformedEdges.length / (transformedNodes.length * (transformedNodes.length - 1)) : 0,
+              density: transformedNodes.length > 1 ? transformedEdges.length / (transformedNodes.length * (transformedNodes.length - 1)) : 0,
+              averageConnections: transformedNodes.length > 0 ? transformedEdges.length * 2 / transformedNodes.length : 0,
+              clusters: 1, // Default single cluster
+              confidence: {
+                average: transformedNodes.reduce((acc: number, n: any) => acc + (n.confidence || 0), 0) / Math.max(1, transformedNodes.length),
+                min: Math.min(...transformedNodes.map((n: any) => n.confidence || 0), 1),
+                max: Math.max(...transformedNodes.map((n: any) => n.confidence || 0), 0),
+                distribution: {}
+              },
+              temporal: {
+                recentUpdates: 0,
+                conflictedFacts: 0,
+                averageFactAge: 0
+              },
+              domains: {},
+              // Include backend metadata
               ...rawData.metadata
             }
           },
@@ -265,6 +305,38 @@ export class VRINService {
         console.log('📈 Statistics:', transformedData.data.statistics);
         
         return transformedData;
+      }
+
+      // Handle case where backend is successful but no data (Neptune connection issue)
+      if (rawData.success && (!rawData.data || (rawData.data.nodes?.length === 0 && rawData.data.edges?.length === 0))) {
+        console.warn('📊 Empty knowledge graph data received. This might indicate:');
+        console.warn('1. No knowledge has been inserted yet');
+        console.warn('2. Neptune connection issues (check backend logs)');
+        console.warn('3. User isolation filtering out all data');
+        
+        // Return empty but properly structured response
+        return {
+          success: true,
+          data: {
+            nodes: [],
+            edges: [],
+            triples: [],
+            statistics: {
+              nodeCount: 0,
+              edgeCount: 0,
+              tripleCount: 0,
+              density: 0,
+              averageConnections: 0,
+              clusters: 0,
+              confidence: { average: 0, min: 0, max: 0, distribution: {} },
+              temporal: { recentUpdates: 0, conflictedFacts: 0, averageFactAge: 0 },
+              domains: {}
+            }
+          },
+          error: rawData.metadata?.warning || 'No knowledge graph data available',
+          timestamp: new Date(),
+          version: '0.3.2'
+        };
       }
 
       return rawData;
