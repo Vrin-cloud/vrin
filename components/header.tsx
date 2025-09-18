@@ -50,14 +50,24 @@ export function Header() {
           {/* Center: Navigation */}
           <nav className="hidden md:flex items-center justify-center gap-8">
             <a
-              href="#features"
+              href="#product-demo"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('product-demo')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              Features
+              Demo
+            </a>
+            <a
+              href="#benchmark"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                document.querySelector('[data-benchmark-section]')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Benchmarks
             </a>
             <a
               href="#industries"
@@ -69,26 +79,9 @@ export function Header() {
             >
               Industries
             </a>
-            <a
-              href="#demo"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Demo
-            </a>
-            <a
-              href="#contact"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Contact
-            </a>
+            <Link href="/enterprise" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Enterprise
+            </Link>
           </nav>
 
           {/* Right: Actions */}
@@ -119,15 +112,26 @@ export function Header() {
         <div className="md:hidden bg-background border-b">
           <div className="container py-4 flex flex-col gap-4">
             <a
-              href="#features"
+              href="#product-demo"
               className="text-sm font-medium py-2 text-foreground cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
                 setIsMobileMenuOpen(false);
-                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('product-demo')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              Features
+              Demo
+            </a>
+            <a
+              href="#benchmark"
+              className="text-sm font-medium py-2 text-foreground cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsMobileMenuOpen(false);
+                document.querySelector('[data-benchmark-section]')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Benchmarks
             </a>
             <a
               href="#industries"
@@ -140,28 +144,13 @@ export function Header() {
             >
               Industries
             </a>
-            <a
-              href="#demo"
-              className="text-sm font-medium py-2 text-foreground cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+            <Link
+              href="/enterprise"
+              className="text-sm font-medium py-2 text-foreground"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
-              Demo
-            </a>
-            <a
-              href="#contact"
-              className="text-sm font-medium py-2 text-foreground cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Contact
-            </a>
+              Enterprise
+            </Link>
             <div className="flex items-center gap-4 pt-2">
               <Link href="/login" className="flex-1">
                 <Button variant="outline" size="sm" className="w-full bg-transparent">

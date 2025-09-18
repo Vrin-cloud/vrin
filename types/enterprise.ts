@@ -283,6 +283,7 @@ export interface EnterpriseApiKey {
 export interface EnterpriseUser {
   id: string;
   organizationId: string;
+  organizationName?: string;
   email: string;
   firstName: string;
   lastName: string;

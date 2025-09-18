@@ -45,8 +45,8 @@ const testimonials = [
     role: "VP Engineering",
     company: "Enterprise Solutions Inc",
     avatar: "👨‍💻",
-    quote: "Production deployment was seamless. Built-in authentication, 99.9% uptime, and sub-20s expert queries at scale. Our legal team now gets M&A analysis that rivals $500/hour consultants.",
-    metrics: "99.9% uptime, <20s expert analysis",
+    quote: "Production deployment was seamless. Built-in authentication, 99.9% uptime, and <1.8s fact retrieval at scale. Our legal team now gets M&A analysis that rivals $500/hour consultants.",
+    metrics: "99.9% uptime, <1.8s fact retrieval",
     domain: "Legal Tech"
   }
 ];

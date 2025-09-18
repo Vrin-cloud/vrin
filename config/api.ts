@@ -6,6 +6,9 @@ export const API_CONFIG = {
   // RAG API (Production - Optimized Hybrid RAG v0.3.2 with AI Specialization)
   RAG_BASE_URL: 'https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev',
   
+  // Enterprise API (New Backend Infrastructure) - Use the same auth API for now
+  ENTERPRISE_BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
+  
   // Legacy support for existing code
   BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   API_KEY: '',
@@ -27,6 +30,23 @@ export const API_CONFIG = {
     QUERY: '/query', 
     GRAPH: '/graph',
     SPECIALIZE: '/specialize', // NEW: User-defined AI specialization
+    
+    // Enterprise Portal endpoints (Following FRONTEND_DEVELOPMENT_GUIDE.md)
+    ENTERPRISE_ORGANIZATION: '/enterprise/organization',
+    ENTERPRISE_USERS: '/enterprise/users',
+    ENTERPRISE_API_KEYS: '/enterprise/api-keys',
+    ENTERPRISE_CONFIGURATION: '/enterprise/configuration',
+    ENTERPRISE_SPECIALIZATION: '/enterprise/specialization',
+    ENTERPRISE_VALIDATE_CONFIG: '/enterprise/validate-config',
+    
+    // Enterprise Infrastructure endpoints (Legacy)
+    ENTERPRISE_INFRASTRUCTURE: '/enterprise/infrastructure',
+    ENTERPRISE_INFRASTRUCTURE_VALIDATE: '/enterprise/infrastructure/validate',
+    ENTERPRISE_INFRASTRUCTURE_TEST_DATABASE: '/enterprise/infrastructure/test/database',
+    ENTERPRISE_INFRASTRUCTURE_TEST_VECTOR: '/enterprise/infrastructure/test/vector-store',
+    ENTERPRISE_INFRASTRUCTURE_TEST_LLM: '/enterprise/infrastructure/test/llm',
+    ENTERPRISE_INFRASTRUCTURE_TEMPLATES: '/enterprise/infrastructure/templates',
+    ENTERPRISE_INFRASTRUCTURE_COST_ESTIMATE: '/enterprise/infrastructure/estimate-cost',
     
     // Legacy endpoints for backward compatibility
     HEALTH: '/health',
@@ -67,4 +87,73 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}, apiKe
   }
   
   return response.json();
+};
+
+// Enterprise API Configuration (Following FRONTEND_DEVELOPMENT_GUIDE.md)
+export const ENTERPRISE_API = {
+  BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
+  ENDPOINTS: {
+    ORGANIZATION: '/enterprise/organization',
+    USERS: '/enterprise/users', 
+    API_KEYS: '/api/enterprise/api-keys',  // Use local proxy to avoid CORS
+    CONFIGURATION: '/api/enterprise/configuration',  // Use local proxy to avoid CORS
+    SPECIALIZATION: '/enterprise/specialization',
+    VALIDATE_CONFIG: '/api/enterprise/validate-config'  // Use local proxy to avoid CORS
+  }
+};
+
+export const apiClient = {
+  async post(endpoint: string, data: any, headers: any = {}) {
+    // Use local API routes for endpoints that start with /api/
+    const baseUrl = endpoint.startsWith('/api/') ? '' : ENTERPRISE_API.BASE_URL;
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  },
+
+  async get(endpoint: string, params: any = {}, headers: any = {}) {
+    const url = new URL(`${ENTERPRISE_API.BASE_URL}${endpoint}`);
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  },
+
+  async delete(endpoint: string, headers: any = {}) {
+    const response = await fetch(`${ENTERPRISE_API.BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  }
 }; 

@@ -3,6 +3,8 @@
 import { useState, useEffect, useContext, createContext, ReactNode } from 'react'
 import { EnterpriseAuthService } from '@/lib/services/enterprise-auth'
 import { EnterpriseUser } from '@/types/enterprise'
+// Import the new context for future migration
+import { useEnterpriseAuth as useNewEnterpriseAuth } from '@/contexts/EnterpriseAuthContext'
 
 interface EnterpriseAuthContextType {
   user: EnterpriseUser | null
@@ -22,32 +24,87 @@ interface EnterpriseAuthContextType {
 const EnterpriseAuthContext = createContext<EnterpriseAuthContextType | null>(null)
 
 export function EnterpriseAuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<EnterpriseUser | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [authService] = useState(() => new EnterpriseAuthService())
+  console.log('DEBUG: EnterpriseAuthProvider component created')
+  const [user, setUser] = useState<EnterpriseUser | null>(() => {
+    console.log('DEBUG: Initializing user state, checking localStorage')
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('enterprise_user')
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser)
+          console.log('DEBUG: Found stored user:', parsed)
+          return parsed
+        } catch (e) {
+          console.log('DEBUG: Failed to parse stored user')
+        }
+      }
+    }
+    console.log('DEBUG: No stored user found')
+    return null
+  })
+  const [loading, setLoading] = useState(() => {
+    console.log('DEBUG: Initializing loading state to false')
+    return false
+  })
+  
+  const [authService] = useState(() => {
+    console.log('DEBUG: Creating EnterpriseAuthService instance')
+    return new EnterpriseAuthService()
+  })
 
   useEffect(() => {
-    initializeAuth()
+    console.log('DEBUG: useEffect triggered - checking auth state')
+    console.log('DEBUG: User already set during initialization:', user)
+    
+    // If no user found in initial state, try to load from localStorage
+    if (!user && typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('enterprise_user')
+      const storedToken = localStorage.getItem('enterprise_token')
+      
+      console.log('DEBUG: Checking localStorage - storedUser:', !!storedUser, 'storedToken:', !!storedToken)
+      
+      if (storedUser && storedToken) {
+        try {
+          const parsed = JSON.parse(storedUser)
+          console.log('DEBUG: Found stored user in useEffect, setting user:', parsed)
+          setUser(parsed)
+        } catch (e) {
+          console.log('DEBUG: Failed to parse stored user in useEffect:', e)
+        }
+      }
+    }
   }, [])
 
   const initializeAuth = async () => {
+    console.log('DEBUG: Initializing auth')
     try {
       // Check if user is stored locally
       const storedUser = authService.getStoredUser()
+      console.log('DEBUG: Stored user:', storedUser)
+      console.log('DEBUG: Is authenticated:', authService.isAuthenticated())
+      
       if (storedUser && authService.isAuthenticated()) {
+        console.log('DEBUG: User found, verifying token')
         // Verify token is still valid by fetching current user
         const result = await authService.getCurrentUser()
+        console.log('DEBUG: Current user result:', result)
+        
         if (result.success && result.user) {
+          console.log('DEBUG: Token valid, setting user')
           setUser(result.user)
         } else {
+          console.log('DEBUG: Token invalid, clearing storage')
           // Token invalid, clear storage
           authService.logout()
         }
+      } else {
+        console.log('DEBUG: No stored user or not authenticated')
       }
     } catch (error) {
-      console.error('Auth initialization error:', error)
+      console.error('DEBUG: Auth initialization error:', error)
       authService.logout()
     } finally {
+      console.log('DEBUG: Auth initialization complete, setting loading to false')
       setLoading(false)
     }
   }
@@ -55,8 +112,13 @@ export function EnterpriseAuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true)
     try {
+      console.log('DEBUG: Starting login process')
       const result = await authService.loginWithCredentials(email, password)
+      console.log('DEBUG: Login result:', result)
+      console.log('DEBUG: Auth service isAuthenticated after login:', authService.isAuthenticated())
+      
       if (result.success && result.user) {
+        console.log('DEBUG: Setting user in context:', result.user)
         setUser(result.user)
       }
       return result
@@ -110,6 +172,11 @@ export function EnterpriseAuthProvider({ children }: { children: ReactNode }) {
     return authService.hasPermission(permission)
   }
 
+  const isAuthenticated = authService.isAuthenticated()
+  console.log('DEBUG: Context render - user:', user)
+  console.log('DEBUG: Context render - loading:', loading)
+  console.log('DEBUG: Context render - isAuthenticated:', isAuthenticated)
+  
   const value: EnterpriseAuthContextType = {
     user,
     loading,
@@ -118,7 +185,7 @@ export function EnterpriseAuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     refresh,
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated,
     hasPermission,
     canManageUsers: authService.canManageUsers(),
     canManageDeployments: authService.canManageDeployments(),

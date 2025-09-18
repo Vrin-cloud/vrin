@@ -112,7 +112,7 @@ const pipelineSteps = [
 const performanceMetrics = [
   {
     metric: 'End-to-End Response',
-    target: '< 20s',
+    target: '< 1.8s',
     description: 'Complete expert reasoning with multi-hop analysis',
     achieved: true
   },

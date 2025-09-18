@@ -32,29 +32,56 @@ export default function LoginPage() {
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('DEBUG: Form submitted with:', { email, password: '***' })
     setLoading(true)
     setErrors({})
 
     // Validation
     if (!email.trim()) {
+      console.log('DEBUG: Email validation failed')
       setErrors({ email: 'Email is required' })
       setLoading(false)
       return
     }
     if (!password.trim()) {
+      console.log('DEBUG: Password validation failed')
       setErrors({ password: 'Password is required' })
       setLoading(false)
       return
     }
 
-    const result = await login(email, password)
-    
-    if (result.success) {
-      toast.success('Welcome back!')
-      window.location.href = '/enterprise/dashboard'
-    } else {
-      toast.error(result.error || 'Login failed')
-      setErrors({ general: result.error || 'Login failed' })
+    console.log('DEBUG: Making direct API call (bypassing React auth)')
+    try {
+      const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      console.log('DEBUG: Response status:', response.status)
+      const data = await response.json()
+      console.log('DEBUG: Response data:', data)
+
+      if (response.ok && data.success) {
+        console.log('DEBUG: Login successful, storing data and redirecting')
+        // Store token and user data directly
+        localStorage.setItem('enterprise_token', data.token)
+        localStorage.setItem('enterprise_user', JSON.stringify(data.user))
+        
+        toast.success('Welcome back!')
+        window.location.href = '/enterprise/dashboard'
+      } else {
+        console.log('DEBUG: Login failed:', data.error || data.message)
+        toast.error(data.error || data.message || 'Login failed')
+        setErrors({ general: data.error || data.message || 'Login failed' })
+      }
+    } catch (error) {
+      console.error('DEBUG: Direct API call error:', error)
+      toast.error('Network error during login')
+      setErrors({ general: 'Network error during login' })
     }
     
     setLoading(false)
@@ -277,7 +304,7 @@ export default function LoginPage() {
                     href="/enterprise/auth/register" 
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    Contact sales
+                    Create account
                   </Link>
                 </p>
               </div>

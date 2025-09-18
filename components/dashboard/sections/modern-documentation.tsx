@@ -849,7 +849,7 @@ client.specialize(
                   code: `# Query with your custom expert reasoning
 response = client.query("What are the strategic risks in this M&A transaction?")
 
-# Expert-enhanced response (sub-20s performance):
+# Expert-enhanced response (<1.8s fact retrieval):
 {
     'success': True,
     'query': 'What are the strategic risks in this M&A transaction?',

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Enterprise Login</title>
+</head>
+<body>
+    <h1>Test Enterprise Login</h1>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" value="admin@gmail.com" required>
+        <input type="password" id="password" placeholder="Password" value="admin123" required>
+        <button type="submit">Test Login</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            console.log('Testing login with:', { email, password: '***' });
+            
+            try {
+                const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<h2 style="color: green">SUCCESS!</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    // Store token in localStorage for testing
+                    localStorage.setItem('enterprise_token', data.token);
+                    localStorage.setItem('enterprise_user', JSON.stringify(data.user));
+                    console.log('Token stored in localStorage');
+                } else {
+                    resultDiv.innerHTML = `<h2 style="color: red">FAILED</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                resultDiv.innerHTML = `<h2 style="color: red">ERROR</h2><pre>${error.message}</pre>`;
+            }
+        });
+    </script>
+</body>
+</html>

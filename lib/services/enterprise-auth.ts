@@ -5,7 +5,7 @@ export class EnterpriseAuthService {
   private authToken: string | null = null
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://enterprise-api.vrin.ai'
+    this.baseUrl = process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod'
     
     // Try to get token from localStorage on client side
     if (typeof window !== 'undefined') {
@@ -32,25 +32,33 @@ export class EnterpriseAuthService {
     error?: string
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/auth/login`, {
+      const response = await fetch(`${this.baseUrl}/enterprise/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ email, password })
       })
 
       const data = await response.json()
 
-      if (response.ok) {
+      if (response.ok && data.success) {
+        console.log('DEBUG: Login successful, storing token and user')
         this.authToken = data.token
         if (typeof window !== 'undefined') {
           localStorage.setItem('enterprise_token', data.token)
           localStorage.setItem('enterprise_user', JSON.stringify(data.user))
+          console.log('DEBUG: Token stored in localStorage:', data.token)
+          console.log('DEBUG: User stored in localStorage:', data.user)
         }
         return { success: true, user: data.user, token: data.token }
       } else {
-        return { success: false, error: data.error || 'Login failed' }
+        console.log('DEBUG: Login failed - response:', data)
+        return { success: false, error: data.error || data.message || 'Login failed' }
       }
     } catch (error) {
+      console.error('Login network error:', error)
       return { success: false, error: 'Network error during login' }
     }
   }
@@ -125,24 +133,28 @@ export class EnterpriseAuthService {
     error?: string
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/auth/register`, {
+      const response = await fetch(`${this.baseUrl}/enterprise/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(organizationData)
       })
 
       const data = await response.json()
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         return { 
           success: true, 
           user: data.user, 
           organizationId: data.organizationId 
         }
       } else {
-        return { success: false, error: data.error || 'Registration failed' }
+        return { success: false, error: data.error || data.message || 'Registration failed' }
       }
     } catch (error) {
+      console.error('Registration network error:', error)
       return { success: false, error: 'Network error during registration' }
     }
   }
@@ -339,18 +351,35 @@ export class EnterpriseAuthService {
   }
 
   logout(): void {
+    console.log('DEBUG: LOGOUT CALLED - clearing auth data')
+    console.trace('DEBUG: Logout stack trace')
     this.authToken = null
     if (typeof window !== 'undefined') {
       localStorage.removeItem('enterprise_token')
       localStorage.removeItem('enterprise_user')
       
-      // Redirect to login
-      window.location.href = '/login'
+      // Redirect to enterprise login
+      window.location.href = '/enterprise/auth/login'
     }
   }
 
   isAuthenticated(): boolean {
-    return this.authToken !== null
+    // Check in-memory token first
+    if (this.authToken !== null) {
+      return true
+    }
+    
+    // Check localStorage for token
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('enterprise_token')
+      if (storedToken) {
+        // Restore token to memory for future use
+        this.authToken = storedToken
+        return true
+      }
+    }
+    
+    return false
   }
 
   getStoredUser(): EnterpriseUser | null {

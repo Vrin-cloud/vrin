@@ -24,7 +24,7 @@ const features = [
   {
     icon: Shield,
     title: 'Enterprise Security',
-    description: 'HIPAA, SOX, GDPR compliant infrastructure with end-to-end encryption and audit trails.',
+    description: 'End-to-end encryption, secure data handling, and comprehensive audit trails for enterprise peace of mind.',
     color: 'text-blue-600'
   },
   {
@@ -83,19 +83,11 @@ const deploymentOptions = [
   }
 ]
 
-const complianceFrameworks = [
-  { name: 'HIPAA', description: 'Healthcare data protection' },
-  { name: 'SOX', description: 'Financial reporting compliance' },
-  { name: 'GDPR', description: 'European data protection' },
-  { name: 'PCI DSS', description: 'Payment card security' },
-  { name: 'FedRAMP', description: 'Federal cloud security' },
-  { name: 'ISO 27001', description: 'Information security management' }
-]
 
 export default function EnterpriseLandingPage() {
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden">
       {/* Navigation */}
       <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,11 +103,11 @@ export default function EnterpriseLandingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/enterprise/dashboard">
-                <Button variant="outline">View Dashboard</Button>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link href="/enterprise/contact">
+                <Button variant="outline">Contact Sales</Button>
               </Link>
-              <Link href="/enterprise/dashboard">
+              <Link href="/enterprise/auth/login">
                 <Button variant="default">Get Started</Button>
               </Link>
             </div>
@@ -124,7 +116,7 @@ export default function EnterpriseLandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-20 overflow-hidden w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -149,7 +141,7 @@ export default function EnterpriseLandingPage() {
               Deploy in minutes, control everything.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/enterprise/dashboard">
+              <Link href="/enterprise/auth/login">
                 <Button size="lg" variant="default" className="min-w-[200px]">
                   Start Deployment
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -180,7 +172,7 @@ export default function EnterpriseLandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -190,7 +182,7 @@ export default function EnterpriseLandingPage() {
               Built for organizations that need complete control over their AI infrastructure
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -218,7 +210,7 @@ export default function EnterpriseLandingPage() {
       </section>
 
       {/* Deployment Options */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -228,7 +220,7 @@ export default function EnterpriseLandingPage() {
               Select the deployment option that best fits your security and compliance requirements
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
             {deploymentOptions.map((option, index) => (
               <motion.div
                 key={option.name}
@@ -272,41 +264,9 @@ export default function EnterpriseLandingPage() {
         </div>
       </section>
 
-      {/* Compliance Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Built for Compliance
-            </h2>
-            <p className="text-lg text-gray-600">
-              Pre-configured templates and automated compliance reporting for major frameworks
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {complianceFrameworks.map((framework, index) => (
-              <motion.div
-                key={framework.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center space-x-4 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-              >
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{framework.name}</h3>
-                  <p className="text-sm text-gray-500">{framework.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -320,7 +280,7 @@ export default function EnterpriseLandingPage() {
               running in under 30 minutes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/enterprise/dashboard">
+              <Link href="/enterprise/auth/login">
                 <Button size="lg" variant="secondary" className="min-w-[200px]">
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -337,9 +297,9 @@ export default function EnterpriseLandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-12 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full">
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">

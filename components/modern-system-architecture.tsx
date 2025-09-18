@@ -55,7 +55,7 @@ const architecturePipelines = [
     id: 'hybrid',
     title: 'VRIN HybridRAG Pipeline',
     description: 'Intelligent query routing with user-defined AI experts, combining vector search and graph traversal.',
-    performance: { accuracy: '71.17+ Acc', speed: '<20s', limitation: 'None identified' },
+    performance: { accuracy: '71.17+ Acc', speed: '<1.8s', limitation: 'None identified' },
     components: [
       { name: 'Dual Storage', icon: Database, type: 'storage' },
       { name: 'Query Router', icon: Zap, type: 'processing' },
@@ -281,7 +281,7 @@ export default function ModernSystemArchitecture() {
                 <tr>
                   <td className="py-4 px-6 font-medium text-foreground">VRIN HybridRAG</td>
                   <td className="py-4 px-6 text-blue-600 dark:text-blue-400 font-medium">71.17+ Acc</td>
-                  <td className="py-4 px-6 text-blue-600 dark:text-blue-400 font-medium">&lt;20s</td>
+                  <td className="py-4 px-6 text-blue-600 dark:text-blue-400 font-medium">&lt;1.8s</td>
                   <td className="py-4 px-6 text-green-600 dark:text-green-400 font-medium">User-Defined</td>
                   <td className="py-4 px-6 text-green-600 dark:text-green-400 font-medium">Advanced</td>
                 </tr>

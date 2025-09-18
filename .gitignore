@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+monitoring/
 
 # testing
 /coverage
@@ -23,6 +24,9 @@
 # misc
 .DS_Store
 *.pem
+
+# claude code local configuration
+.claude/
 
 # debug
 npm-debug.log*

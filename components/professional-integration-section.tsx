@@ -104,9 +104,9 @@ response = client.query(
 print(f"Expert analysis: {response['summary']}")
 print(f"Reasoning chains: {response['multi_hop_chains']}")
 print(f"Cross-doc patterns: {response['cross_document_patterns']}")
-print(f"Search time: {response['search_time']}")  # Typically <20s`,
+print(f"Search time: {response['search_time']}")  # Typically <1.8s`,
     language: 'python',
-    notes: 'Sub-20s expert analysis with multi-hop reasoning'
+    notes: '<1.8s fact retrieval with multi-hop reasoning'
   }
 ];
 
@@ -143,16 +143,16 @@ const enterpriseFeatures = [
   },
   {
     title: 'Performance Optimized',
-    description: 'Sub-20s expert queries with production monitoring',
+    description: '<1.8s fact retrieval with production monitoring',
     icon: Monitor,
-    metrics: ['<20s queries', 'CloudWatch', 'Performance SLAs']
+    metrics: ['<1.8s queries', 'CloudWatch', 'Performance SLAs']
   }
 ];
 
 const performanceMetrics = [
   {
     metric: 'Expert Query Response',
-    value: '< 20s',
+    value: '< 1.8s',
     description: 'Complete multi-hop analysis',
     improvement: '450x faster than traditional RAG',
     color: 'text-green-600 dark:text-green-400'
