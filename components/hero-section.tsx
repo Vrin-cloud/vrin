@@ -121,9 +121,9 @@ export function HeroSection() {
               className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed font-light"
             >
               Enterprise context orchestration layer for AI agents. HybridRAG architecture delivers 
-              <span className="font-medium text-gray-900 dark:text-gray-100"> 450x faster retrieval</span> with 
+              <span className="font-medium text-gray-900 dark:text-gray-100"> Evidence-backed answers</span> with 
               <span className="font-medium text-gray-900 dark:text-gray-100"> user-defined specialization</span> and 
-              <span className="text-blue-600 dark:text-blue-400">sub-1.8s fact retrieval</span>.
+              <span className="text-blue-600 dark:text-blue-400"> fast fact retrieval</span>.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -154,7 +154,7 @@ export function HeroSection() {
             </motion.div>
 
             {/* Trust Indicators */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
@@ -172,7 +172,7 @@ export function HeroSection() {
                 <Award className="h-4 w-4 text-blue-500" />
                 <span>Production ready</span>
               </div>
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Competitive Advantages Grid

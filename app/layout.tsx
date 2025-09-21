@@ -6,22 +6,22 @@ import { Providers } from "@/components/providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://smartmemory.ai'),
-  title: "Vrin - Smart Memory for Your AI",
-  description: "Transform your LLM applications with persistent memory. Our healthcare-grade API enables AI systems to remember, learn, and provide context-aware responses across conversations.",
-  keywords: ["AI memory", "LLM memory", "healthcare AI", "persistent memory", "AI context", "machine learning"],
-  authors: [{ name: "Vrin Team" }],
+  metadataBase: new URL('https://www.vrin.cloud'),
+  title: "Vrin - Memory & Context OS for AI",
+  description: "Vrin is the Memory & Context OS for AI—an insert-data-and-ask platform with adaptive HybridRAG, typed memory, provenance/conflict resolution, and per-claim citation.",
+  keywords: ["AI memory", "AI context orchestration", "persistent memory", "HybridRAG"],
+  authors: [{ name: "Vrin" }],
   openGraph: {
-    title: "Vrin - Smart Memory for Your AI",
-    description: "Transform your LLM applications with persistent memory. Our healthcare-grade API enables AI systems to remember, learn, and provide context-aware responses across conversations.",
-    url: "https://smartmemory.ai",
+    title: "Vrin - Memory & Context OS for AI",
+    description: "Vrin is the Memory & Context OS for AI—an insert-data-and-ask platform with adaptive HybridRAG, typed memory, provenance/conflict resolution, and per-claim citation.",
+    url: "https://www.vrin.cloud",
     siteName: "Vrin",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Vrin - Smart Memory for Your AI",
+        alt: "Vrin - Memory & Context OS for AI",
       },
     ],
     locale: "en_US",
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vrin - Smart Memory for Your AI",
-    description: "Transform your LLM applications with persistent memory. Our healthcare-grade API enables AI systems to remember, learn, and provide context-aware responses across conversations.",
+    title: "Vrin - Memory & Context OS for AI",
+    description: "Vrin is the Memory & Context OS for AI—an insert-data-and-ask platform with adaptive HybridRAG, typed memory, provenance/conflict resolution, and per-claim citation.",
     images: ["/og-image.png"],
   },
   robots: {
