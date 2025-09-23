@@ -9,49 +9,58 @@ import { useState, useEffect } from 'react';
 
 const productCards = [
   {
-    title: "Adaptive Hybrid Retrieval",
-    description: "NLP-powered entity extraction → graph lookup via Neptune → vector search in OpenSearch → intelligent fusion with sub-1.8s response times.",
-    icon: "🔍",
-    color: "bg-blue-500/10 dark:bg-blue-500/20",
-    iconBg: "bg-blue-500/20 dark:bg-blue-500/30",
-    gradientFrom: "from-blue-500",
-    gradientTo: "to-cyan-500"
-  },
-  {
-    title: "Multi-hop Reasoning Engine",
-    description: "Cross-document synthesis with causal chains, temporal analysis, and contradiction detection across 5+ reasoning types. Achieves 8.5/10 expert-level performance.",
+    title: "User-Defined AI Experts",
+    description: "Transform any LLM into a domain specialist with custom prompts, reasoning patterns, and knowledge focus areas tailored to your expertise.",
     icon: "🧠",
-    color: "bg-purple-500/10 dark:bg-purple-500/20",
-    iconBg: "bg-purple-500/20 dark:bg-purple-500/30",
-    gradientFrom: "from-purple-500",
-    gradientTo: "to-pink-500"
+    color: "bg-blue-50/50 dark:bg-blue-950/20",
+    iconBg: "bg-blue-100/50 dark:bg-blue-900/30",
+    gradientFrom: "from-blue-400",
+    gradientTo: "to-blue-600"
   },
   {
-    title: "User-Defined Specialization",
-    description: "Per-tenant expert configuration with custom prompts, confidence thresholds, analysis depth settings (surface/detailed/expert), and domain-specific reasoning chains.",
-    icon: "⚙️",
-    color: "bg-cyan-500/10 dark:bg-cyan-500/20",
-    iconBg: "bg-cyan-500/20 dark:bg-cyan-500/30",
-    gradientFrom: "from-cyan-500",
-    gradientTo: "to-teal-500"
+    title: "Persistent Memory Architecture",
+    description: "Revolutionary storage system that extracts and preserves only essential facts and relationships, eliminating information loss while dramatically reducing costs.",
+    icon: "🗄️",
+    color: "bg-emerald-50/50 dark:bg-emerald-950/20",
+    iconBg: "bg-emerald-100/50 dark:bg-emerald-900/30",
+    gradientFrom: "from-emerald-400",
+    gradientTo: "to-emerald-600"
   },
   {
-    title: "Idempotent Ingestion",
-    description: "Content hash-based deduplication + semantic similarity checking delivers documented 40-60% storage reduction with confidence-scored fact updating.",
-    icon: "📊",
-    color: "bg-green-500/10 dark:bg-green-500/20",
-    iconBg: "bg-green-500/20 dark:bg-green-500/30",
-    gradientFrom: "from-green-500",
-    gradientTo: "to-emerald-500"
+    title: "Multi-Hop Reasoning Engine",
+    description: "Advanced reasoning system that connects insights across documents, conversations, and time periods to deliver sophisticated analysis.",
+    icon: "🔗",
+    color: "bg-violet-50/50 dark:bg-violet-950/20",
+    iconBg: "bg-violet-100/50 dark:bg-violet-900/30",
+    gradientFrom: "from-violet-400",
+    gradientTo: "to-violet-600"
   },
   {
-    title: "Production Monitoring",
-    description: "Comprehensive logging, response time tracking, storage optimization monitoring, and AWS CloudWatch integration for production reliability.",
-    icon: "👁️",
-    color: "bg-amber-500/10 dark:bg-amber-500/20",
-    iconBg: "bg-amber-500/20 dark:bg-amber-500/30",
-    gradientFrom: "from-amber-500",
-    gradientTo: "to-orange-500"
+    title: "Lightning-Fast Retrieval",
+    description: "Hybrid system automatically detects query complexity and routes to optimal retrieval method - vector search for similarity, graph traversal for reasoning.",
+    icon: "⚡",
+    color: "bg-amber-50/50 dark:bg-amber-950/20",
+    iconBg: "bg-amber-100/50 dark:bg-amber-900/30",
+    gradientFrom: "from-amber-400",
+    gradientTo: "to-amber-600"
+  },
+  {
+    title: "Enterprise-Grade Security",
+    description: "Complete user isolation, data sovereignty controls, and enterprise security standards ensure your sensitive information stays protected.",
+    icon: "🛡️",
+    color: "bg-rose-50/50 dark:bg-rose-950/20",
+    iconBg: "bg-rose-100/50 dark:bg-rose-900/30",
+    gradientFrom: "from-rose-400",
+    gradientTo: "to-rose-600"
+  },
+  {
+    title: "Seamless Integration",
+    description: "Simple APIs that work with any LLM provider, development framework, or existing tech stack. No complex migrations required.",
+    icon: "🌐",
+    color: "bg-teal-50/50 dark:bg-teal-950/20",
+    iconBg: "bg-teal-100/50 dark:bg-teal-900/30",
+    gradientFrom: "from-teal-400",
+    gradientTo: "to-teal-600"
   }
 ];
 
@@ -233,7 +242,7 @@ export default function Circular3DCarousel() {
             Product Overview
           </span>
           
-          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-6xl font-light bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
             What is Vrin
           </h2>
           

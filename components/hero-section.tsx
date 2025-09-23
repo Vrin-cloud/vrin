@@ -57,12 +57,6 @@ export function HeroSection() {
     }
   ];
 
-  const comparisonMetrics = [
-    { metric: "Fact Retrieval Speed", vrin: "< 1.8s", competitor: "5-30s", unit: "" },
-    { metric: "Storage Efficiency", vrin: "40-60%", competitor: "0%", unit: "reduction" },
-    { metric: "Expert Validation", vrin: "8.5/10", competitor: "6.2/10", unit: "score" },
-    { metric: "Multi-hop Reasoning", vrin: "+5.4pts", competitor: "Baseline", unit: "" }
-  ];
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
@@ -97,7 +91,7 @@ export function HeroSection() {
               className="mb-6"
             >
               <Badge variant="outline" className="relative px-4 py-2 text-sm font-medium overflow-hidden">
-                <span className="relative z-10">Now Available</span>
+                <span className="relative z-10">Now Available – AI Memory & Context OS for Every Team</span>
                 <BorderBeam duration={8} size={20} />
               </Badge>
             </motion.div>
@@ -120,10 +114,10 @@ export function HeroSection() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed font-light"
             >
-              Enterprise context orchestration layer for AI agents. HybridRAG architecture delivers 
-              <span className="font-medium text-gray-900 dark:text-gray-100"> Evidence-backed answers</span> with 
-              <span className="font-medium text-gray-900 dark:text-gray-100"> user-defined specialization</span> and 
-              <span className="text-blue-600 dark:text-blue-400"> fast fact retrieval</span>.
+              The first AI memory platform that solves what vector-only RAG can&apos;t:
+              <span className="font-medium text-gray-900 dark:text-gray-100"> persistent context</span>,
+              <span className="font-medium text-gray-900 dark:text-gray-100"> multi-hop reasoning</span>, and
+              <span className="text-blue-600 dark:text-blue-400"> true domain expertise</span>. Transform any team&apos;s AI from generic responses to professional-grade insights.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -206,60 +200,6 @@ export function HeroSection() {
             })}
           </motion.div> */}
 
-          {/* Performance Comparison */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-gray-200 dark:border-slate-700 rounded-2xl p-8 mb-16"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Performance That Speaks for Itself
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Independent benchmarks show Vrin consistently outperforms competitors in every critical metric
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {comparisonMetrics.map((metric, index) => (
-                <motion.div
-                  key={metric.metric}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 1.6 + index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-blue-100 dark:border-blue-800">
-                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">
-                      {metric.metric}
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {metric.vrin}
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {metric.unit}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        vs {metric.competitor}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* <div className="text-center mt-8">
-              <Button variant="outline" className="text-sm">
-                View Full Benchmark Report
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div> */}
-          </motion.div>
 
           {/* Social Proof */}
           <motion.div

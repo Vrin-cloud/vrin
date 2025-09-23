@@ -93,7 +93,7 @@ export function EnterpriseSocialProof() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-light mb-6">
               Built for Production Scale
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -120,7 +120,7 @@ export function EnterpriseSocialProof() {
                 className="text-center"
               >
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl md:text-4xl font-bold text-blue-400 mb-2">
+                  <div className="text-3xl md:text-4xl font-light text-blue-400 mb-2">
                     {metric.number}
                   </div>
                   <div className="text-lg font-semibold mb-1">

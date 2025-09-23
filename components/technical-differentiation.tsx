@@ -100,7 +100,7 @@ export function TechnicalDifferentiation() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">
               Why Vrin Outperforms
               <span className="gradient-text"> Every Alternative</span>
             </h2>

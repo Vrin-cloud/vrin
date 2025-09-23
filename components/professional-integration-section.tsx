@@ -32,11 +32,11 @@ const integrationSteps = [
   {
     id: 'install',
     title: 'Install SDK',
-    description: 'Get started with VRIN SDK v0.3.4 in seconds',
+    description: 'Get started with VRIN SDK v0.4.0 in seconds',
     icon: Package,
-    command: 'pip install vrin==0.3.4',
+    command: 'pip install vrin==0.4.0',
     language: 'bash',
-    notes: 'Latest stable version with enhanced multi-hop reasoning'
+    notes: 'Latest stable version with hybrid cloud deployment support'
   },
   {
     id: 'initialize',
@@ -75,7 +75,7 @@ result = client.specialize(
   {
     id: 'insert',
     title: 'Insert Knowledge',
-    description: 'Smart deduplication with 40-60% storage reduction',
+    description: 'Smart deduplication with substantial storage reduction',
     icon: Database,
     command: `# Insert with expert processing
 result = client.insert(
@@ -149,36 +149,6 @@ const enterpriseFeatures = [
   }
 ];
 
-const performanceMetrics = [
-  {
-    metric: 'Expert Query Response',
-    value: '< 1.8s',
-    description: 'Complete multi-hop analysis',
-    improvement: '450x faster than traditional RAG',
-    color: 'text-green-600 dark:text-green-400'
-  },
-  {
-    metric: 'Storage Efficiency',
-    value: '40-60%',
-    description: 'Space reduction achieved',
-    improvement: 'vs. unoptimized systems',
-    color: 'text-blue-600 dark:text-blue-400'
-  },
-  {
-    metric: 'Expert Validation',
-    value: '8.5/10',
-    description: 'Performance vs professionals',
-    improvement: 'M&A legal smoking gun test',
-    color: 'text-purple-600 dark:text-purple-400'
-  },
-  {
-    metric: 'Multi-hop Accuracy',
-    value: '+5.4pts',
-    description: 'Cross-document reasoning',
-    improvement: 'Over traditional systems',
-    color: 'text-orange-600 dark:text-orange-400'
-  }
-];
 
 const frameworks = [
   { name: 'React/Next.js', logo: '⚛️', integration: 'TypeScript SDK' },
@@ -311,7 +281,7 @@ export default function ProfessionalIntegrationSection() {
             Enterprise Integration
           </span>
           
-          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-6xl font-light bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
             Production-Ready SDK
           </h2>
           
@@ -392,102 +362,7 @@ export default function ProfessionalIntegrationSection() {
           </div>
         </motion.div>
 
-        {/* Performance Metrics */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-          className="bg-gradient-to-r from-slate-50/50 to-blue-50/50 dark:from-slate-950/20 dark:to-blue-950/20 rounded-3xl p-8 md:p-12 border border-border/50 mb-20"
-        >
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-foreground mb-4">
-              Production Performance
-            </h3>
-            <p className="text-lg text-muted-foreground">
-              Validated metrics from enterprise deployments
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {performanceMetrics.map((metric, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.5, delay: 1.4 + index * 0.1 }}
-                className="text-center"
-              >
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-background/90">
-                  <div className={`text-3xl font-bold mb-2 ${metric.color}`}>
-                    {metric.value}
-                  </div>
-                  <div className="text-lg font-semibold text-foreground mb-2">
-                    {metric.metric}
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {metric.description}
-                  </p>
-                  <Badge variant="outline" className="text-xs">
-                    {metric.improvement}
-                  </Badge>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Framework Integrations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 1.6 }}
-          className="text-center"
-        >
-          <h3 className="text-2xl font-bold text-foreground mb-8">
-            Works with Your Stack
-          </h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
-            {frameworks.map((framework, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.4, delay: 1.8 + index * 0.1 }}
-                className="flex flex-col items-center p-4 rounded-lg hover:bg-muted/50 transition-colors duration-300"
-              >
-                <div className="text-3xl mb-2">{framework.logo}</div>
-                <div className="text-sm font-medium text-foreground mb-1">
-                  {framework.name}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {framework.integration}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 px-8 py-4"
-            >
-              <Download className="mr-2 h-5 w-5" />
-              Start Building
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="px-8 py-4"
-            >
-              <FileCode className="mr-2 h-5 w-5" />
-              View Documentation
-            </Button>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
