@@ -1,9 +1,14 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Manrope } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 
 const inter = Inter({ subsets: ["latin"] })
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: '--font-manrope',
+  weight: ['400', '600', '700']
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vrin.cloud'),
@@ -58,7 +63,7 @@ export default function RootLayout({
       <head>
         <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js" type="module" async></script>
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${manrope.variable}`}>
         <Providers>
           {children}
         </Providers>

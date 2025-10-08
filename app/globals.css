@@ -305,3 +305,56 @@
     transform: rotate(360deg);
   }
 }
+
+/* Animated light beam animations for Core Features section */
+@keyframes beam-horizontal {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(calc(100vw + 100%));
+  }
+}
+
+@keyframes beam-horizontal-reverse {
+  0% {
+    transform: translateX(calc(100vw + 100%));
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes beam-vertical {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(calc(100vh + 100%));
+  }
+}
+
+@keyframes beam-vertical-reverse {
+  0% {
+    transform: translateY(calc(100vh + 100%));
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.animate-beam-horizontal {
+  animation: beam-horizontal 6s linear infinite;
+}
+
+.animate-beam-horizontal-reverse {
+  animation: beam-horizontal-reverse 6s linear infinite;
+}
+
+.animate-beam-vertical {
+  animation: beam-vertical 8s linear infinite;
+}
+
+.animate-beam-vertical-reverse {
+  animation: beam-vertical-reverse 8s linear infinite;
+}

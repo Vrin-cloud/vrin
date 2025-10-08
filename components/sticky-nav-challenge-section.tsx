@@ -71,33 +71,33 @@ export function StickyNavChallengeSection() {
     {
       id: 'context-amnesia',
       icon: RotateCcw,
-      title: "Context Amnesia",
-      problem: "Your AI starts from zero every conversation",
-      impact: "Teams waste hours re-explaining domain knowledge instead of getting insights.",
-      solution: "Persistent Memory",
-      solutionDetail: "Facts-first architecture that never forgets and connects insights across all conversations.",
+      title: "AI Without Memory Can't Scale",
+      problem: "Knowledge workers waste 20-30% of their time re-explaining context that AI should already know",
+      impact: "Fragmented information across 20+ disconnected tools means your AI starts every conversation from scratch. Teams spend hours searching instead of solving.",
+      solution: "Facts-First Memory Architecture",
+      solutionDetail: "VRIN's knowledge graph extracts and stores facts, not embeddings. Your AI builds a persistent understanding that compounds over time—remembering relationships, user preferences, and domain expertise across all interactions. Unlike vector search that forgets everything, VRIN creates institutional memory that gets smarter with every conversation.",
       solutionIcon: Database,
       color: "from-red-500 to-orange-500"
     },
     {
       id: 'surface-analysis',
       icon: Target,
-      title: "Surface-Level Analysis",
-      problem: "Vector search finds similar text but misses deeper connections",
-      impact: "AI delivers keyword matching instead of professional-grade reasoning.",
-      solution: "Multi-Hop Reasoning",
-      solutionDetail: "Advanced reasoning engine that connects insights across documents and time periods.",
+      title: "Vector Search Misses What Matters",
+      problem: "Traditional RAG retrieves similar text but can't connect insights across documents or reason through complex questions",
+      impact: "Your team gets keyword matches when they need expert-level analysis. Without multi-hop reasoning, AI can't answer 'why' or trace cause-and-effect across your data.",
+      solution: "HybridRAG with Multi-Hop Reasoning",
+      solutionDetail: "VRIN combines the speed of vector search with the intelligence of graph traversal. Our constraint-solver engine automatically reasons across multiple documents, time periods, and data sources to answer complex questions that require connecting the dots. Define AI specialists for your domains—sales, engineering, finance—and get expert insights, not surface matches.",
       solutionIcon: Network,
       color: "from-orange-500 to-yellow-500"
     },
     {
       id: 'diy-trap',
       icon: DollarSign,
-      title: "The DIY Development Trap",
-      problem: "Building custom RAG systems that barely work takes months",
-      impact: "Traditional approach: $47,000+/month, 6-12 months to production. Teams burn budget while competitors gain advantage.",
-      solution: "Deploy in Minutes",
-      solutionDetail: "VRIN delivers 70% cost reduction with days to deployment. Simple APIs, zero migration complexity.",
+      title: "Building RAG In-House Is A Trap",
+      problem: "Custom RAG systems take 6-12 months to build, require specialized ML talent, and still underperform production-ready platforms",
+      impact: "While your engineers wrestle with vector databases, embedding models, and prompt engineering, competitors ship AI features. You're building infrastructure when you should be building products.",
+      solution: "Enterprise-Ready in Days, Not Months",
+      solutionDetail: "VRIN deploys in your cloud (AWS, Azure, GCP) or ours—your choice with BYOC/BYOK. Simple REST APIs integrate with your existing stack in hours. No data migration, no vendor lock-in, no infrastructure headaches. We handle the complexity of hybrid retrieval, temporal consistency, and conflict resolution so you can focus on building features your users love.",
       solutionIcon: Zap,
       color: "from-yellow-500 to-red-500"
     }
@@ -125,17 +125,17 @@ export function StickyNavChallengeSection() {
   };
 
   return (
-    <section ref={ref} className="py-20 bg-white dark:bg-slate-900">
+    <section ref={ref} className="py-16 bg-white dark:bg-slate-900">
       <div className="px-4 sm:px-6 lg:px-8 mx-auto max-w-[1400px]">
         {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={controls}
-          className="text-center max-w-4xl mx-auto mb-16"
+          className="text-center max-w-4xl mx-auto mb-12"
         >
-          <motion.div variants={itemVariants} className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-medium border border-red-200 dark:border-red-800">
+          <motion.div variants={itemVariants} className="mb-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-medium border border-red-200 dark:border-red-800">
               <AlertCircle className="w-4 h-4" />
               The Challenge
             </span>
@@ -143,7 +143,7 @@ export function StickyNavChallengeSection() {
 
           <motion.h2
             variants={itemVariants}
-            className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 leading-tight"
+            className="text-3xl md:text-4xl lg:text-5xl font-light mb-4 leading-tight"
           >
             <span className="text-gray-900 dark:text-gray-100">Your AI </span>
             <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent font-medium">
@@ -153,7 +153,7 @@ export function StickyNavChallengeSection() {
 
           <motion.p
             variants={itemVariants}
-            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light leading-relaxed"
+            className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed"
           >
             Vector search was a breakthrough—until teams realized it&apos;s just
             <span className="font-medium text-gray-900 dark:text-gray-100"> expensive keyword matching</span>.
@@ -172,7 +172,7 @@ export function StickyNavChallengeSection() {
             {/* Fixed Problems Navigation Sidebar */}
             <div className="lg:w-[400px] lg:flex-shrink-0">
               <div className="lg:sticky lg:top-24">
-                <div className="space-y-2 p-6 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 rounded-3xl border border-red-200 dark:border-red-800">
+                <div className="space-y-2 p-6">
                   <div className="text-center mb-6">
                     <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
                       <AlertCircle className="w-6 h-6 text-white" />
@@ -192,11 +192,7 @@ export function StickyNavChallengeSection() {
                     return (
                       <motion.div
                         key={challenge.id}
-                        className={`w-full text-left rounded-2xl transition-all duration-300 group relative overflow-hidden ${
-                          isActive
-                            ? 'bg-white dark:bg-slate-700 shadow-lg border-2 border-red-400 p-5'
-                            : 'bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-gray-700 p-4'
-                        }`}
+                        className="w-full text-left rounded-2xl transition-all duration-300 group relative overflow-hidden p-4"
                         initial={false}
                         animate={{
                           height: isActive ? 'auto' : 'auto',
@@ -240,7 +236,7 @@ export function StickyNavChallengeSection() {
 
                               <h4 className={`font-medium transition-colors ${
                                 isActive
-                                  ? 'text-base text-gray-900 dark:text-gray-100 mb-3'
+                                  ? 'text-base text-red-600 dark:text-red-400 mb-3'
                                   : 'text-sm text-gray-700 dark:text-gray-300'
                               }`}>
                                 {challenge.title}
@@ -297,7 +293,7 @@ export function StickyNavChallengeSection() {
 
             {/* Scrolling Solutions Content Area */}
             <div className="lg:flex-1 mt-8 lg:mt-0">
-              <div className="space-y-32">
+              <div className="space-y-24">
                 {challenges.map((challenge, index) => {
                   const SolutionIcon = challenge.solutionIcon;
 
@@ -306,40 +302,40 @@ export function StickyNavChallengeSection() {
                       key={challenge.id}
                       ref={sectionRefs[index]}
                       variants={itemVariants}
-                      className="min-h-[85vh] flex items-center py-16"
+                      className="min-h-[85vh] flex items-center py-12"
                     >
                       {/* Solution Section Only */}
                       <div className="w-full">
-                        <div className="text-center mb-12">
-                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                        <div className="text-center mb-8">
+                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">
                             VRIN Solution #{index + 1}
                           </span>
-                          <h2 className="text-3xl md:text-5xl font-light text-gray-900 dark:text-gray-100 mt-2 mb-8">
+                          <h2 className="text-2xl md:text-4xl font-light text-gray-900 dark:text-gray-100 mt-2 mb-6">
                             {challenge.solution}
                           </h2>
                         </div>
 
                         <div className="max-w-4xl mx-auto">
                           {/* Large Solution Card */}
-                          <div className="p-12 md:p-16 bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-3xl border border-blue-200 dark:border-blue-800 shadow-lg">
-                            <div className="text-center mb-12">
-                              <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center mb-8">
-                                <SolutionIcon className="w-12 h-12 text-white" />
+                          <div className="p-8 md:p-10">
+                            <div className="text-center mb-8">
+                              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center mb-6">
+                                <SolutionIcon className="w-10 h-10 text-white" />
                               </div>
 
-                              <h3 className="text-2xl md:text-3xl font-medium text-gray-900 dark:text-gray-100 mb-6">
+                              <h3 className="text-xl md:text-2xl font-medium text-gray-900 dark:text-gray-100 mb-4">
                                 How {challenge.solution} Works
                               </h3>
                             </div>
 
-                            <div className="text-center space-y-8">
-                              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <div className="text-center space-y-6">
+                              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 {challenge.solutionDetail}
                               </p>
 
                               {/* Solution Benefits */}
                               <div className="grid md:grid-cols-2 gap-6 mt-12">
-                                <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-2xl">
+                                <div className="p-6 rounded-2xl">
                                   <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
                                     <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                                   </div>
@@ -353,7 +349,7 @@ export function StickyNavChallengeSection() {
                                   </p>
                                 </div>
 
-                                <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-2xl">
+                                <div className="p-6 rounded-2xl">
                                   <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
                                     <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                   </div>
@@ -365,13 +361,6 @@ export function StickyNavChallengeSection() {
                                      index === 1 ? "Expert-level analysis from connected data" :
                                      "Compared to traditional DIY approaches"}
                                   </p>
-                                </div>
-                              </div>
-
-                              <div className="pt-8">
-                                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full text-sm font-medium">
-                                  <CheckCircle className="w-5 h-5" />
-                                  <span>Available Now in Production</span>
                                 </div>
                               </div>
                             </div>

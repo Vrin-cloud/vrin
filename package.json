@@ -40,6 +40,8 @@
     "@react-three/drei": "^10.6.1",
     "@react-three/fiber": "^9.3.0",
     "@react-three/postprocessing": "^3.0.4",
+    "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^1.10.76",
     "@tanstack/react-query": "^5.84.1",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",

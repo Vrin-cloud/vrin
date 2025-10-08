@@ -25,6 +25,7 @@ import Circular3DCarousel from "@/components/circular-3d-carousel"
 import { PricingSection } from "@/components/pricing-section"
 import ModernSystemArchitecture from "@/components/modern-system-architecture"
 import { StickyNavChallengeSection } from "@/components/sticky-nav-challenge-section"
+import { CoreFeatures } from "@/components/core-features"
 // import { InteractiveFeaturesShowcase } from "@/components/interactive-features-showcase"
 
 export default function Home() {
@@ -105,6 +106,9 @@ export default function Home() {
 
       {/* 3D Circular Carousel Product Section */}
       <Circular3DCarousel />
+
+      {/* Core Features Section */}
+      <CoreFeatures />
 
       {/* Industry Showcase Section */}
       <section id="industries" className="py-20">
