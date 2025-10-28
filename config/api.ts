@@ -3,9 +3,15 @@ export const API_CONFIG = {
   // Authentication API (Production)
   AUTH_BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   
-  // RAG API (Production - Optimized Hybrid RAG v0.3.2 with AI Specialization)
-  RAG_BASE_URL: 'https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev',
-  
+  // RAG API (Lambda Function URL - Streaming support, no 30s timeout)
+  RAG_BASE_URL: 'https://ludeelasqiubh3fxmhtjdzwsou0uundi.lambda-url.us-east-1.on.aws',
+
+  // Chat API (Conversation Management with File Upload)
+  CHAT_BASE_URL: 'https://cg7yind3j5.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Conversation History API (Note: Uses /Stage not /dev)
+  CONVERSATION_BASE_URL: 'https://rthl3rcg2b.execute-api.us-east-1.amazonaws.com/Stage',
+
   // Enterprise API (New Backend Infrastructure) - Use the same auth API for now
   ENTERPRISE_BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   
@@ -60,7 +66,7 @@ export const API_CONFIG = {
   },
   
   // SDK Configuration (Updated to latest)
-  SDK_VERSION: '0.3.2',
+  SDK_VERSION: '0.8.0',
   IMPORT_STATEMENT: 'from vrin import VRINClient'
 } as const;
 

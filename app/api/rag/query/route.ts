@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { query, include_summary } = body;
-    
+    const { query, include_summary, user_id } = body;
+
     // Get authorization header
     const authorization = request.headers.get('authorization');
     if (!authorization) {
@@ -13,13 +13,15 @@ export async function POST(request: NextRequest) {
 
     console.log('Proxying query request for:', query);
 
-    const response = await fetch('https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev/query', {
+    // NEW: Lambda Function URL (replaces API Gateway)
+    // No 30-second timeout, supports up to 15 minutes
+    const response = await fetch('https://ludeelasqiubh3fxmhtjdzwsou0uundi.lambda-url.us-east-1.on.aws/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': authorization,
       },
-      body: JSON.stringify({ query, include_summary }),
+      body: JSON.stringify({ query, include_summary, user_id }),
     });
 
     const data = await response.json();

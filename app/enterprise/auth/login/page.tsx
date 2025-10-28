@@ -1,333 +1,404 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+/**
+ * Enterprise Login Page - Modern Design with Google OAuth
+ *
+ * Features:
+ * - Email/password authentication
+ * - Google OAuth integration
+ * - Modern glassmorphism design
+ * - Responsive layout
+ * - Form validation
+ * - Loading states
+ */
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Database,
   Mail,
   Lock,
-  Building,
+  Eye,
+  EyeOff,
   AlertCircle,
-  ArrowLeft,
-  Shield
-} from 'lucide-react'
-import Link from 'next/link'
-import { toast } from 'react-hot-toast'
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [organizationDomain, setOrganizationDomain] = useState('')
-  const [loginMethod, setLoginMethod] = useState<'credentials' | 'sso'>('credentials')
-  const [ssoProvider, setSsoProvider] = useState<'saml' | 'oidc'>('saml')
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+export default function EnterpriseLoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const { login, loginWithSSO } = useEnterpriseAuth()
+  // Validate email format
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
-  const handleCredentialsLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('DEBUG: Form submitted with:', { email, password: '***' })
-    setLoading(true)
-    setErrors({})
+  // Handle email/password login
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
 
     // Validation
     if (!email.trim()) {
-      console.log('DEBUG: Email validation failed')
-      setErrors({ email: 'Email is required' })
-      setLoading(false)
-      return
-    }
-    if (!password.trim()) {
-      console.log('DEBUG: Password validation failed')
-      setErrors({ password: 'Password is required' })
-      setLoading(false)
-      return
+      setError('Email is required');
+      return;
     }
 
-    console.log('DEBUG: Making direct API call (bypassing React auth)')
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        body: JSON.stringify({ email, password })
-      })
+        body: JSON.stringify({ email, password }),
+      });
 
-      console.log('DEBUG: Response status:', response.status)
-      const data = await response.json()
-      console.log('DEBUG: Response data:', data)
+      const data = await response.json();
 
       if (response.ok && data.success) {
-        console.log('DEBUG: Login successful, storing data and redirecting')
-        // Store token and user data directly
-        localStorage.setItem('enterprise_token', data.token)
-        localStorage.setItem('enterprise_user', JSON.stringify(data.user))
-        
-        toast.success('Welcome back!')
-        window.location.href = '/enterprise/dashboard'
+        // Store authentication data
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+
+        if (rememberMe) {
+          localStorage.setItem('remember_me', 'true');
+        }
+
+        setSuccess(true);
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          router.push('/enterprise/dashboard');
+        }, 1000);
       } else {
-        console.log('DEBUG: Login failed:', data.error || data.message)
-        toast.error(data.error || data.message || 'Login failed')
-        setErrors({ general: data.error || data.message || 'Login failed' })
+        setError(data.error || 'Invalid email or password');
       }
-    } catch (error) {
-      console.error('DEBUG: Direct API call error:', error)
-      toast.error('Network error during login')
-      setErrors({ general: 'Network error during login' })
+    } catch (err: any) {
+      setError('Network error. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false)
-  }
+  };
 
-  const handleSSOLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setErrors({})
+  // Handle Google OAuth login
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError(null);
 
-    if (!organizationDomain.trim()) {
-      setErrors({ organizationDomain: 'Organization domain is required' })
-      setLoading(false)
-      return
+    try {
+      // Initialize Google OAuth flow
+      // In production, this would redirect to Google's OAuth consent screen
+      // For now, we'll simulate the flow
+
+      // Step 1: Get Google OAuth URL from backend
+      const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/google/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.authorization_url) {
+        // Redirect to Google OAuth
+        window.location.href = data.authorization_url;
+      } else {
+        setError('Google sign-in is temporarily unavailable');
+        setGoogleLoading(false);
+      }
+    } catch (err) {
+      setError('Failed to initialize Google sign-in');
+      setGoogleLoading(false);
+      console.error('Google OAuth error:', err);
     }
-
-    const result = await loginWithSSO(ssoProvider, organizationDomain)
-    
-    if (result.success && result.redirectUrl) {
-      window.location.href = result.redirectUrl
-    } else {
-      toast.error(result.error || 'SSO login failed')
-      setErrors({ general: result.error || 'SSO login failed' })
-      setLoading(false)
-    }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-20"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 dark:bg-indigo-600 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-20"
+          animate={{
+            x: [0, -100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo and Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-              <Database className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">VRIN</h1>
-              <p className="text-sm text-gray-500">Enterprise</p>
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Database className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900">Welcome back</h2>
-          <p className="text-gray-600 mt-2">Sign in to manage your enterprise infrastructure</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Welcome to VRIN Enterprise
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Sign in to manage your multi-tenant infrastructure
+          </p>
         </motion.div>
 
-        {/* Login Method Selector */}
+        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6"
         >
-          <div className="flex rounded-lg border border-gray-200 p-1 bg-white">
-            <button
-              onClick={() => setLoginMethod('credentials')}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                loginMethod === 'credentials'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Mail className="w-4 h-4 inline mr-2" />
-              Email & Password
-            </button>
-            <button
-              onClick={() => setLoginMethod('sso')}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                loginMethod === 'sso'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Building className="w-4 h-4 inline mr-2" />
-              Enterprise SSO
-            </button>
-          </div>
-        </motion.div>
+          <Card className="p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700 shadow-2xl">
+            {/* Success Message */}
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center text-green-700 dark:text-green-400"
+              >
+                <CheckCircle2 className="w-5 h-5 mr-3 flex-shrink-0" />
+                <span className="font-medium">Login successful! Redirecting...</span>
+              </motion.div>
+            )}
 
-        {/* Login Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">
-                  {loginMethod === 'credentials' ? 'Sign In' : 'Enterprise SSO'}
-                </CardTitle>
-                <Badge variant="secondary" className="text-xs">
-                  <Shield className="w-3 h-3 mr-1" />
-                  Secure
-                </Badge>
-              </div>
-              <CardDescription>
-                {loginMethod === 'credentials' 
-                  ? 'Enter your email and password to access your enterprise dashboard'
-                  : 'Sign in using your organization\'s identity provider'
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {errors.general && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700">
-                  <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-sm">{errors.general}</span>
-                </div>
-              )}
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center text-red-700 dark:text-red-400"
+              >
+                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                <span>{error}</span>
+              </motion.div>
+            )}
 
-              {loginMethod === 'credentials' ? (
-                <form onSubmit={handleCredentialsLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@company.com"
-                      disabled={loading}
-                    />
-                    {errors.email && (
-                      <p className="text-xs text-red-600 mt-1">{errors.email}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <Input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      disabled={loading}
-                    />
-                    {errors.password && (
-                      <p className="text-xs text-red-600 mt-1">{errors.password}</p>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    variant="default"
-                    disabled={loading}
-                  >
-                    Sign In
-                  </Button>
-                </form>
+            {/* Google Sign In Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full mb-6 h-12 text-gray-700 dark:text-gray-300 border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={handleGoogleLogin}
+              disabled={googleLoading || loading}
+            >
+              {googleLoading ? (
+                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
               ) : (
-                <form onSubmit={handleSSOLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Organization Domain
-                    </label>
-                    <Input
-                      type="text"
-                      value={organizationDomain}
-                      onChange={(e) => setOrganizationDomain(e.target.value)}
-                      placeholder="company.com"
-                      disabled={loading}
-                    />
-                    {errors.organizationDomain && (
-                      <p className="text-xs text-red-600 mt-1">{errors.organizationDomain}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      Enter your organization&apos;s domain (e.g., company.com)
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      SSO Provider
-                    </label>
-                    <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
-                      <button
-                        type="button"
-                        onClick={() => setSsoProvider('saml')}
-                        className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
-                          ssoProvider === 'saml'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                      >
-                        SAML 2.0
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSsoProvider('oidc')}
-                        className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
-                          ssoProvider === 'oidc'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                      >
-                        OIDC
-                      </button>
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    variant="default"
-                    disabled={loading}
-                  >
-                    Continue with SSO
-                  </Button>
-                </form>
+                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
               )}
+              Continue with Google
+            </Button>
 
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Don&apos;t have an enterprise account?{' '}
-                  <Link 
-                    href="/enterprise/auth/register" 
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Create account
-                  </Link>
-                </p>
+            {/* Divider */}
+            <div className="relative my-6">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 px-4 text-sm text-gray-500 dark:text-gray-400">
+                Or continue with email
+              </span>
+            </div>
+
+            {/* Email/Password Form */}
+            <form onSubmit={handleEmailLogin} className="space-y-5">
+              {/* Email Field */}
+              <div>
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 font-medium">
+                  Email address
+                </Label>
+                <div className="relative mt-2">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    disabled={loading || googleLoading}
+                  />
+                </div>
               </div>
-            </CardContent>
+
+              {/* Password Field */}
+              <div>
+                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
+                  Password
+                </Label>
+                <div className="relative mt-2">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    disabled={loading || googleLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label
+                    htmlFor="remember"
+                    className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
+                  >
+                    Remember me
+                  </Label>
+                </div>
+                <Link
+                  href="/enterprise/auth/forgot-password"
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg"
+                disabled={loading || googleLoading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
+              </Button>
+            </form>
+
+            {/* Sign Up Link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Don&apos;t have an account?{' '}
+                <Link
+                  href="/enterprise/auth/register"
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold"
+                >
+                  Create an account
+                </Link>
+              </p>
+            </div>
           </Card>
         </motion.div>
 
-        {/* Back to Home */}
+        {/* Footer Links */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-6 text-center"
+          className="mt-8 text-center"
         >
-          <Link 
-            href="/enterprise" 
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to home
-          </Link>
+          <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+            <Link href="/enterprise" className="hover:text-gray-900 dark:hover:text-gray-200">
+              Home
+            </Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-gray-200">
+              Privacy
+            </Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-gray-900 dark:hover:text-gray-200">
+              Terms
+            </Link>
+            <span>•</span>
+            <Link href="/help" className="hover:text-gray-900 dark:hover:text-gray-200">
+              Help
+            </Link>
+          </div>
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

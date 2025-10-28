@@ -24,6 +24,30 @@ export interface VRINInsertResult {
   };
 }
 
+export interface ThinkingStep {
+  step: string;
+  description: string;
+  icon: string;
+}
+
+export interface ReasoningMetadata {
+  model: string;
+  reasoning_tokens: number;
+  input_tokens: number;  // Renamed from prompt_tokens
+  output_tokens: number;  // Renamed from completion_tokens
+  total_tokens: number;
+  processing_time?: string;  // Processing time in seconds (e.g., "72.4s")
+  reasoning_summary?: string;  // GPT-5-mini's actual reasoning process (if available)
+  thinking_steps: ThinkingStep[];
+}
+
+export interface Source {
+  document_name: string;
+  upload_id?: string;  // For graph/vector sources
+  document_id?: string;  // For personal sources
+  source_type: 'graph' | 'vector' | 'personal';
+}
+
 export interface VRINQueryResult {
   success: boolean;
   summary: string;
@@ -51,6 +75,9 @@ export interface VRINQueryResult {
     final_conclusion: string;
     overall_confidence: number;
   }>;
+  // NEW: GPT-5-mini Reasoning Model fields (v0.10.0)
+  metadata?: ReasoningMetadata;  // Renamed from reasoning_metadata
+  sources?: Source[];
 }
 
 export interface AuthResponse {
@@ -150,6 +177,12 @@ export class VRINService {
     includeSummary: boolean = true
   ): Promise<VRINQueryResult> {
     try {
+      // Get user_id from localStorage
+      const user = typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('vrin_user') || '{}')
+        : {};
+      const user_id = user.user_id;
+
       const response = await fetch('/api/rag/query', {
         method: 'POST',
         headers: {
@@ -158,7 +191,8 @@ export class VRINService {
         },
         body: JSON.stringify({
           query,
-          include_summary: includeSummary
+          include_summary: includeSummary,
+          user_id  // Required for data isolation
         }),
       });
 

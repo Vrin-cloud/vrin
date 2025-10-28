@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   Search,
   Plus,
@@ -27,7 +29,8 @@ import {
   Menu,
   X,
   ChevronDown,
-  Command
+  Command,
+  MessageSquare
 } from 'lucide-react';
 import { AuthService, VRINService } from '../../lib/services/vrin-service';
 import type { VRINInsertResult, VRINQueryResult } from '../../lib/services/vrin-service';
@@ -36,6 +39,8 @@ import { ModernGraph } from '../../components/dashboard/knowledge-graph/modern-g
 import { NodeDetailsDialog } from '../../components/dashboard/knowledge-graph/node-details-dialog';
 import { ModernDocumentationSection } from '../../components/dashboard/sections/modern-documentation';
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
+import { ThinkingPanel } from '../../components/dashboard/thinking-panel';
+import { SourcesPanel } from '../../components/dashboard/sources-panel';
 import { useAccountKnowledgeGraph } from '../../hooks/use-knowledge-graph';
 import type { Node, Edge, Triple, GraphStatistics } from '../../types/knowledge-graph';
 
@@ -442,63 +447,85 @@ export default function Dashboard() {
             isMobileMenuOpen ? 'fixed inset-y-0 left-0' : 'hidden lg:flex'
           }`}
         >
-          {/* Sidebar Header */}
-          <div className="p-6 border-b border-gray-100/50">
+          {/* Sidebar Header - Logo Only */}
+          <div className="p-6">
             <div className="flex items-center justify-between">
-              {isSidebarOpen && (
+              {isSidebarOpen ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      VRIN
-                    </h1>
-                    <p className="text-xs text-gray-500">Hybrid RAG v0.3.2</p>
-                  </div>
+                  <Image
+                    src="/favicon.ico"
+                    alt="VRIN"
+                    width={56}
+                    height={56}
+                    className="rounded"
+                  />
+                  <p className="text-sm text-gray-500">v0.8.0</p>
                 </motion.div>
+              ) : (
+                <Image
+                  src="/favicon.ico"
+                  alt="VRIN"
+                  width={40}
+                  height={40}
+                  className="rounded mx-auto"
+                />
               )}
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-5 h-5 text-gray-600" />
-              </button>
+              {isSidebarOpen && (
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Menu className="w-5 h-5 text-gray-600" />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Navigation */}
           <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {/* Chat Page Link - Minimal Design */}
+            <Link href="/chat">
+              <button className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left bg-gray-900 text-white hover:bg-gray-800">
+                <MessageSquare className="w-4 h-4" />
+                {isSidebarOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Chat with VRIN</span>
+                      <span className="px-1.5 py-0.5 bg-white/20 text-xs font-medium rounded">
+                        NEW
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </button>
+            </Link>
+
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
-              
+
               return (
-                <motion.button
+                <button
                   key={item.id}
                   onClick={() => {
                     setActiveSection(item.id);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group ${
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 shadow-sm border border-blue-200/50'
+                      ? 'bg-gray-100 text-gray-900'
                       : 'hover:bg-gray-50 text-gray-700'
                   }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className={`p-2 rounded-lg ${
-                    isActive
-                      ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
-                  }`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
+                  <Icon className="w-4 h-4" />
                   {isSidebarOpen && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -508,14 +535,14 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{item.label}</span>
                         {item.badge && (
-                          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                          <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded">
                             {item.badge}
                           </span>
                         )}
                       </div>
                     </motion.div>
                   )}
-                </motion.button>
+                </button>
               );
             })}
           </div>
@@ -568,7 +595,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 px-6 py-4">
+          <header className="bg-white/70 backdrop-blur-xl px-6 py-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <button
@@ -577,14 +604,9 @@ export default function Dashboard() {
                 >
                   <Menu className="w-5 h-5" />
                 </button>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    {sidebarItems.find(item => item.id === activeSection)?.label || 'Dashboard'}
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    Powered by Hybrid RAG v0.3.2 with AI specialization
-                  </p>
-                </div>
+                <p className="text-sm text-gray-500">
+                  Hybrid RAG v0.8.0
+                </p>
               </div>
 
               <div className="flex items-center gap-4">
@@ -627,18 +649,15 @@ export default function Dashboard() {
 // Component sections...
 function OverviewSection({ user, graphData }: { user: User; graphData: GraphData | null }) {
   return (
-    <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold mb-2">
-            Welcome back, {user.name || user.email.split('@')[0]}! 👋
-          </h2>
-          <p className="text-blue-100 text-lg">
-            Your knowledge graph is growing. Here&apos;s what&apos;s happening today.
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Welcome Header - Minimal Design */}
+      <div className="bg-white p-8 shadow-sm">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Welcome back, {user.name || user.email.split('@')[0]}
+        </h2>
+        <p className="text-gray-600">
+          Your knowledge graph is growing. Here&apos;s what&apos;s happening today.
+        </p>
       </div>
 
       {/* Stats Grid */}
@@ -673,10 +692,9 @@ function OverviewSection({ user, graphData }: { user: User; graphData: GraphData
         />
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-2xl p-8 border border-gray-200/50 shadow-sm">
-        <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-yellow-500" />
+      {/* Quick Actions - Minimal Design */}
+      <div className="bg-white p-8 shadow-sm">
+        <h3 className="text-lg font-semibold mb-6 text-gray-900">
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -721,24 +739,22 @@ function StatsCard({ title, value, change, icon: Icon, color }: {
   icon: any;
   color: 'blue' | 'green' | 'purple' | 'orange' | 'indigo';
 }) {
-  const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    purple: 'from-purple-500 to-purple-600',
-    orange: 'from-orange-500 to-orange-600',
-    indigo: 'from-indigo-500 to-indigo-600',
+  const iconColorClasses = {
+    blue: 'text-gray-700',
+    green: 'text-gray-700',
+    purple: 'text-gray-700',
+    orange: 'text-gray-700',
+    indigo: 'text-gray-700',
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between">
-        <div className={`w-12 h-12 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-        <span className="text-sm text-green-600 font-medium">{change}</span>
+    <div className="bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center justify-between mb-4">
+        <Icon className={`w-5 h-5 ${iconColorClasses[color]}`} />
+        <span className="text-xs text-gray-500">{change}</span>
       </div>
-      <div className="mt-4">
-        <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+      <div>
+        <h3 className="text-3xl font-semibold text-gray-900 mb-1">{value}</h3>
         <p className="text-gray-600 text-sm">{title}</p>
       </div>
     </div>
@@ -752,28 +768,18 @@ function QuickActionCard({ title, description, icon: Icon, color, onClick }: {
   color: 'blue' | 'green' | 'purple' | 'orange' | 'indigo';
   onClick: () => void;
 }) {
-  const colorClasses = {
-    blue: 'from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200',
-    green: 'from-green-50 to-green-100 hover:from-green-100 hover:to-green-200',
-    purple: 'from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200',
-    orange: 'from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200',
-    indigo: 'from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200',
-  };
-
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      className={`p-6 rounded-xl bg-gradient-to-br ${colorClasses[color]} text-left transition-all duration-200 hover:scale-[1.02]`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      className="p-6 bg-gray-50 hover:bg-gray-100 text-left transition-colors duration-200 group"
     >
       <div className="flex items-center justify-between mb-3">
-        <Icon className={`w-5 h-5 ${color === 'blue' ? 'text-blue-600' : color === 'green' ? 'text-green-600' : color === 'purple' ? 'text-purple-600' : 'text-indigo-600'}`} />
-        <ArrowRight className={`w-4 h-4 ${color === 'blue' ? 'text-blue-500' : color === 'green' ? 'text-green-500' : color === 'purple' ? 'text-purple-500' : 'text-indigo-500'}`} />
+        <Icon className="w-5 h-5 text-gray-700" />
+        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
       </div>
       <h4 className="font-semibold text-gray-900 mb-1">{title}</h4>
       <p className="text-sm text-gray-600">{description}</p>
-    </motion.button>
+    </button>
   );
 }
 
@@ -855,6 +861,8 @@ function SearchSection({ searchQuery, setSearchQuery, handleSearch, isLoading }:
 // For brevity, I'll include the main structure and a few key sections
 
 function SearchResultsSection({ result }: { result: VRINQueryResult | null }) {
+  const [sourcesOpen, setSourcesOpen] = React.useState(false);
+
   if (!result) return null;
 
   return (
@@ -874,7 +882,7 @@ function SearchResultsSection({ result }: { result: VRINQueryResult | null }) {
             </span>
           </div>
         </div>
-        
+
         {/* Performance Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-blue-50 rounded-xl">
@@ -899,6 +907,21 @@ function SearchResultsSection({ result }: { result: VRINQueryResult | null }) {
           </h3>
           <p className="text-gray-800 leading-relaxed">{result.summary}</p>
         </div>
+
+        {/* Thinking Panel */}
+        {result.metadata && (
+          <ThinkingPanel metadata={result.metadata} />
+        )}
+
+        {/* Sources Button */}
+        {result.sources && result.sources.length > 0 && (
+          <button
+            onClick={() => setSourcesOpen(true)}
+            className="mt-4 px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-700 text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            📚 Sources · {result.sources.length}
+          </button>
+        )}
 
         {/* Expert Analysis */}
         {result.expert_analysis && (
@@ -945,6 +968,15 @@ function SearchResultsSection({ result }: { result: VRINQueryResult | null }) {
           </div>
         )}
       </div>
+
+      {/* Sources Panel */}
+      {result.sources && (
+        <SourcesPanel
+          sources={result.sources}
+          isOpen={sourcesOpen}
+          onClose={() => setSourcesOpen(false)}
+        />
+      )}
     </div>
   );
 }

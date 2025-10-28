@@ -104,53 +104,45 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">VRIN API Documentation</h2>
             <p className="text-xl text-gray-600 mb-6">
-              Build intelligent applications with the VRIN Hybrid RAG engine v0.3.2 - featuring user-defined AI specialization and expert-level analysis.
+              Build intelligent applications with the VRIN Hybrid RAG engine v0.8.0 - featuring multi-hop constraint solver, temporal fact consistency, conversation state, and expert-level analysis.
             </p>
             
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
-                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">Hybrid RAG</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white p-6 shadow-sm">
+                <Zap className="w-6 h-6 text-gray-700 mb-4" />
+                <h3 className="font-semibold text-gray-900 mb-2">Hybrid RAG</h3>
                 <p className="text-gray-600 text-sm">
                   Combines the best of vector and graph-based retrieval for superior accuracy and context understanding.
                 </p>
               </div>
-              
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
-                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-                  <Database className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">Knowledge Graphs</h3>
+
+              <div className="bg-white p-6 shadow-sm">
+                <Database className="w-6 h-6 text-gray-700 mb-4" />
+                <h3 className="font-semibold text-gray-900 mb-2">Knowledge Graphs</h3>
                 <p className="text-gray-600 text-sm">
                   Build dynamic, queryable knowledge structures with automatic entity resolution and relationship extraction.
                 </p>
               </div>
-              
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">Enterprise Ready</h3>
+
+              <div className="bg-white p-6 shadow-sm">
+                <Shield className="w-6 h-6 text-gray-700 mb-4" />
+                <h3 className="font-semibold text-gray-900 mb-2">Enterprise Ready</h3>
                 <p className="text-gray-600 text-sm">
                   Production-grade APIs with authentication, rate limiting, monitoring, and comprehensive analytics.
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 border border-amber-200">
-                <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mb-4">
-                  <Lightbulb className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">AI Specialization</h3>
+              <div className="bg-white p-6 shadow-sm">
+                <Lightbulb className="w-6 h-6 text-gray-700 mb-4" />
+                <h3 className="font-semibold text-gray-900 mb-2">AI Specialization</h3>
                 <p className="text-gray-600 text-sm">
                   Define custom AI experts with your own prompts for domain-specific analysis and expert-level reasoning.
                 </p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-white">
-              <h3 className="text-xl font-bold mb-4">Key Features</h3>
+            <div className="bg-gray-900 p-8 text-white shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Key Features</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
@@ -239,14 +231,17 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
                 example={{
                   language: 'bash',
                   title: 'Install VRIN SDK',
-                  code: `# Install latest version with AI specialization
-pip install vrin==0.3.4
+                  code: `# Install latest version with v0.8.0 features
+# - Multi-hop constraint solver
+# - Temporal fact consistency
+# - Conversation state management
+pip install vrin==0.8.0
 
 # Force reinstall to get latest features
-pip install vrin==0.3.4 --force-reinstall
+pip install vrin==0.8.0 --force-reinstall
 
 # Verify installation
-python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.4 ready')"`
+python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.8.0 ready')"`
                 }}
               />
             </div>
@@ -266,7 +261,7 @@ python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.4 ready')"`
                   title: 'Initialize VRIN Client',
                   code: `from vrin import VRINClient
 
-# SIMPLE: Only API key needed (URLs are hardcoded in v0.3.2)
+# SIMPLE: Only API key needed (URLs are hardcoded in v0.8.0)
 client = VRINClient(api_key="${apiKey}")
 
 # Test connection with expert analysis
@@ -293,18 +288,19 @@ except Exception as e:
                 example={{
                   language: 'python',
                   title: 'Insert Knowledge',
-                  code: `# Insert knowledge with smart deduplication
+                  code: `# Insert knowledge with temporal metadata (NEW v0.8.0)
 result = client.insert(
-    content="Apple Inc. was founded by Steve Jobs in 1976.",
-    title="Apple Company History",
-    tags=["tech", "apple", "history"]
+    content="In 2010, Cadence stock was $100. In 2011, it increased to $150.",
+    title="Financial Data with Temporal Facts",
+    tags=["finance", "cadence", "stock"]
 )
 
 print(f"✅ {result['facts_extracted']} facts extracted")
 print(f"📦 Chunk stored: {result['chunk_stored']}")
-print(f"💾 {result['storage_details']}")
+print(f"💾 Storage: {result['storage_details']}")
+print(f"🔄 Conflicts handled: {result.get('storage_result', {}).get('updated_facts', 0)} superseded")
 
-# Insert multiple documents
+# Insert with automatic deduplication (40-60% savings)
 documents = [
     {
         "content": "Microsoft was founded by Bill Gates and Paul Allen in 1975.",
@@ -312,13 +308,13 @@ documents = [
         "tags": ["tech", "microsoft"]
     },
     {
-        "content": "Google's parent company is Alphabet Inc., founded in 2015.",
-        "title": "Google Corporate Structure",
-        "tags": ["tech", "google", "alphabet"]
+        "content": "In Q2 2023, Microsoft revenue exceeded $50M.",
+        "title": "Microsoft Financial Data",
+        "tags": ["tech", "microsoft", "finance"]
     }
 ]
 
-# Process multiple documents
+# Process with smart deduplication
 for doc in documents:
     result = client.insert(doc["content"], doc["title"], doc["tags"])
     print(f"Processed: {result['facts_extracted']} facts from {doc['title']}")`
@@ -339,22 +335,27 @@ for doc in documents:
                 example={{
                   language: 'python',
                   title: 'Query Knowledge',
-                  code: `# Standard query with AI summary
-response = client.query("Who founded Apple?")
+                  code: `# NEW v0.8.0: Multi-hop constraint solver with temporal filtering
+response = client.query("What was Cadence stock value in 2010 and 2011?")
 
 print(f"📝 Answer: {response['summary']}")
 print(f"⚡ Search time: {response['search_time']}")
 print(f"📊 Total results: {response['combined_results']}")
-print(f"🔍 Entities found: {response['entities_found']}")
+print(f"🎯 Constraints identified: {response.get('constraints', [])}")
 
-# Query with raw results for detailed analysis
-detailed_response = client.query(
-    query="technology companies founded in the 1970s",
-    include_raw_results=True
-)
+# NEW v0.8.0: Conversation state (multi-turn conversations)
+from vrin import VRINConversationClient
 
-print(f"📈 Graph facts: {detailed_response['total_facts']}")
-print(f"🔗 Vector chunks: {detailed_response['total_chunks']}")
+conv_client = VRINConversationClient(api_key="${apiKey}")
+session = conv_client.start_conversation()
+
+# First turn
+response1 = conv_client.chat("Tell me about Microsoft", session_id=session['session_id'])
+print(f"Turn 1: {response1['message']}")
+
+# Follow-up question with context
+response2 = conv_client.chat("What year was it founded?", session_id=session['session_id'])
+print(f"Turn 2: {response2['message']}")
 
 # Access raw graph facts if available
 if 'graph_facts' in detailed_response:
@@ -649,7 +650,7 @@ cd vrin-python-sdk
 pip install -e ".[dev]"
 
 # Verify installation
-python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.3.4 ready')"`
+python -c "from vrin import VRINClient; print('✅ VRIN SDK v0.8.0 ready')"`
                 }}
               />
             </div>
@@ -690,7 +691,7 @@ print(f"🔍 Entities: {response['entities_found']}")`
             </div>
 
             <div className="border border-gray-200 rounded-2xl p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">New in v0.3.4: Raw Fact Retrieval</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">New in v0.8.0: Multi-Hop Constraint Solver & Temporal Consistency</h3>
               <p className="text-gray-600 mb-4">
                 Get raw facts without AI summarization for fastest possible response times and competitive benchmarking.
               </p>
@@ -738,7 +739,7 @@ print(f"Multi-hop chains: {facts_data['multi_hop_chains']}")`
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">User-Defined AI Specialization</h2>
             <p className="text-gray-600 mb-6">
-              NEW in v0.3.4: Define your own AI expert with custom prompt engineering for domain-specific analysis and multi-hop reasoning.
+              NEW in v0.8.0: Define your own AI expert with custom prompt engineering, plus multi-hop constraint solver with temporal fact consistency for complex queries.
             </p>
           </div>
 
@@ -860,7 +861,7 @@ response = client.query("What are the strategic risks in this M&A transaction?")
     'total_chunks': 8,          # Vector similarity results  
     'combined_results': 20,     # Total hybrid results with deduplication
     
-    # NEW: Expert analysis metadata (v0.3.2)
+    # NEW: Expert analysis metadata (v0.8.0)
     'expert_analysis': {
         'specialization_applied': True,
         'reasoning_chains_used': 5,
@@ -1019,7 +1020,7 @@ print(response)  # Will return relevant facts or AI summary`
           
           <div className="text-center">
             <h1 className="text-xl font-bold text-gray-900">VRIN Docs</h1>
-            <p className="text-sm text-gray-500 mt-1">v0.3.2 AI Specialization</p>
+            <p className="text-sm text-gray-500 mt-1">v0.8.0 Multi-Hop Constraint Solver</p>
             
             {/* Breadcrumb */}
             <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500">

@@ -358,3 +358,69 @@
 .animate-beam-vertical-reverse {
   animation: beam-vertical-reverse 8s linear infinite;
 }
+
+/* Markdown content styles for chat messages */
+.markdown-content {
+  @apply text-gray-800;
+}
+
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child,
+.markdown-content h4:first-child,
+.markdown-content p:first-child {
+  @apply mt-0;
+}
+
+.markdown-content p:last-child,
+.markdown-content ul:last-child,
+.markdown-content ol:last-child {
+  @apply mb-0;
+}
+
+.markdown-content code {
+  @apply font-mono text-sm;
+}
+
+.markdown-content pre {
+  @apply rounded-lg overflow-hidden my-3;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent text-white px-0 py-0;
+}
+
+.markdown-content a {
+  @apply break-words;
+}
+
+.markdown-content table {
+  @apply text-sm;
+}
+
+/* Ensure code blocks don't break layout */
+.markdown-content pre > div {
+  @apply max-w-full overflow-x-auto;
+}
+
+/* Better spacing for nested lists */
+.markdown-content ul ul,
+.markdown-content ol ul,
+.markdown-content ul ol,
+.markdown-content ol ol {
+  @apply mt-1;
+}
+
+/* Numbered list styling */
+.markdown-content ol {
+  counter-reset: list-counter;
+}
+
+.markdown-content ol > li {
+  position: relative;
+}
+
+/* Improve inline code contrast */
+.markdown-content :not(pre) > code {
+  @apply bg-gray-200 text-pink-700 font-semibold;
+}
