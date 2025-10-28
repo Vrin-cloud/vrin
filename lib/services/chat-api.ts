@@ -76,12 +76,18 @@ class ChatAPI {
     }
 
     // Transform chat parameters to RAG endpoint format
-    const ragRequest = {
+    const ragRequest: any = {
       query: request.message,           // message → query
       user_id: userId,                   // Required by RAG endpoint
-      session_id: request.session_id,    // For conversation context
+      maintain_context: true,            // Enable conversation persistence to backend
       stream: false                      // Non-streaming mode
     };
+
+    // Only include session_id if we have one (for follow-up queries)
+    // First query: backend will create and return session_id
+    if (request.session_id) {
+      ragRequest.session_id = request.session_id;
+    }
 
     // CRITICAL: Log the exact request being sent to backend
     console.log('🌐 === CHAT API REQUEST (RAG Format) ===');
@@ -156,12 +162,18 @@ class ChatAPI {
     }
 
     // Transform chat parameters to RAG endpoint format
-    const ragRequest = {
+    const ragRequest: any = {
       query: request.message,           // message → query
       user_id: userId,                   // Required by RAG endpoint
-      session_id: request.session_id,    // For conversation context
+      maintain_context: true,            // Enable conversation persistence to backend
       stream: true                       // Enable streaming
     };
+
+    // Only include session_id if we have one (for follow-up queries)
+    // First query: backend will create and return session_id
+    if (request.session_id) {
+      ragRequest.session_id = request.session_id;
+    }
 
     console.log('🌊 === STREAMING CHAT REQUEST (RAG Format) ===');
     console.log('URL:', url, '(proxied to Lambda Function URL)');

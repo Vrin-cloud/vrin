@@ -174,12 +174,12 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         let finalTurn: number | undefined;
         let finalExpertAnalysis: any = null;
 
-        // Generate session_id if not already present (for RAG endpoint compatibility)
-        if (!session?.session_id) {
-          finalSessionId = `session-${crypto.randomUUID()}`;
-          console.log('🆕 Generated new session ID:', finalSessionId);
-        } else {
+        // Use existing session_id if available, otherwise backend will create one
+        if (session?.session_id) {
           finalSessionId = session.session_id;
+          console.log('📌 Using existing session ID:', finalSessionId);
+        } else {
+          console.log('🆕 First query - backend will create and return session ID');
         }
 
         try {
