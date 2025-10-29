@@ -51,11 +51,15 @@ export interface MessageMetadata {
   output_tokens?: number;  // Output tokens used
   total_tokens?: number;  // Total tokens used
   model?: string;  // Model used for response
+  reasoning_summary?: string;  // GPT-5 reasoning summary (thinking process)
   thinking_steps?: Array<{  // Thinking steps from reasoning
     step: string;
     description: string;
     icon: string;
   }>;
+  sources?: any[];  // Source documents
+  entities?: string[];  // Discovered entities
+  chunks_retrieved?: number;  // Number of chunks retrieved
 }
 
 export interface ExpertAnalysis {

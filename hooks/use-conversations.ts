@@ -21,6 +21,17 @@ export interface ConversationDetail {
     role: 'user' | 'assistant' | 'system';
     content: string;
     timestamp: string;
+    metadata?: {
+      sources?: any[];
+      thinking_steps?: any[];
+      reasoning_tokens?: number;
+      reasoning_summary?: string;
+      model?: string;
+      total_tokens?: number;
+      entities?: string[];
+      facts_retrieved?: number;
+      chunks_retrieved?: number;
+    };
   }>;
   turn_count: number;
   created_at: string;
@@ -52,8 +63,9 @@ export const useConversations = (apiKey: string): UseConversationsReturn => {
     setError(null);
 
     try {
+      // Use Next.js API proxy to avoid CORS issues
       const response = await fetch(
-        `${API_CONFIG.CONVERSATION_BASE_URL}/conversations?limit=50`,
+        '/api/conversations?limit=50',
         {
           headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -63,7 +75,8 @@ export const useConversations = (apiKey: string): UseConversationsReturn => {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch conversations: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch conversations: ${response.status}`);
       }
 
       const data = await response.json();
@@ -94,8 +107,9 @@ export const useConversations = (apiKey: string): UseConversationsReturn => {
     setError(null);
 
     try {
+      // Use Next.js API proxy to avoid CORS issues
       const response = await fetch(
-        `${API_CONFIG.CONVERSATION_BASE_URL}/conversations/${sessionId}`,
+        `/api/conversations/${sessionId}`,
         {
           headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -105,7 +119,8 @@ export const useConversations = (apiKey: string): UseConversationsReturn => {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to load conversation: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to load conversation: ${response.status}`);
       }
 
       const conversation = await response.json();

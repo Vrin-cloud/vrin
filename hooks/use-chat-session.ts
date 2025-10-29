@@ -29,53 +29,17 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Load session from localStorage on mount
+  // Initialize on mount - no localStorage restoration
+  // All conversation history comes from backend DynamoDB
   useEffect(() => {
     if (!apiKey) return;
 
-    const savedSessionId = localStorage.getItem('vrin_chat_session_id');
-    const savedMessages = localStorage.getItem('vrin_chat_messages');
+    console.log('🔄 Chat session initialized with API key');
 
-    console.log('🔄 Initializing chat session', {
-      hasApiKey: !!apiKey,
-      hasSavedSession: !!savedSessionId,
-      hasSavedMessages: !!savedMessages
-    });
-
-    if (savedSessionId && savedMessages) {
-      try {
-        const parsedMessages = JSON.parse(savedMessages);
-        setSession({
-          session_id: savedSessionId,
-          conversation_turn: parsedMessages.length,
-          created_at: Date.now(),
-          last_activity: Date.now(),
-          messages: []
-        });
-        setMessages(parsedMessages);
-        console.log('✅ Restored session:', savedSessionId, 'with', parsedMessages.length, 'messages');
-      } catch (e) {
-        console.error('Failed to restore session:', e);
-        localStorage.removeItem('vrin_chat_session_id');
-        localStorage.removeItem('vrin_chat_messages');
-      }
-    } else {
-      console.log('ℹ️ No saved session found, starting fresh');
-    }
-
-    // Ensure loading is false on mount
+    // Start with clean slate - backend is the source of truth
     setIsLoading(false);
     setIsStreaming(false);
   }, [apiKey]);
-
-  // Save messages to localStorage and log changes
-  useEffect(() => {
-    console.log('📝 Messages state changed. Count:', messages.length);
-    if (messages.length > 0) {
-      localStorage.setItem('vrin_chat_messages', JSON.stringify(messages));
-      console.log('💾 Saved messages to localStorage');
-    }
-  }, [messages]);
 
   const startNewSession = useCallback(async () => {
     if (!apiKey) {
@@ -87,9 +51,9 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
       setIsLoading(true);
       setError(null);
 
-      // Clear old session first
-      localStorage.removeItem('vrin_chat_session_id');
-      localStorage.removeItem('vrin_chat_messages');
+      console.log('🆕 Starting new session');
+
+      // Clear current session state
       setSession(null);
       setMessages([]);
 
@@ -104,7 +68,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
       };
 
       setSession(newSession);
-      localStorage.setItem('vrin_chat_session_id', response.session_id);
+      console.log('✅ New session created:', response.session_id);
     } catch (err: any) {
       console.error('Failed to start session:', err);
       setError(err.message || 'Failed to start new conversation');
@@ -462,7 +426,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   }, []);
 
   const loadMessages = useCallback((sessionId: string, loadedMessages: ChatMessage[]) => {
-    console.log('📥 Loading messages into session:', sessionId, 'Count:', loadedMessages.length);
+    console.log('📥 Loading messages from backend:', sessionId, 'Count:', loadedMessages.length);
 
     // Create session from loaded data
     const loadedSession: ChatSession = {
@@ -473,12 +437,11 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
       messages: []
     };
 
+    // Update state with loaded conversation (from backend DynamoDB)
     setSession(loadedSession);
     setMessages(loadedMessages);
-    localStorage.setItem('vrin_chat_session_id', sessionId);
-    localStorage.setItem('vrin_chat_messages', JSON.stringify(loadedMessages));
 
-    console.log('✅ Messages loaded successfully');
+    console.log('✅ Loaded', loadedMessages.length, 'messages from backend for session:', sessionId);
   }, []);
 
   return {

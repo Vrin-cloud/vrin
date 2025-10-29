@@ -300,18 +300,39 @@ export default function ChatPage() {
     try {
       const conversation = await loadConversation(sessionId)
       if (conversation) {
-        // Convert backend message format to frontend format
-        const formattedMessages: BackendChatMessage[] = conversation.messages.map((msg, idx) => ({
-          id: `${msg.role}-${idx}-${Date.now()}`,
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp).getTime()
-        }))
+        console.log('📥 Full conversation response:', {
+          session_id: conversation.session_id,
+          message_count: conversation.messages?.length || 0,
+          messages: conversation.messages
+        })
+
+        // Convert backend message format to frontend format WITH METADATA
+        const formattedMessages: BackendChatMessage[] = conversation.messages.map((msg, idx) => {
+          // Debug: Log metadata for each message
+          console.log(`📋 Message ${idx} (${msg.role}):`, {
+            has_metadata: !!msg.metadata,
+            metadata_keys: msg.metadata ? Object.keys(msg.metadata) : [],
+            thinking_steps_length: msg.metadata?.thinking_steps?.length || 0,
+            reasoning_tokens: msg.metadata?.reasoning_tokens,
+            sources_count: msg.metadata?.sources?.length || 0
+          })
+
+          return {
+            id: `${msg.role}-${idx}-${Date.now()}`,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.timestamp).getTime(),
+            // IMPORTANT: Preserve metadata (thinking_steps, sources, etc.)
+            metadata: msg.metadata || undefined,
+            // IMPORTANT: Preserve sources at message level for "View Sources" button
+            sources: msg.metadata?.sources || undefined
+          }
+        })
 
         // Load messages into the chat session
         loadMessages(sessionId, formattedMessages)
 
-        console.log('✅ Loaded conversation with', formattedMessages.length, 'messages')
+        console.log('✅ Loaded conversation with', formattedMessages.length, 'messages (metadata preserved)')
 
         // Close mobile sidebar if open
         setIsMobileSidebarOpen(false)
@@ -841,7 +862,8 @@ export default function ChatPage() {
                               output_tokens: message.metadata.output_tokens || 0,
                               total_tokens: message.metadata.total_tokens || 0,
                               processing_time: message.metadata.response_time || message.metadata.search_time,
-                              thinking_steps: message.metadata.thinking_steps || []  // Use actual thinking steps from backend
+                              thinking_steps: message.metadata.thinking_steps || [],  // Use actual thinking steps from backend
+                              reasoning_summary: message.metadata.reasoning_summary  // GPT-5 reasoning summary
                             }}
                           />
                         )}

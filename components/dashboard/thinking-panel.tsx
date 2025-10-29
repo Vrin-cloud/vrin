@@ -17,6 +17,7 @@ interface ReasoningMetadata {
   total_tokens: number;
   processing_time?: string;  // Processing time (e.g., "72.4s")
   thinking_steps: ThinkingStep[];
+  reasoning_summary?: string;  // GPT-5 reasoning summary (the model's thinking process)
 }
 
 interface ThinkingPanelProps {
@@ -55,27 +56,46 @@ export function ThinkingPanel({ metadata }: ThinkingPanelProps) {
       {isOpen && (
         <div className="thinking-content bg-white p-4 border-t border-gray-200">
           {hasDetailedSteps ? (
-            // Detailed thinking steps
-            metadata.thinking_steps.map((step, index) => (
-            <div
-              key={index}
-              className={`thinking-step pb-4 mb-4 ${
-                index === metadata.thinking_steps.length - 1 ? 'border-b-0 mb-0 pb-0' : 'border-b border-gray-100'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <span className="text-xl flex-shrink-0">{step.icon}</span>
-                <div className="flex-1">
-                  <div className="font-semibold text-sm text-gray-900 mb-1">
-                    {step.step}
-                  </div>
-                  <div className="text-sm text-gray-600 leading-relaxed">
-                    {step.description}
+            <>
+              {/* Detailed thinking steps */}
+              {metadata.thinking_steps.map((step, index) => (
+                <div
+                  key={index}
+                  className={`thinking-step pb-4 mb-4 ${
+                    index === metadata.thinking_steps.length - 1 && !metadata.reasoning_summary ? 'border-b-0 mb-0 pb-0' : 'border-b border-gray-100'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">{step.icon}</span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-sm text-gray-900 mb-1">
+                        {step.step}
+                      </div>
+                      <div className="text-sm text-gray-600 leading-relaxed">
+                        {step.description}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            ))
+              ))}
+
+              {/* GPT-5 Reasoning Summary (if available) */}
+              {metadata.reasoning_summary && (
+                <div className="reasoning-summary pb-4 mb-0">
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">🧠</span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-sm text-gray-900 mb-2">
+                        GPT-5 Reasoning Process
+                      </div>
+                      <div className="text-sm text-gray-600 leading-relaxed bg-purple-50 rounded-lg p-3 border border-purple-100">
+                        <div className="whitespace-pre-wrap">{metadata.reasoning_summary}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             // No detailed steps, just show reasoning summary
             <div className="text-sm text-gray-600">
@@ -83,9 +103,16 @@ export function ThinkingPanel({ metadata }: ThinkingPanelProps) {
                 The model used advanced reasoning to analyze your question and the retrieved context.
                 This involved {metadata.reasoning_tokens?.toLocaleString()} reasoning tokens of internal thought before generating the response.
               </p>
-              <p className="text-xs text-gray-500 italic">
-                Note: Detailed reasoning steps are not available for this response, but the model&apos;s reasoning capability was utilized.
-              </p>
+              {metadata.reasoning_summary ? (
+                <div className="mt-3 bg-purple-50 rounded-lg p-3 border border-purple-100">
+                  <div className="text-xs font-semibold text-purple-900 mb-1">Reasoning Process:</div>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap">{metadata.reasoning_summary}</div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 italic">
+                  Note: Detailed reasoning steps are not available for this response, but the model&apos;s reasoning capability was utilized.
+                </p>
+              )}
             </div>
           )}
 
