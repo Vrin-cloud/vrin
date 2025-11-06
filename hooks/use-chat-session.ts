@@ -29,6 +29,13 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Streaming accumulator using ref pattern (prevent stale closures)
+  const streamingBufferRef = useRef<string>('');
+
+  // Use requestAnimationFrame for smooth updates tied to browser render cycle
+  const rafIdRef = useRef<number | null>(null);
+  const isStreamingActiveRef = useRef<boolean>(false);
+
   // Initialize on mount - no localStorage restoration
   // All conversation history comes from backend DynamoDB
   useEffect(() => {
@@ -125,18 +132,21 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
       // STREAMING MODE
       if (enableStreaming) {
         console.log('🌊 Using streaming mode');
-        setIsStreaming(true);
+        // DON'T set isStreaming yet - wait for first content to arrive
+        // This ensures loading indicator stays visible during backend processing
         setStreamingContent('');
 
         // Create abort controller for cancellation
         abortControllerRef.current = new AbortController();
 
         let streamedMessage = '';
+        let contentChunkCounter = 0;
         let finalMetadata: any = null;
         let finalSources: any[] = [];
         let finalSessionId: string | undefined;
         let finalTurn: number | undefined;
         let finalExpertAnalysis: any = null;
+        let reasoningSummary: string | undefined = undefined;  // NEW: Store LLM reasoning summary
 
         // Use existing session_id if available, otherwise backend will create one
         if (session?.session_id) {
@@ -153,6 +163,8 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
             {
               onMetadata: (metadata) => {
                 console.log('📊 Streaming metadata received:', metadata);
+
+                // Store metadata (streaming state transition happens in onContent)
                 finalMetadata = metadata;
                 // RAG endpoint doesn't return session_id in metadata, use existing or generated
                 if (metadata.session_id) {
@@ -196,12 +208,57 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                 }
               },
               onContent: (delta) => {
+                // On FIRST content chunk, transition from loading to streaming
+                if (contentChunkCounter === 0) {
+                  console.log('🎬 First content chunk received - transitioning to streaming');
+                  setIsLoading(false);
+                  setIsStreaming(true);
+
+                  // Initialize streaming buffer and animation loop
+                  streamingBufferRef.current = '';
+                  isStreamingActiveRef.current = true;
+
+                  // Start requestAnimationFrame loop for smooth updates
+                  const updateLoop = () => {
+                    if (isStreamingActiveRef.current) {
+                      // Update UI with latest buffered content
+                      setStreamingContent(streamingBufferRef.current);
+                      // Schedule next frame
+                      rafIdRef.current = requestAnimationFrame(updateLoop);
+                    }
+                  };
+                  rafIdRef.current = requestAnimationFrame(updateLoop);
+                }
+
+                // Accumulate tokens in buffer
+                // requestAnimationFrame loop will handle UI updates
                 streamedMessage += delta;
-                setStreamingContent(streamedMessage);
+                streamingBufferRef.current = streamedMessage;
+
+                contentChunkCounter++;
+                if (contentChunkCounter <= 10 || contentChunkCounter % 100 === 0) {
+                  console.log(`📝 [${contentChunkCounter}] Buffered: ${streamedMessage.length} chars`);
+                }
+              },
+              onReasoning: (summary) => {
+                // NEW: Capture LLM reasoning summary
+                console.log('🧠 Reasoning summary received:', summary.substring(0, 100) + '...');
+                reasoningSummary = summary;
               },
               onDone: (data) => {
                 console.log('✅ Streaming completed:', data);
                 console.log('📊 Final metadata before reasoning tokens:', finalMetadata);
+
+                // Stop the animation frame loop
+                isStreamingActiveRef.current = false;
+                if (rafIdRef.current) {
+                  cancelAnimationFrame(rafIdRef.current);
+                  rafIdRef.current = null;
+                }
+
+                // Final update with complete content
+                setStreamingContent(streamedMessage);
+                console.log(`📝 Final update: ${streamedMessage.length} chars`);
 
                 // Capture reasoning tokens from done event
                 if (data.reasoning_tokens) {
@@ -213,6 +270,15 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                   console.log('✅ Reasoning tokens captured:', data.reasoning_tokens);
                 } else {
                   console.warn('⚠️ No reasoning_tokens in done event. Available keys:', Object.keys(data));
+                }
+
+                // Add reasoning summary to metadata if available
+                if (reasoningSummary) {
+                  finalMetadata = {
+                    ...finalMetadata,
+                    reasoning_summary: reasoningSummary
+                  };
+                  console.log('✅ Reasoning summary added to metadata:', reasoningSummary.length, 'chars');
                 }
 
                 // Update session if new one was created
@@ -238,7 +304,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                   }
                 }
 
-                // Add final AI message
+                // Add final AI message to messages array
                 const aiMessage: ChatMessage = {
                   id: `ai-${Date.now()}`,
                   role: 'assistant',
@@ -387,8 +453,14 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
       }
 
       // Clear streaming state on error
+      isStreamingActiveRef.current = false;
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
       setIsStreaming(false);
       setStreamingContent('');
+      streamingBufferRef.current = '';
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;
@@ -399,10 +471,18 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     if (abortControllerRef.current) {
       console.log('🛑 Cancelling streaming...');
       abortControllerRef.current.abort();
+
+      isStreamingActiveRef.current = false;
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+
       setIsStreaming(false);
       setStreamingContent('');
       setIsLoading(false);
       abortControllerRef.current = null;
+      streamingBufferRef.current = '';
     }
   }, []);
 

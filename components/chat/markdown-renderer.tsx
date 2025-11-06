@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -39,15 +39,61 @@ const CodeBlock = ({ language, children }: { language: string; children: string 
 interface MarkdownRendererProps {
   content: string
   className?: string
+  isStreaming?: boolean
 }
 
-export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  return (
-    <div className={`markdown-content ${className}`}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-        components={{
+export function MarkdownRenderer({ content, className = '', isStreaming = false }: MarkdownRendererProps) {
+  // Throttle markdown rendering during streaming to improve performance
+  // Similar to Karpathy's approach - only render every ~100ms during streaming
+  const [throttledContent, setThrottledContent] = React.useState(content);
+  const lastUpdateRef = useRef(Date.now());
+  const pendingContentRef = useRef(content);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    if (!isStreaming) {
+      // Not streaming - update immediately
+      console.log(`[MarkdownRenderer] Not streaming, updating immediately: ${content.length} chars`);
+      setThrottledContent(content);
+      return;
+    }
+
+    // Streaming - throttle updates to every 100ms
+    pendingContentRef.current = content;
+    const now = Date.now();
+    const timeSinceLastUpdate = now - lastUpdateRef.current;
+
+    if (timeSinceLastUpdate >= 100) {
+      // Update immediately if enough time has passed
+      console.log(`[MarkdownRenderer] Throttle: Updating (${timeSinceLastUpdate}ms since last): ${content.length} chars`);
+      setThrottledContent(content);
+      lastUpdateRef.current = now;
+    } else {
+      // Schedule update
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      console.log(`[MarkdownRenderer] Throttle: Scheduling update in ${100 - timeSinceLastUpdate}ms`);
+      timeoutRef.current = setTimeout(() => {
+        console.log(`[MarkdownRenderer] Throttle: Delayed update firing: ${pendingContentRef.current.length} chars`);
+        setThrottledContent(pendingContentRef.current);
+        lastUpdateRef.current = Date.now();
+      }, 100 - timeSinceLastUpdate);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [content, isStreaming]);
+
+  // Memoize the expensive markdown rendering
+  const renderedMarkdown = useMemo(() => (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+      components={{
           // Headings
           h1(props) {
             const { node, ...rest } = props
@@ -190,8 +236,13 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           },
         }}
       >
-        {content}
+        {throttledContent}
       </ReactMarkdown>
+  ), [throttledContent]);
+
+  return (
+    <div className={`markdown-content ${className}`}>
+      {renderedMarkdown}
     </div>
   )
 }

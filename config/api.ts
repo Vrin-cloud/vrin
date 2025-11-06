@@ -3,8 +3,8 @@ export const API_CONFIG = {
   // Authentication API (Production)
   AUTH_BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   
-  // RAG API (Lambda Function URL - Streaming support, no 30s timeout)
-  RAG_BASE_URL: 'https://ludeelasqiubh3fxmhtjdzwsou0uundi.lambda-url.us-east-1.on.aws',
+  // RAG API (Lambda Function URL - TRUE Streaming with FastAPI + Lambda Web Adapter)
+  RAG_BASE_URL: 'https://43tybsfy52ehi3fctubc7jwlpi0fgkcz.lambda-url.us-east-1.on.aws',
 
   // Chat API (Conversation Management with File Upload)
   CHAT_BASE_URL: 'https://cg7yind3j5.execute-api.us-east-1.amazonaws.com/dev',

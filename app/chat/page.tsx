@@ -136,7 +136,6 @@ export default function ChatPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [inputMessage, setInputMessage] = useState('')
   const [responseMode, setResponseMode] = useState<ResponseMode>('chat')
-  const [enableStreaming, setEnableStreaming] = useState(true)
   const [showUploadZone, setShowUploadZone] = useState(false)
   const [showResponseModeMenu, setShowResponseModeMenu] = useState(false)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
@@ -148,6 +147,9 @@ export default function ChatPage() {
   const [editingTitle, setEditingTitle] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const authService = new AuthService()
+
+  // Streaming is ALWAYS enabled - this is the default VRIN experience
+  const enableStreaming = true
 
   // Use backend chat session hook
   const {
@@ -221,9 +223,10 @@ export default function ChatPage() {
     }
   }, [apiKey, fetchConversations])
 
+  // Auto-scroll only when messages change or streaming starts (not on every chunk)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, streamingContent])
+  }, [messages, isStreaming])  // Only scroll when streaming state changes or new message added
 
   // Close response mode menu when clicking outside
   useEffect(() => {
@@ -721,22 +724,8 @@ export default function ChatPage() {
             </button>
           </div>
 
-          {/* Response Mode Selector and Streaming Toggle */}
+          {/* Response Mode Selector */}
           <div className="flex items-center gap-3">
-            {/* Streaming Toggle */}
-            <button
-              onClick={() => setEnableStreaming(!enableStreaming)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-all ${
-                enableStreaming
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              title={enableStreaming ? 'Streaming enabled' : 'Streaming disabled'}
-            >
-              <Sparkles className={`w-4 h-4 ${enableStreaming ? 'animate-pulse' : ''}`} />
-              <span className="hidden sm:inline">{enableStreaming ? 'Streaming' : 'Standard'}</span>
-            </button>
-
             {/* Response Mode Selector */}
             <div className="relative">
               <button
@@ -849,24 +838,24 @@ export default function ChatPage() {
                   ) : (
                     // Assistant message: No background, full center space, max-width for content
                     <div className="w-full max-w-3xl">
+                      {/* Reasoning Panel - Show BEFORE response if thinking_steps or reasoning_tokens exist */}
+                      {message.metadata && ((message.metadata.thinking_steps && message.metadata.thinking_steps.length > 0) || (message.metadata.reasoning_tokens && message.metadata.reasoning_tokens > 0)) && (
+                        <ThinkingPanel
+                          metadata={{
+                            model: message.metadata.model || 'gpt-5-mini',
+                            reasoning_tokens: message.metadata.reasoning_tokens || 0,
+                            input_tokens: message.metadata.input_tokens || 0,
+                            output_tokens: message.metadata.output_tokens || 0,
+                            total_tokens: message.metadata.total_tokens || 0,
+                            processing_time: message.metadata.response_time || message.metadata.search_time,
+                            thinking_steps: message.metadata.thinking_steps || [],  // Use actual thinking steps from backend
+                            reasoning_summary: message.metadata.reasoning_summary  // GPT-5 reasoning summary
+                          }}
+                        />
+                      )}
+
                       <div className="text-gray-900">
                         <MarkdownRenderer content={message.content} />
-
-                        {/* Reasoning Panel - Show if thinking_steps or reasoning_tokens exist */}
-                        {message.metadata && ((message.metadata.thinking_steps && message.metadata.thinking_steps.length > 0) || (message.metadata.reasoning_tokens && message.metadata.reasoning_tokens > 0)) && (
-                          <ThinkingPanel
-                            metadata={{
-                              model: message.metadata.model || 'gpt-5-mini',
-                              reasoning_tokens: message.metadata.reasoning_tokens || 0,
-                              input_tokens: message.metadata.input_tokens || 0,
-                              output_tokens: message.metadata.output_tokens || 0,
-                              total_tokens: message.metadata.total_tokens || 0,
-                              processing_time: message.metadata.response_time || message.metadata.search_time,
-                              thinking_steps: message.metadata.thinking_steps || [],  // Use actual thinking steps from backend
-                              reasoning_summary: message.metadata.reasoning_summary  // GPT-5 reasoning summary
-                            }}
-                          />
-                        )}
 
                         {/* Metadata for assistant messages */}
                         {message.metadata && (
@@ -932,26 +921,17 @@ export default function ChatPage() {
                 >
                   <div className="w-full max-w-3xl">
                     <div className="text-gray-900">
-                      <MarkdownRenderer content={streamingContent} />
+                      <MarkdownRenderer content={streamingContent} isStreaming={true} />
 
                       {/* Streaming cursor */}
                       <span className="inline-block w-2 h-5 bg-blue-500 animate-pulse ml-1" />
-
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
-                        <div className="flex gap-1">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                        </div>
-                        <span>Streaming response...</span>
-                      </div>
                     </div>
                   </div>
                 </motion.div>
               )}
 
-              {/* Loading indicator (shows when waiting for response) */}
-              {isLoading && (
+              {/* Loading indicator (shows when waiting for response, but NOT when streaming) */}
+              {isLoading && !isStreaming && (
                 <LoadingAnimation isStreaming={isStreaming} />
               )}
 
