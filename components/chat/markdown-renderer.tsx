@@ -48,7 +48,7 @@ export function MarkdownRenderer({ content, className = '', isStreaming = false 
   const [throttledContent, setThrottledContent] = React.useState(content);
   const lastUpdateRef = useRef(Date.now());
   const pendingContentRef = useRef(content);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (!isStreaming) {
