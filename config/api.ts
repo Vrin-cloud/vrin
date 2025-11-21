@@ -12,8 +12,14 @@ export const API_CONFIG = {
   // Conversation History API (Note: Uses /Stage not /dev)
   CONVERSATION_BASE_URL: 'https://rthl3rcg2b.execute-api.us-east-1.amazonaws.com/Stage',
 
-  // Enterprise API (New Backend Infrastructure) - Use the same auth API for now
-  ENTERPRISE_BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
+  // Enterprise Portal API (Organization, Users, API Keys, Configuration)
+  ENTERPRISE_BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Enterprise Team API (Team Management with Clearance Levels)
+  ENTERPRISE_TEAM_API_URL: 'https://tug6uyfdb4.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Enterprise Permission API (4-Layer Security & Access Control)
+  ENTERPRISE_PERMISSION_API_URL: 'https://e4oqdoz0j4.execute-api.us-east-1.amazonaws.com/dev',
   
   // Legacy support for existing code
   BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
@@ -95,16 +101,39 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}, apiKe
   return response.json();
 };
 
-// Enterprise API Configuration (Following FRONTEND_DEVELOPMENT_GUIDE.md)
+// Enterprise API Configuration (Multi-Tenant Architecture)
 export const ENTERPRISE_API = {
-  BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
+  // Enterprise Portal API (Organization, Users, API Keys, Configuration)
+  PORTAL_BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Team Management API
+  TEAM_BASE_URL: 'https://tug6uyfdb4.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Permission & Access Control API
+  PERMISSION_BASE_URL: 'https://e4oqdoz0j4.execute-api.us-east-1.amazonaws.com/dev',
+
+  // Legacy BASE_URL for backward compatibility (uses Portal API)
+  BASE_URL: process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev',
+
   ENDPOINTS: {
+    // Portal endpoints
     ORGANIZATION: '/enterprise/organization',
-    USERS: '/enterprise/users', 
-    API_KEYS: '/api/enterprise/api-keys',  // Use local proxy to avoid CORS
-    CONFIGURATION: '/api/enterprise/configuration',  // Use local proxy to avoid CORS
+    USERS: '/enterprise/users',
+    API_KEYS: '/enterprise/api-keys',
+    CONFIGURATION: '/enterprise/configuration',
     SPECIALIZATION: '/enterprise/specialization',
-    VALIDATE_CONFIG: '/api/enterprise/validate-config'  // Use local proxy to avoid CORS
+    VALIDATE_CONFIG: '/enterprise/validate-config',
+
+    // Team endpoints
+    TEAMS: '/teams',
+    TEAM_DETAIL: '/teams/{id}',
+    TEAM_MEMBERS: '/teams/{id}/members',
+
+    // Permission endpoints
+    POLICIES: '/policies',
+    ACCESS_CHECK: '/access-check',
+    CLEARANCE_CHECK: '/clearance-check',
+    USER_PERMISSIONS: '/users/{id}/permissions'
   }
 };
 

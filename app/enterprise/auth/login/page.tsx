@@ -79,7 +79,7 @@ export default function EnterpriseLoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/login', {
+      const response = await fetch('https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,9 +90,9 @@ export default function EnterpriseLoginPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store authentication data
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_data', JSON.stringify(data.user));
+        // Store authentication data (use keys expected by useEnterpriseAuth)
+        localStorage.setItem('enterprise_token', data.token);
+        localStorage.setItem('enterprise_user', JSON.stringify(data.user));
 
         if (rememberMe) {
           localStorage.setItem('remember_me', 'true');
@@ -100,10 +100,11 @@ export default function EnterpriseLoginPage() {
 
         setSuccess(true);
 
-        // Redirect to dashboard
+        // Small delay to ensure localStorage is written, then redirect
         setTimeout(() => {
-          router.push('/enterprise/dashboard');
-        }, 1000);
+          // Force a hard navigation to ensure fresh component mount
+          window.location.href = '/enterprise/dashboard';
+        }, 500);
       } else {
         setError(data.error || 'Invalid email or password');
       }

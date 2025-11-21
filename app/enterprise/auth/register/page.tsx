@@ -201,9 +201,13 @@ export default function EnterpriseRegisterPage() {
 
     setLoading(true);
 
+    console.log('🚀 Registration starting - using updated endpoint');
+    console.log('📍 Organization endpoint:', 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/organization');
+
     try {
       // Step 1: Create organization
-      const orgResponse = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/organization', {
+      console.log('📝 Creating organization:', organizationName);
+      const orgResponse = await fetch('https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/organization', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -228,7 +232,7 @@ export default function EnterpriseRegisterPage() {
       const organizationId = orgData.organization_id;
 
       // Step 2: Create user
-      const userResponse = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/users', {
+      const userResponse = await fetch('https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

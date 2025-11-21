@@ -55,22 +55,27 @@ export function EnterpriseAuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('DEBUG: useEffect triggered - checking auth state')
     console.log('DEBUG: User already set during initialization:', user)
-    
-    // If no user found in initial state, try to load from localStorage
-    if (!user && typeof window !== 'undefined') {
+
+    // Always check localStorage on mount to ensure fresh data
+    if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('enterprise_user')
       const storedToken = localStorage.getItem('enterprise_token')
-      
+
       console.log('DEBUG: Checking localStorage - storedUser:', !!storedUser, 'storedToken:', !!storedToken)
-      
+
       if (storedUser && storedToken) {
         try {
           const parsed = JSON.parse(storedUser)
           console.log('DEBUG: Found stored user in useEffect, setting user:', parsed)
+          // Always update user from localStorage to ensure we have latest data
           setUser(parsed)
         } catch (e) {
           console.log('DEBUG: Failed to parse stored user in useEffect:', e)
         }
+      } else if (!storedUser || !storedToken) {
+        // Clear user state if localStorage is empty
+        console.log('DEBUG: No stored credentials, clearing user state')
+        setUser(null)
       }
     }
   }, [])
