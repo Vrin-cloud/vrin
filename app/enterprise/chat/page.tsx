@@ -26,7 +26,11 @@ import {
   Zap,
   Check,
   Building2,
-  ArrowLeft
+  ArrowLeft,
+  Key,
+  AlertCircle,
+  Globe,
+  Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -43,7 +47,8 @@ import { Badge } from '@/components/ui/badge'
 import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
 import { useEnterpriseChatSession } from '@/hooks/use-enterprise-chat-session'
 import { useEnterpriseConversations } from '@/hooks/use-enterprise-conversations'
-import { EnterpriseAuthContext } from '@/lib/services/enterprise-chat-api'
+import { EnterpriseAuthContext, setEnterpriseApiKey } from '@/lib/services/enterprise-chat-api'
+import { useApiKeys } from '@/hooks/useEnterprise'
 import { MarkdownRenderer } from '@/components/chat/markdown-renderer'
 import { SourcesPanel } from '@/components/chat/sources-panel'
 import { ThinkingPanel } from '@/components/dashboard/thinking-panel'
@@ -58,6 +63,7 @@ export default function EnterpriseChatPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [inputMessage, setInputMessage] = useState('')
   const [responseMode, setResponseMode] = useState<ResponseMode>('chat')
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
   const [showResponseModeMenu, setShowResponseModeMenu] = useState(false)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [isLoadingConversation, setIsLoadingConversation] = useState(false)
@@ -66,26 +72,77 @@ export default function EnterpriseChatPage() {
   const [currentMetadata, setCurrentMetadata] = useState<any>({})
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState<string | null>(null)
+  const [showApiKeySelector, setShowApiKeySelector] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Get organization ID for API key fetching
+  const organizationId = (user as any)?.organizationId || (user as any)?.organization_id
+
+  // Fetch available API keys for this organization
+  const { apiKeys, loading: apiKeysLoading } = useApiKeys(organizationId)
+
+  // Get currently stored API key
+  const storedApiKey = typeof window !== 'undefined'
+    ? localStorage.getItem('enterprise_api_key')
+    : null
+
+  // Check if we have an active API key available
+  const activeApiKeys: any[] = apiKeys?.filter((k: any) => k.status === 'active') || []
+  const hasActiveApiKey = storedApiKey || activeApiKeys.length > 0
+
+  // Auto-select first active API key if none is stored
+  useEffect(() => {
+    if (!storedApiKey && activeApiKeys.length > 0 && !apiKeysLoading) {
+      const firstActiveKey = activeApiKeys[0]
+      if (firstActiveKey?.key) {
+        console.log('[Enterprise Chat] Auto-selecting first active API key:', firstActiveKey.name)
+        setEnterpriseApiKey(firstActiveKey.key)
+        setSelectedApiKeyId(firstActiveKey.id)
+        toast.success(`Using API key: ${firstActiveKey.name}`)
+      }
+    }
+  }, [storedApiKey, activeApiKeys, apiKeysLoading])
+
+  // Handle API key selection
+  const handleSelectApiKey = (apiKey: any) => {
+    if (apiKey?.key) {
+      setEnterpriseApiKey(apiKey.key)
+      setSelectedApiKeyId(apiKey.id)
+      setShowApiKeySelector(false)
+      toast.success(`Switched to API key: ${apiKey.name}`)
+    }
+  }
 
   // Build enterprise auth context for API calls
   const enterpriseAuth = useMemo<EnterpriseAuthContext | null>(() => {
     if (!user) return null
 
-    // Get enterprise API key from localStorage if available
+    // Get enterprise API key from localStorage (freshly read)
     const enterpriseApiKey = typeof window !== 'undefined'
       ? localStorage.getItem('enterprise_api_key')
       : null
+
+    // Handle both camelCase and snake_case field names from backend
+    const orgId = (user as any).organizationId || (user as any).organization_id
+    const userId = (user as any).id || (user as any).user_id
+
+    console.log('[Enterprise Chat] Building auth context:', {
+      hasApiKey: !!enterpriseApiKey,
+      apiKeyPrefix: enterpriseApiKey ? enterpriseApiKey.substring(0, 15) + '...' : 'NONE',
+      organizationId: orgId,
+      userId: userId,
+    })
 
     return {
       token: typeof window !== 'undefined'
         ? localStorage.getItem('enterprise_token') || ''
         : '',
-      organizationId: user.organizationId,
-      userId: user.id,
+      organizationId: orgId,
+      userId: userId,
       apiKey: enterpriseApiKey || undefined,
     }
-  }, [user])
+  }, [user, selectedApiKeyId]) // Re-compute when selectedApiKeyId changes
 
   // Use enterprise chat session hook
   const {
@@ -176,7 +233,9 @@ export default function EnterpriseChatPage() {
     setInputMessage('')
 
     try {
-      await sendMessage(message, responseMode, true) // Always use streaming
+      // Pass webSearchEnabled (only relevant for brainstorm mode)
+      const useWebSearch = responseMode === 'brainstorm' && webSearchEnabled
+      await sendMessage(message, responseMode, true, useWebSearch) // Always use streaming
 
       // Refresh conversation list after first message in new conversation
       if (wasNewConversation) {
@@ -198,23 +257,45 @@ export default function EnterpriseChatPage() {
   const handleLoadConversation = async (sessionId: string) => {
     if (isLoadingConversation) return
 
+    console.log('[Enterprise Chat] Loading conversation:', sessionId)
     setIsLoadingConversation(true)
     setActiveConversationId(sessionId)
 
     try {
       const conversation = await loadConversation(sessionId)
       if (conversation) {
-        // Convert backend message format to frontend format
-        const formattedMessages: BackendChatMessage[] = conversation.messages.map((msg, idx) => ({
-          id: `${msg.role}-${idx}-${Date.now()}`,
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp).getTime(),
-          metadata: msg.metadata || undefined,
-          sources: msg.metadata?.sources || undefined
-        }))
+        console.log('[Enterprise Chat] 📥 Full conversation response:', {
+          session_id: conversation.session_id,
+          message_count: conversation.messages?.length || 0,
+          messages: conversation.messages
+        })
+
+        // Convert backend message format to frontend format WITH METADATA PRESERVED
+        const formattedMessages: BackendChatMessage[] = conversation.messages.map((msg, idx) => {
+          // Debug: Log metadata for each message to ensure it's being loaded
+          console.log(`[Enterprise Chat] 📋 Message ${idx} (${msg.role}):`, {
+            has_metadata: !!msg.metadata,
+            metadata_keys: msg.metadata ? Object.keys(msg.metadata) : [],
+            thinking_steps_length: msg.metadata?.thinking_steps?.length || 0,
+            reasoning_tokens: msg.metadata?.reasoning_tokens,
+            reasoning_summary_length: msg.metadata?.reasoning_summary?.length || 0,
+            sources_count: msg.metadata?.sources?.length || 0
+          })
+
+          return {
+            id: `${msg.role}-${idx}-${Date.now()}`,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.timestamp).getTime(),
+            // IMPORTANT: Preserve ALL metadata (thinking_steps, reasoning_tokens, reasoning_summary, etc.)
+            metadata: msg.metadata || undefined,
+            // IMPORTANT: Preserve sources at message level for "View Sources" button
+            sources: msg.metadata?.sources || undefined
+          }
+        })
 
         loadMessages(sessionId, formattedMessages)
+        console.log('[Enterprise Chat] ✅ Loaded conversation with', formattedMessages.length, 'messages (metadata preserved)')
         setIsMobileSidebarOpen(false)
       }
     } catch (error) {
@@ -300,6 +381,44 @@ export default function EnterpriseChatPage() {
               Go to Login
             </Link>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // No API key available - prompt user to generate one
+  if (!apiKeysLoading && !hasActiveApiKey) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Key className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">API Key Required</h1>
+            <p className="text-gray-600 mt-2">
+              To use the Enterprise Chat, you need to generate an API key that connects to your organization&apos;s infrastructure.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <Link
+              href="/enterprise/dashboard"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200"
+            >
+              <Key className="w-5 h-5" />
+              Generate API Key
+            </Link>
+            <Link
+              href="/enterprise/dashboard"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Dashboard
+            </Link>
+          </div>
+          <p className="text-xs text-gray-500 text-center mt-6">
+            Enterprise API keys route your queries to your organization&apos;s private infrastructure for data sovereignty.
+          </p>
         </div>
       </div>
     )
@@ -479,7 +598,10 @@ export default function EnterpriseChatPage() {
                             <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200">
                               <DropdownMenuItem
                                 className="text-gray-700 focus:bg-gray-100 cursor-pointer"
-                                onClick={() => handleStartRename(conv.session_id, displayTitle)}
+                                onSelect={(e) => {
+                                  e.preventDefault()
+                                  handleStartRename(conv.session_id, displayTitle)
+                                }}
                               >
                                 <Edit3 className="w-4 h-4 mr-2" />
                                 Rename
@@ -487,7 +609,10 @@ export default function EnterpriseChatPage() {
                               <DropdownMenuSeparator className="bg-gray-200" />
                               <DropdownMenuItem
                                 className="text-red-600 focus:bg-gray-100 focus:text-red-600 cursor-pointer"
-                                onClick={() => handleDeleteConversation(conv.session_id)}
+                                onSelect={(e) => {
+                                  e.preventDefault()
+                                  handleDeleteConversation(conv.session_id)
+                                }}
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
@@ -545,8 +670,11 @@ export default function EnterpriseChatPage() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-gray-200" />
                 <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-red-600 focus:bg-gray-100 focus:text-red-600"
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    handleLogout()
+                  }}
+                  className="text-red-600 focus:bg-gray-100 focus:text-red-600 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -576,21 +704,42 @@ export default function EnterpriseChatPage() {
 
           {/* Response Mode Selector */}
           <div className="flex items-center gap-3">
+            {/* Web Search Toggle (only visible in brainstorm mode) */}
+            {responseMode === 'brainstorm' && (
+              <button
+                onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  webSearchEnabled
+                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={webSearchEnabled ? 'Web search enabled' : 'Enable web search'}
+              >
+                <Globe className="w-4 h-4" />
+                <span className="hidden sm:inline">Web Search</span>
+                {webSearchEnabled && <Check className="w-3 h-3" />}
+              </button>
+            )}
+
             <div className="relative">
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   setShowResponseModeMenu(!showResponseModeMenu)
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  responseMode === 'brainstorm'
+                    ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-300'
+                    : 'bg-gray-100 hover:bg-gray-200'
+                }`}
               >
-                <Zap className="w-4 h-4" />
+                {responseMode === 'brainstorm' ? <Lightbulb className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
                 <span className="capitalize">{responseMode}</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
 
               {showResponseModeMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
                   <button
                     onClick={() => {
                       setResponseMode('chat')
@@ -600,7 +749,7 @@ export default function EnterpriseChatPage() {
                   >
                     <div>
                       <div className="font-medium text-sm">Chat</div>
-                      <div className="text-xs text-gray-500">Concise responses</div>
+                      <div className="text-xs text-gray-500">Concise responses from knowledge base</div>
                     </div>
                     {responseMode === 'chat' && <Check className="w-4 h-4 text-purple-600" />}
                   </button>
@@ -617,6 +766,24 @@ export default function EnterpriseChatPage() {
                     </div>
                     {responseMode === 'expert' && <Check className="w-4 h-4 text-purple-600" />}
                   </button>
+                  <div className="border-t border-gray-200 my-2" />
+                  <button
+                    onClick={() => {
+                      setResponseMode('brainstorm')
+                      setShowResponseModeMenu(false)
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-amber-50 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-amber-600" />
+                      <div>
+                        <div className="font-medium text-sm text-amber-700">Brainstorm</div>
+                        <div className="text-xs text-gray-500">Creative ideas + web search</div>
+                      </div>
+                    </div>
+                    {responseMode === 'brainstorm' && <Check className="w-4 h-4 text-amber-600" />}
+                  </button>
+                  <div className="border-t border-gray-200 my-2" />
                   <button
                     onClick={() => {
                       setResponseMode('raw_facts')

@@ -41,6 +41,7 @@ import { ModernDocumentationSection } from '../../components/dashboard/sections/
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
 import { ThinkingPanel } from '../../components/dashboard/thinking-panel';
 import { SourcesPanel } from '../../components/dashboard/sources-panel';
+import { DataSourcesSection } from '../../components/dashboard/sections/data-sources-section';
 import { useAccountKnowledgeGraph } from '../../hooks/use-knowledge-graph';
 import type { Node, Edge, Triple, GraphStatistics } from '../../types/knowledge-graph';
 
@@ -109,7 +110,7 @@ export default function Dashboard() {
     // Check for URL query parameter to set active section
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    if (tab && ['overview', 'knowledge', 'search', 'insert', 'graph', 'ai-specialization', 'api-keys', 'api-docs'].includes(tab)) {
+    if (tab && ['overview', 'knowledge', 'search', 'insert', 'data-sources', 'graph', 'ai-specialization', 'api-keys', 'api-docs'].includes(tab)) {
       setActiveSection(tab);
     }
   }, []);
@@ -236,8 +237,9 @@ export default function Dashboard() {
     { id: 'knowledge', label: 'Knowledge Hub', icon: Brain, color: 'purple' },
     { id: 'search', label: 'Smart Search', icon: Search, color: 'green' },
     { id: 'insert', label: 'Add Knowledge', icon: Plus, color: 'orange' },
+    { id: 'data-sources', label: 'Data Sources', icon: Globe, color: 'cyan', badge: 'NEW' },
     { id: 'graph', label: 'Knowledge Graph', icon: Database, color: 'pink' },
-    { id: 'ai-specialization', label: 'AI Specialization', icon: Sparkles, color: 'purple', badge: 'NEW' },
+    { id: 'ai-specialization', label: 'AI Specialization', icon: Sparkles, color: 'purple' },
     { id: 'api-keys', label: 'API Keys', icon: Key, color: 'indigo' },
     { id: 'api-docs', label: 'Documentation', icon: FileText, color: 'teal' },
   ];
@@ -272,6 +274,8 @@ export default function Dashboard() {
         );
       case 'insert-results':
         return <InsertResultsSection result={insertResult} />;
+      case 'data-sources':
+        return <DataSourcesSection apiKey={apiKey || undefined} />;
       case 'knowledge':
         return <KnowledgeHubSection graphData={graphData} />;
       case 'graph':
