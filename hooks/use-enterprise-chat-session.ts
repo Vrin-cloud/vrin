@@ -13,7 +13,7 @@ interface UseEnterpriseChatSessionReturn {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
-  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean) => Promise<void>;
+  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
   endSession: () => Promise<void>;
@@ -87,13 +87,16 @@ export const useEnterpriseChatSession = (
   const sendMessage = useCallback(async (
     message: string,
     mode: ResponseMode = 'chat',
-    enableStreaming: boolean = true
+    enableStreaming: boolean = true,
+    webSearchEnabled: boolean = false
   ) => {
     console.log('[Enterprise Chat Session] sendMessage called');
     console.log('  Auth:', auth ? `org=${auth.organizationId}` : 'MISSING');
     console.log('  Session:', session?.session_id || 'No active session');
     console.log('  Message:', message.substring(0, 50) + '...');
     console.log('  Streaming:', enableStreaming);
+    console.log('  Mode:', mode);
+    console.log('  Web Search:', webSearchEnabled);
 
     if (!auth) {
       const error = 'Authentication required';
@@ -151,7 +154,7 @@ export const useEnterpriseChatSession = (
           message,
           session?.session_id,
           {
-            onMetadata: (metadata) => {
+            onMetadata: (metadata: any) => {
               console.log('[Enterprise Chat Session] Metadata received:', metadata);
               finalMetadata = metadata;
               finalSessionId = metadata.session_id;
@@ -237,7 +240,8 @@ export const useEnterpriseChatSession = (
             }
           },
           abortControllerRef.current.signal,
-          mode
+          mode,
+          webSearchEnabled
         );
       } else {
         // NON-STREAMING MODE

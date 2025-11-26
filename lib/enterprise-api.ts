@@ -14,8 +14,21 @@ export class EnterpriseAPIService {
     let authToken = null
     if (typeof window !== 'undefined') {
       authToken = localStorage.getItem('enterprise_token')
+
+      // Validate token format - enterprise session tokens should be base64 (typically start with 'eyJ')
+      // NOT API keys (which start with 'vrin_')
+      if (authToken && authToken.startsWith('vrin_')) {
+        console.warn('[Enterprise API] Invalid token format detected - clearing stale API key from enterprise_token')
+        console.warn('[Enterprise API] Please log in again to get a fresh session token')
+        localStorage.removeItem('enterprise_token')
+        authToken = null
+      }
     }
-    
+
+    if (!authToken) {
+      console.warn('[Enterprise API] No enterprise_token found - user may need to log in')
+    }
+
     return authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
   }
   

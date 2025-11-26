@@ -1,7 +1,7 @@
 // Chat types for VRIN frontend integration
 // Based on backend API from vrin-engine
 
-export type ResponseMode = 'chat' | 'expert' | 'raw_facts';
+export type ResponseMode = 'chat' | 'expert' | 'raw_facts' | 'brainstorm';
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type UploadStatus = 'uploaded' | 'processing' | 'completed' | 'failed';
 

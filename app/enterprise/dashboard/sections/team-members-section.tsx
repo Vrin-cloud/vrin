@@ -52,6 +52,9 @@ interface Invitation {
 }
 
 export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
+  // Handle both camelCase and snake_case field names from backend
+  const organizationId = user?.organizationId || user?.organization_id
+
   const [activeTab, setActiveTab] = useState<'members' | 'invitations'>('members')
   const [members, setMembers] = useState<TeamMember[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
@@ -69,14 +72,14 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
   const [sendingInvite, setSendingInvite] = useState(false)
 
   useEffect(() => {
-    if (user?.organizationId) {
+    if (organizationId) {
       loadMembers()
       loadInvitations()
     } else {
       setLoadingMembers(false)
       setLoadingInvitations(false)
     }
-  }, [user?.organizationId])
+  }, [organizationId])
 
   const loadMembers = async () => {
     try {
@@ -85,7 +88,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
 
       // Try to fetch members from API
       try {
-        const response = await fetch(`/api/enterprise/users?organization_id=${user?.organizationId}`, {
+        const response = await fetch(`/api/enterprise/users?organization_id=${organizationId}`, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         })
 
@@ -161,7 +164,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
       const authToken = localStorage.getItem('enterprise_token')
       if (!authToken) return
 
-      const response = await fetch(`/api/enterprise/users/invitations?organization_id=${user?.organizationId}`, {
+      const response = await fetch(`/api/enterprise/users/invitations?organization_id=${organizationId}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
 
@@ -198,7 +201,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          organization_id: user?.organizationId,
+          organization_id: organizationId,
           email: inviteEmail,
           role: inviteRole,
           clearance_level: inviteClearance,

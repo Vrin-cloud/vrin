@@ -24,10 +24,12 @@ import {
   Shield,
   Activity,
   Calendar,
-  Download
+  Download,
+  MessageSquare
 } from 'lucide-react'
 import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
 import { useApiKeys } from '@/hooks/useEnterprise'
+import { setEnterpriseApiKey } from '@/lib/services/enterprise-chat-api'
 import { toast } from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
@@ -48,8 +50,12 @@ interface ApiKeyData {
 
 export default function ApiKeysPage() {
   const { user } = useEnterpriseAuth()
-  const organizationId = user?.organizationId
+  // Handle both camelCase and snake_case field names from backend
+  const organizationId = (user as any)?.organizationId || (user as any)?.organization_id
   const { apiKeys, loading, createApiKey, revokeApiKey } = useApiKeys(organizationId)
+
+  // Debug: Log organization ID
+  console.log('🏢 Organization ID:', organizationId, 'from user:', user)
 
   // Debug: Log API keys when they change
   useEffect(() => {
@@ -88,12 +94,20 @@ export default function ApiKeysPage() {
     console.log('🔑 Creating API key with data:', formData)
 
     try {
+      // Get user_id from the authenticated user (handle both camelCase and snake_case)
+      const userId = (user as any)?.user_id || (user as any)?.userId
+      if (!userId) {
+        toast.error('User ID not found. Please log in again.')
+        return
+      }
+
       const keyData = {
         name: formData.name,
         description: formData.description,
         deployment_mode: formData.deploymentMode,
         permissions: formData.permissions,
-        expires_in_days: parseInt(formData.expiresIn)
+        expires_in_days: parseInt(formData.expiresIn),
+        user_id: userId
       }
 
       console.log('🚀 Calling createApiKey with:', keyData)
@@ -112,10 +126,16 @@ export default function ApiKeysPage() {
           permissions: ['read', 'write'],
           expiresIn: '90'
         })
-        
+
+        // Automatically set this API key for enterprise chat use
+        if (result.api_key) {
+          setEnterpriseApiKey(result.api_key)
+          console.log('[API Keys] New API key automatically set for Enterprise Chat')
+        }
+
         // Show success message for the new API key being added to the list
         setTimeout(() => {
-          toast.success('✅ New API key has been added to your keys list!')
+          toast.success('✅ New API key has been added to your keys list and is now active for Enterprise Chat!')
         }, 2000)
       } else {
         toast.error(result.error || 'Failed to create API key')
@@ -444,15 +464,37 @@ export default function ApiKeysPage() {
 
                       <div className="flex gap-2 ml-4">
                         {apiKey.status === 'active' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRevokeApiKey(apiKey.id || apiKey.api_key_id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Revoke
-                          </Button>
+                          <>
+                            {/* Use for Chat button - stores API key for enterprise chat */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const keyValue = apiKey.key || apiKey.api_key;
+                                if (keyValue && keyValue.length > 20) {
+                                  setEnterpriseApiKey(keyValue);
+                                  toast.success(`API key "${apiKey.name}" is now active for Enterprise Chat`);
+                                } else {
+                                  toast.error('Full API key not available. Please regenerate if needed.');
+                                }
+                              }}
+                              disabled={!(apiKey.key || apiKey.api_key) || (apiKey.key || apiKey.api_key).length <= 20}
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                              title="Set this API key as the active key for Enterprise Chat"
+                            >
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              Use for Chat
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRevokeApiKey(apiKey.id || apiKey.api_key_id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Revoke
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>

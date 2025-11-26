@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const ENTERPRISE_API_BASE = 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod'
+const ENTERPRISE_API_BASE = 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev'
 
 export async function GET(request: NextRequest) {
   try {

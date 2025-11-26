@@ -34,6 +34,9 @@ interface EnterpriseStats {
 
 export default function OverviewSection({ user }: OverviewSectionProps) {
   const router = useRouter()
+  // Handle both camelCase and snake_case field names from backend
+  const organizationId = user?.organizationId || user?.organization_id
+
   const [stats, setStats] = useState<EnterpriseStats>({
     totalUsers: 0,
     pendingInvitations: 0,
@@ -48,7 +51,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
 
   useEffect(() => {
     loadEnterpriseStats()
-  }, [user?.organizationId])
+  }, [organizationId])
 
   const loadEnterpriseStats = async () => {
     try {
@@ -56,12 +59,12 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
       if (!authToken) return
 
       // Load users count
-      const usersResponse = await fetch(`/api/enterprise/users?organization_id=${user?.organizationId}`, {
+      const usersResponse = await fetch(`/api/enterprise/users?organization_id=${organizationId}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
 
       // Load invitations count
-      const invitationsResponse = await fetch(`/api/enterprise/users/invitations?organization_id=${user?.organizationId}`, {
+      const invitationsResponse = await fetch(`/api/enterprise/users/invitations?organization_id=${organizationId}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
 

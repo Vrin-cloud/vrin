@@ -1,6 +1,9 @@
 // Enterprise Chat API Service
 // Handles chat operations for enterprise users with organization-scoped authentication
 // Routes to enterprise infrastructure via vrin_ent_ API keys
+//
+// IMPORTANT: This service now uses the same /api/chat proxy as individual chat
+// to avoid CORS issues and ensure consistent behavior.
 
 import { API_CONFIG } from '@/config/api';
 import type { ChatMessage, ResponseMode, SourceDocument } from '@/types/chat';
@@ -44,6 +47,35 @@ interface ConversationListItem {
   updated_at: string;
 }
 
+/**
+ * Get the enterprise API key for the current organization.
+ * Checks localStorage for stored enterprise API key.
+ */
+function getStoredEnterpriseApiKey(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('enterprise_api_key');
+}
+
+/**
+ * Store the enterprise API key for use in chat.
+ * Called when user selects/generates an API key.
+ */
+export function setEnterpriseApiKey(apiKey: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('enterprise_api_key', apiKey);
+    console.log('[Enterprise Chat] API key stored for chat use');
+  }
+}
+
+/**
+ * Clear the stored enterprise API key.
+ */
+export function clearEnterpriseApiKey(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('enterprise_api_key');
+  }
+}
+
 class EnterpriseChatAPI {
   private getAuthHeaders(auth: EnterpriseAuthContext): HeadersInit {
     // Use enterprise API key if available, otherwise fall back to token
@@ -79,6 +111,11 @@ class EnterpriseChatAPI {
 
   /**
    * Send a message with streaming response (SSE)
+   * Uses /api/chat proxy to avoid CORS issues (same as individual chat)
+   *
+   * IMPORTANT: For browser-based enterprise chat, we use the SESSION TOKEN
+   * (enterprise_token from localStorage) for authentication, NOT API keys.
+   * API keys are designed for SDK/programmatic access, not browser sessions.
    */
   async sendMessageStreaming(
     auth: EnterpriseAuthContext,
@@ -86,33 +123,47 @@ class EnterpriseChatAPI {
     sessionId: string | undefined,
     callbacks: StreamingCallbacks,
     signal?: AbortSignal,
-    responseMode: ResponseMode = 'chat'
+    responseMode: ResponseMode = 'chat',
+    webSearchEnabled: boolean = false
   ): Promise<void> {
-    const apiKey = auth.apiKey || auth.token;
+    // For browser-based enterprise chat, use the session token (same as dashboard auth)
+    // API keys should only be used for SDK/programmatic access
+    const authToken = auth.token;
 
+    if (!authToken) {
+      callbacks.onError?.('No session token available. Please log in to your enterprise account.');
+      throw new Error('No session token available');
+    }
+
+    // Build request body matching the individual chat format (RAG endpoint format)
     const requestBody = {
       query: message,
+      user_id: auth.userId,
       session_id: sessionId,
       include_sources: true,
       response_mode: responseMode,
       stream: true,
+      maintain_context: true,  // CRITICAL: Enable conversation persistence
       organization_id: auth.organizationId,
-      user_id: auth.userId,
+      web_search_enabled: webSearchEnabled,  // Enable web search for brainstorm mode
     };
 
-    console.log('[Enterprise Chat] Sending streaming message:', {
-      sessionId,
+    console.log('[Enterprise Chat] Sending streaming message via /api/chat proxy:', {
+      sessionId: sessionId || 'NEW SESSION',
       messagePreview: message.substring(0, 50),
       organizationId: auth.organizationId,
+      userId: auth.userId,
+      tokenPrefix: authToken.substring(0, 20) + '...',
     });
 
     try {
-      // Use Lambda Function URL for streaming (no timeout limit)
-      const response = await fetch(API_CONFIG.RAG_BASE_URL, {
+      // Use /api/chat proxy (same as individual chat) to avoid CORS
+      // Enterprise chat uses session token for auth (not API keys)
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${authToken}`,
           'Accept': 'text/event-stream',
         },
         body: JSON.stringify(requestBody),
@@ -121,8 +172,15 @@ class EnterpriseChatAPI {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('[Enterprise Chat] Streaming request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
         throw new Error(`Streaming request failed: ${response.status} - ${errorText}`);
       }
+
+      console.log('[Enterprise Chat] Streaming response received, processing SSE...');
 
       // Process SSE stream
       await this.handleStreamingResponse(response, callbacks);
@@ -229,6 +287,7 @@ class EnterpriseChatAPI {
 
   /**
    * Send a non-streaming message
+   * Uses /api/chat proxy to avoid CORS issues (same as individual chat)
    */
   async sendMessage(
     auth: EnterpriseAuthContext,
@@ -236,50 +295,85 @@ class EnterpriseChatAPI {
     sessionId: string | undefined,
     responseMode: ResponseMode = 'chat'
   ): Promise<any> {
-    const apiKey = auth.apiKey || auth.token;
+    // Priority: explicit apiKey > stored enterprise key > token
+    const apiKey = auth.apiKey || getStoredEnterpriseApiKey() || auth.token;
 
-    const response = await fetch(API_CONFIG.RAG_BASE_URL, {
+    if (!apiKey) {
+      throw new Error('No API key available. Please generate an enterprise API key first.');
+    }
+
+    // Build request body matching the individual chat format (RAG endpoint format)
+    const requestBody = {
+      query: message,
+      user_id: auth.userId,
+      session_id: sessionId,
+      include_sources: true,
+      response_mode: responseMode,
+      stream: false,
+      maintain_context: true,  // CRITICAL: Enable conversation persistence
+      organization_id: auth.organizationId,
+    };
+
+    console.log('[Enterprise Chat] Sending non-streaming message via /api/chat proxy:', {
+      sessionId: sessionId || 'NEW SESSION',
+      messagePreview: message.substring(0, 50),
+      organizationId: auth.organizationId,
+      userId: auth.userId,
+    });
+
+    // Use /api/chat proxy (same as individual chat) to avoid CORS
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        query: message,
-        session_id: sessionId,
-        include_sources: true,
-        response_mode: responseMode,
-        stream: false,
-        organization_id: auth.organizationId,
-        user_id: auth.userId,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Message send failed: ${error}`);
+      const errorText = await response.text();
+      console.error('[Enterprise Chat] Non-streaming request failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error(`Message send failed: ${response.status} - ${errorText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+
+    // Transform RAG response format to chat format (same as individual chat)
+    return {
+      session_id: data.session_id,
+      conversation_turn: data.conversation_turn || 1,
+      summary: data.summary,
+      answer: data.answer || data.summary,
+      sources: data.sources || [],
+      total_facts: data.total_facts,
+      total_chunks: data.total_chunks,
+      search_time: data.search_time,
+      model: data.model,
+    };
   }
 
   /**
    * Get list of conversations for the enterprise user
+   * Uses Next.js API proxy to avoid CORS issues
    */
   async getConversations(
     auth: EnterpriseAuthContext,
     limit: number = 50
   ): Promise<ConversationListItem[]> {
-    const apiKey = auth.apiKey || auth.token;
+    // Use session token for browser-based enterprise auth
+    const authToken = auth.token;
 
     const response = await fetch(
-      `${API_CONFIG.CONVERSATION_BASE_URL}/conversations?limit=${limit}`,
+      `/api/conversations?limit=${limit}`,
       {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'X-Organization-ID': auth.organizationId,
-          'X-User-ID': auth.userId,
+          'Authorization': `Bearer ${authToken}`,
         },
       }
     );
@@ -295,21 +389,21 @@ class EnterpriseChatAPI {
 
   /**
    * Load a specific conversation
+   * Uses Next.js API proxy to avoid CORS issues
    */
   async loadConversation(
     auth: EnterpriseAuthContext,
     sessionId: string
   ): Promise<ConversationResponse> {
-    const apiKey = auth.apiKey || auth.token;
+    // Use session token for browser-based enterprise auth
+    const authToken = auth.token;
 
     const response = await fetch(
-      `${API_CONFIG.CONVERSATION_BASE_URL}/conversations/${sessionId}`,
+      `/api/conversations/${sessionId}`,
       {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'X-Organization-ID': auth.organizationId,
-          'X-User-ID': auth.userId,
+          'Authorization': `Bearer ${authToken}`,
         },
       }
     );
@@ -324,23 +418,22 @@ class EnterpriseChatAPI {
 
   /**
    * Update conversation title
+   * Uses Next.js API proxy to avoid CORS issues
    */
   async updateConversationTitle(
     auth: EnterpriseAuthContext,
     sessionId: string,
     title: string
   ): Promise<void> {
-    const apiKey = auth.apiKey || auth.token;
+    const authToken = auth.token;
 
     const response = await fetch(
-      `${API_CONFIG.CONVERSATION_BASE_URL}/conversations/${sessionId}`,
+      `/api/conversations/${sessionId}/title`,
       {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'X-Organization-ID': auth.organizationId,
-          'X-User-ID': auth.userId,
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({ title }),
       }
@@ -354,21 +447,20 @@ class EnterpriseChatAPI {
 
   /**
    * Delete a conversation
+   * Uses Next.js API proxy to avoid CORS issues
    */
   async deleteConversation(
     auth: EnterpriseAuthContext,
     sessionId: string
   ): Promise<void> {
-    const apiKey = auth.apiKey || auth.token;
+    const authToken = auth.token;
 
     const response = await fetch(
-      `${API_CONFIG.CONVERSATION_BASE_URL}/conversations/${sessionId}`,
+      `/api/conversations/${sessionId}`,
       {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'X-Organization-ID': auth.organizationId,
-          'X-User-ID': auth.userId,
+          'Authorization': `Bearer ${authToken}`,
         },
       }
     );
