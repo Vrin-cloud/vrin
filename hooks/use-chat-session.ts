@@ -12,7 +12,7 @@ interface UseChatSessionReturn {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
-  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean) => Promise<void>;
+  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
   endSession: () => Promise<void>;
@@ -36,14 +36,26 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const rafIdRef = useRef<number | null>(null);
   const isStreamingActiveRef = useRef<boolean>(false);
 
-  // Initialize on mount - no localStorage restoration
-  // All conversation history comes from backend DynamoDB
+  // Initialize on mount - restore session from localStorage if available
   useEffect(() => {
     if (!apiKey) return;
 
     console.log('🔄 Chat session initialized with API key');
 
-    // Start with clean slate - backend is the source of truth
+    // Restore session_id from localStorage for conversation continuity
+    const storedSessionId = localStorage.getItem('vrin_chat_session_id');
+    if (storedSessionId && !session) {
+      console.log('📌 Restoring session from localStorage:', storedSessionId);
+      const restoredSession: ChatSession = {
+        session_id: storedSessionId,
+        conversation_turn: 0,
+        created_at: Date.now(),
+        last_activity: Date.now(),
+        messages: []
+      };
+      setSession(restoredSession);
+    }
+
     setIsLoading(false);
     setIsStreaming(false);
   }, [apiKey]);
@@ -60,9 +72,10 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
 
       console.log('🆕 Starting new session');
 
-      // Clear current session state
+      // Clear current session state and localStorage
       setSession(null);
       setMessages([]);
+      localStorage.removeItem('vrin_chat_session_id');
 
       const response = await chatAPI.startConversation(apiKey);
 
@@ -87,13 +100,15 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const sendMessage = useCallback(async (
     message: string,
     mode: ResponseMode = 'chat',
-    enableStreaming: boolean = true
+    enableStreaming: boolean = true,
+    webSearchEnabled: boolean = false
   ) => {
     console.log('=== sendMessage called ===');
     console.log('API Key:', apiKey ? apiKey.substring(0, 10) + '...' : 'MISSING');
     console.log('Session:', session?.session_id || 'No active session');
     console.log('Message:', message.substring(0, 50) + '...');
     console.log('Streaming enabled:', enableStreaming);
+    console.log('Web search enabled:', webSearchEnabled);
 
     if (!apiKey) {
       const error = 'API key is required';
@@ -126,7 +141,8 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         message,
         session_id: session?.session_id,
         include_sources: true,
-        response_mode: mode
+        response_mode: mode,
+        web_search_enabled: webSearchEnabled
       };
 
       // STREAMING MODE
