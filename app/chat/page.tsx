@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSession, signOut } from 'next-auth/react'
 import {
   Send,
   Plus,
@@ -25,7 +26,9 @@ import {
   ChevronDown,
   X,
   Zap,
-  Check
+  Check,
+  Globe,
+  Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -51,6 +54,7 @@ import { formatRelativeTime } from '@/lib/utils/time'
 import { chatAPI } from '@/lib/services/chat-api'
 import toast from 'react-hot-toast'
 import type { ChatMessage as BackendChatMessage, ResponseMode, SourceDocument } from '@/types/chat'
+import vrinIcon from '@/app/icon.svg'
 
 interface LocalChatSession {
   id: string
@@ -136,6 +140,7 @@ export default function ChatPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [inputMessage, setInputMessage] = useState('')
   const [responseMode, setResponseMode] = useState<ResponseMode>('chat')
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
   const [showUploadZone, setShowUploadZone] = useState(false)
   const [showResponseModeMenu, setShowResponseModeMenu] = useState(false)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
@@ -145,8 +150,25 @@ export default function ChatPage() {
   const [currentMetadata, setCurrentMetadata] = useState<any>({})
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+
+  // NextAuth session for Google OAuth
+  const { data: nextAuthSession, status: sessionStatus } = useSession()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const authService = new AuthService()
+
+  // Auto-resize textarea based on content
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto'
+      // Set new height based on content, with min and max limits
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 56), 200)
+      textarea.style.height = `${newHeight}px`
+    }
+  }
 
   // Streaming is ALWAYS enabled - this is the default VRIN experience
   const enableStreaming = true
@@ -201,19 +223,72 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
-    // Check for existing auth
-    const storedUser = authService.getStoredUser()
-    const storedApiKey = authService.getStoredApiKey()
+    // Check for existing auth from localStorage first
+    let storedUser = authService.getStoredUser()
+    let storedApiKey = authService.getStoredApiKey()
+
+    // SECURITY FIX: If NextAuth session exists, validate it matches localStorage
+    // This prevents cross-account data leakage where a previous user's data persists
+    if (nextAuthSession?.user?.email && storedUser?.email) {
+      if (nextAuthSession.user.email !== storedUser.email) {
+        // MISMATCH DETECTED - Clear stale data from previous user
+        console.warn(`Security: Session mismatch detected! localStorage: ${storedUser.email}, NextAuth: ${nextAuthSession.user.email}. Clearing stale data.`)
+        localStorage.removeItem('vrin_api_key')
+        localStorage.removeItem('vrin_user')
+        localStorage.removeItem('vrin_chat_session_id')
+        // Clear local variables so we fall through to NextAuth sync
+        storedApiKey = null
+        storedUser = null
+      }
+    }
 
     if (storedUser && storedApiKey) {
+      // Validate that stored user data has required fields
+      if (!storedUser.user_id || !storedUser.email) {
+        console.warn('Incomplete user data in localStorage, clearing and redirecting to login...')
+        localStorage.removeItem('vrin_user')
+        localStorage.removeItem('vrin_api_key')
+        setIsCheckingAuth(false)
+        window.location.href = '/auth'
+        return
+      }
       setUser(storedUser)
       setApiKey(storedApiKey)
+      setIsCheckingAuth(false)
       console.log('Chat initialized with user:', storedUser.email)
       console.log('API key loaded:', storedApiKey.substring(0, 10) + '...')
+    } else if (sessionStatus === 'loading') {
+      // Wait for NextAuth session to load
+      return
+    } else if (nextAuthSession?.user) {
+      // Google OAuth: Sync NextAuth session to localStorage
+      const nextAuthUser = nextAuthSession.user as any
+      const nextAuthApiKey = nextAuthUser.apiKey
+      const nextAuthUserId = nextAuthUser.userId
+
+      if (nextAuthApiKey && nextAuthUserId) {
+        // Save to localStorage for compatibility
+        const userData = {
+          user_id: nextAuthUserId,
+          email: nextAuthUser.email || '',
+          name: nextAuthUser.name || nextAuthUser.email?.split('@')[0] || '',
+          created_at: new Date().toISOString()
+        }
+
+        localStorage.setItem('vrin_api_key', nextAuthApiKey)
+        localStorage.setItem('vrin_user', JSON.stringify(userData))
+
+        // Update component state
+        setApiKey(nextAuthApiKey)
+        setUser(userData)
+        console.log('Chat: Synced NextAuth session to localStorage:', { apiKey: nextAuthApiKey, user: userData })
+      }
+      setIsCheckingAuth(false)
     } else {
       console.warn('Missing authentication:', { hasUser: !!storedUser, hasApiKey: !!storedApiKey })
+      setIsCheckingAuth(false)
     }
-  }, [])
+  }, [nextAuthSession, sessionStatus])
 
   // Fetch conversations when API key is available
   useEffect(() => {
@@ -245,12 +320,16 @@ export default function ChatPage() {
     }
   }, [showResponseModeMenu])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (session) {
       endSession()
     }
     authService.logout()
     setUser(null)
+
+    // Also sign out from NextAuth (for Google OAuth users)
+    await signOut({ redirect: false })
+
     window.location.href = '/auth'
   }
 
@@ -269,9 +348,13 @@ export default function ChatPage() {
     const message = inputMessage
     const wasNewConversation = !session?.session_id
     setInputMessage('')
+    // Reset textarea height after sending
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '56px'
+    }
 
     try {
-      await sendMessage(message, responseMode, enableStreaming)
+      await sendMessage(message, responseMode, enableStreaming, webSearchEnabled)
       console.log('Message sent successfully')
 
       // Refresh conversation list after first message in new conversation
@@ -334,6 +417,9 @@ export default function ChatPage() {
 
         // Load messages into the chat session
         loadMessages(sessionId, formattedMessages)
+
+        // Save session_id to localStorage for continuity
+        localStorage.setItem('vrin_chat_session_id', sessionId)
 
         console.log('✅ Loaded conversation with', formattedMessages.length, 'messages (metadata preserved)')
 
@@ -430,6 +516,23 @@ export default function ChatPage() {
     setShowUploadZone(true)
   }
 
+  // Show loading state while checking authentication
+  if (isCheckingAuth || sessionStatus === 'loading') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Loading...</h1>
+            <p className="text-gray-600 mt-2">Checking authentication</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -477,33 +580,59 @@ export default function ChatPage() {
       >
         <div className="flex-1 flex flex-col min-h-0">
           {/* Sidebar Header with Toggle */}
-          <div className="p-3 flex items-center justify-between">
-            {(!isSidebarCollapsed || isMobileSidebarOpen) && (
-              <Image
-                src="/og-image.png"
-                alt="VRIN"
-                width={100}
-                height={32}
-                className="h-7 w-auto"
-              />
-            )}
-            <button
-              onClick={() => {
-                if (isMobileSidebarOpen) {
-                  setIsMobileSidebarOpen(false)
-                } else {
-                  setIsSidebarCollapsed(!isSidebarCollapsed)
-                }
-              }}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors ml-auto"
-              title={isMobileSidebarOpen ? "Close sidebar" : isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isMobileSidebarOpen ? (
-                <X className="w-5 h-5 text-gray-700" />
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              {(!isSidebarCollapsed || isMobileSidebarOpen) ? (
+                <>
+                  <div className="flex flex-col gap-0.5">
+                    <Image
+                      src="/og-image.png"
+                      alt="VRIN"
+                      width={80}
+                      height={28}
+                      className="object-contain object-left"
+                      priority
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (isMobileSidebarOpen) {
+                        setIsMobileSidebarOpen(false)
+                      } else {
+                        setIsSidebarCollapsed(!isSidebarCollapsed)
+                      }
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                    title={isMobileSidebarOpen ? "Close sidebar" : "Collapse sidebar"}
+                  >
+                    {isMobileSidebarOpen ? (
+                      <X className="w-5 h-5 text-gray-700" />
+                    ) : (
+                      <Menu className="w-5 h-5 text-gray-700" />
+                    )}
+                  </button>
+                </>
               ) : (
-                <Menu className="w-5 h-5 text-gray-700" />
+                <div className="flex items-center justify-center w-full">
+                  <button
+                    onClick={() => setIsSidebarCollapsed(false)}
+                    className="relative group rounded-lg transition-colors flex items-center justify-center hover:bg-gray-100"
+                    title="Expand sidebar"
+                  >
+                    <Image
+                      src={vrinIcon}
+                      alt="VRIN"
+                      width={40}
+                      height={40}
+                      className="group-hover:opacity-0 transition-opacity duration-200"
+                      priority
+                      unoptimized
+                    />
+                    <Menu className="w-5 h-5 text-gray-600 absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -662,20 +791,20 @@ export default function ChatPage() {
               <DropdownMenuTrigger asChild>
                 <button
                   className={`w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-200 transition-colors ${isSidebarCollapsed && !isMobileSidebarOpen ? 'justify-center' : ''}`}
-                  title={isSidebarCollapsed && !isMobileSidebarOpen ? user.email : ''}
+                  title={isSidebarCollapsed && !isMobileSidebarOpen ? (user.email || '') : ''}
                 >
                   <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
                     <AvatarFallback className="bg-transparent text-white text-sm font-semibold">
-                      {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                      {user.name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   {(!isSidebarCollapsed || isMobileSidebarOpen) && (
                     <>
                       <div className="flex-1 text-left min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {user.name || user.email.split('@')[0]}
+                          {user.name || user.email?.split('@')[0] || 'User'}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email || ''}</p>
                       </div>
                       <MoreVertical className="w-4 h-4 text-gray-400" />
                     </>
@@ -781,6 +910,51 @@ export default function ChatPage() {
                   </div>
                   {responseMode === 'raw_facts' && <Check className="w-4 h-4 text-blue-600" />}
                 </button>
+
+                {/* Divider */}
+                <div className="my-2 border-t border-gray-200" />
+
+                {/* Brainstorm Mode */}
+                <button
+                  onClick={() => {
+                    setResponseMode('brainstorm')
+                    setShowResponseModeMenu(false)
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <div>
+                      <div className="font-medium text-sm">Brainstorm</div>
+                      <div className="text-xs text-gray-500">Creative ideation mode</div>
+                    </div>
+                  </div>
+                  {responseMode === 'brainstorm' && <Check className="w-4 h-4 text-blue-600" />}
+                </button>
+
+                {/* Web Search Toggle - Only show in brainstorm mode */}
+                {responseMode === 'brainstorm' && (
+                  <div className="px-4 py-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setWebSearchEnabled(!webSearchEnabled)
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Globe className={`w-4 h-4 ${webSearchEnabled ? 'text-blue-600' : 'text-gray-400'}`} />
+                        <span className="text-sm">Web Search</span>
+                      </div>
+                      <div className={`w-8 h-5 rounded-full transition-colors ${webSearchEnabled ? 'bg-blue-600' : 'bg-gray-300'}`}>
+                        <div className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform mt-0.5 ${webSearchEnabled ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                      </div>
+                    </button>
+                    <p className="text-xs text-gray-500 mt-1 px-1">
+                      {webSearchEnabled ? 'Augment with real-time web data' : 'Use knowledge base only'}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             </div>
@@ -974,21 +1148,29 @@ export default function ChatPage() {
               className="relative bg-white/70 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 focus-within:shadow-xl focus-within:border-blue-400/50 transition-all"
             >
               <textarea
+                ref={textareaRef}
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={(e) => {
+                  setInputMessage(e.target.value)
+                  adjustTextareaHeight()
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
                     console.log('Enter pressed - calling handleSendMessage')
                     handleSendMessage()
+                    // Reset textarea height after sending
+                    if (textareaRef.current) {
+                      textareaRef.current.style.height = '56px'
+                    }
                   }
                 }}
                 placeholder="Ask VRIN anything about your knowledge..."
                 rows={1}
-                className="w-full bg-transparent text-gray-900 placeholder-gray-400 px-5 py-4 pr-32 resize-none outline-none max-h-32"
+                className="w-full bg-transparent text-gray-900 placeholder-gray-400 px-5 py-4 pr-32 resize-none outline-none overflow-y-auto"
                 style={{
                   minHeight: '56px',
-                  height: 'auto',
+                  maxHeight: '200px',
                 }}
                 disabled={isLoading}
               />

@@ -4,46 +4,36 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Search,
-  Plus,
-  Brain,
   BarChart3,
   Settings,
   User,
   LogOut,
   Key,
   FileText,
-  Zap,
   Database,
-  Activity,
-  TrendingUp,
   Globe,
   ArrowRight,
   Sparkles,
-  BookOpen,
-  Target,
-  Clock,
   CheckCircle2,
   AlertCircle,
   Menu,
-  X,
-  ChevronDown,
   Command,
-  MessageSquare
+  MessageSquare,
+  Brain
 } from 'lucide-react';
 import { AuthService, VRINService } from '../../lib/services/vrin-service';
-import type { VRINInsertResult, VRINQueryResult } from '../../lib/services/vrin-service';
 import { ModernApiKeysSection } from '../../components/dashboard/sections/modern-api-keys';
 import { ModernGraph } from '../../components/dashboard/knowledge-graph/modern-graph';
 import { NodeDetailsDialog } from '../../components/dashboard/knowledge-graph/node-details-dialog';
 import { ModernDocumentationSection } from '../../components/dashboard/sections/modern-documentation';
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
-import { ThinkingPanel } from '../../components/dashboard/thinking-panel';
-import { SourcesPanel } from '../../components/dashboard/sources-panel';
 import { DataSourcesSection } from '../../components/dashboard/sections/data-sources-section';
 import { useAccountKnowledgeGraph } from '../../hooks/use-knowledge-graph';
 import type { Node, Edge, Triple, GraphStatistics } from '../../types/knowledge-graph';
+import vrinIcon from '@/app/icon.svg';
 
 interface User {
   user_id: string;
@@ -59,61 +49,124 @@ interface GraphData {
   statistics: GraphStatistics;
 }
 
+// Sidebar navigation items - defined outside component for use in search
+const sidebarItems = [
+  { id: 'home', label: 'Home', icon: BarChart3, color: 'blue' },
+  { id: 'data-sources', label: 'Data Sources', icon: Globe, color: 'cyan', badge: 'NEW' },
+  { id: 'graph', label: 'Knowledge Graph', icon: Database, color: 'pink' },
+  { id: 'ai-specialization', label: 'AI Specialization', icon: Sparkles, color: 'purple' },
+  { id: 'api-keys', label: 'API Keys', icon: Key, color: 'indigo' },
+  { id: 'api-docs', label: 'Documentation', icon: FileText, color: 'teal' },
+];
+
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [insertContent, setInsertContent] = useState('');
-  const [insertTitle, setInsertTitle] = useState('');
-  const [insertTags, setInsertTags] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [queryResult, setQueryResult] = useState<VRINQueryResult | null>(null);
-  const [insertResult, setInsertResult] = useState<VRINInsertResult | null>(null);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [menuSearchQuery, setMenuSearchQuery] = useState('');
+  const [showMenuSearch, setShowMenuSearch] = useState(false);
   const [selectedGraphNode, setSelectedGraphNode] = useState<Node | null>(null);
   const [selectedGraphEdge, setSelectedGraphEdge] = useState<Edge | null>(null);
   const [showNodeDialog, setShowNodeDialog] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // NextAuth session for Google OAuth
+  const { data: session, status: sessionStatus } = useSession();
 
   const authService = new AuthService();
   const [vrinService, setVrinService] = useState<VRINService | null>(null);
-  
+
   // For large datasets, offer performance optimization
   const [usePerformanceMode, setUsePerformanceMode] = useState(false);
   const [graphLimit, setGraphLimit] = useState<number | undefined>(undefined);
-  
+
   // Use the proper knowledge graph hook for unified account data
-  const { 
-    data: knowledgeGraphResponse, 
-    isLoading: isGraphLoading, 
+  const {
+    data: knowledgeGraphResponse,
+    isLoading: isGraphLoading,
     error: graphError,
     hasApiKey,
     refetch: refetchGraph
-  } = useAccountKnowledgeGraph({ 
-    limit: usePerformanceMode ? (graphLimit || 100) : undefined 
+  } = useAccountKnowledgeGraph({
+    limit: usePerformanceMode ? (graphLimit || 100) : undefined
   });
 
   useEffect(() => {
-    // Check for existing auth
-    const storedApiKey = authService.getStoredApiKey();
-    const storedUser = authService.getStoredUser();
-    
+    // Check for existing auth from localStorage first
+    let storedApiKey = authService.getStoredApiKey();
+    let storedUser = authService.getStoredUser();
+
+    // SECURITY FIX: If NextAuth session exists, validate it matches localStorage
+    // This prevents cross-account data leakage where a previous user's data persists
+    if (session?.user?.email && storedUser?.email) {
+      if (session.user.email !== storedUser.email) {
+        // MISMATCH DETECTED - Clear stale data from previous user
+        console.warn(`Security: Session mismatch detected! localStorage: ${storedUser.email}, NextAuth: ${session.user.email}. Clearing stale data.`);
+        localStorage.removeItem('vrin_api_key');
+        localStorage.removeItem('vrin_user');
+        localStorage.removeItem('vrin_chat_session_id');
+        // Clear local variables so we fall through to NextAuth sync
+        storedApiKey = null;
+        storedUser = null;
+      }
+    }
+
     if (storedApiKey && storedUser) {
+      // Validate that stored user data has required fields
+      if (!storedUser.user_id || !storedUser.email) {
+        console.warn('Incomplete user data in localStorage, clearing and redirecting to login...');
+        localStorage.removeItem('vrin_user');
+        localStorage.removeItem('vrin_api_key');
+        setIsCheckingAuth(false);
+        window.location.href = '/auth';
+        return;
+      }
       setApiKey(storedApiKey);
       setUser(storedUser);
       setVrinService(new VRINService(storedApiKey));
-      // Knowledge graph data is now handled by the useAccountKnowledgeGraph hook
+      setIsCheckingAuth(false);
+    } else if (sessionStatus === 'loading') {
+      // Wait for NextAuth session to load
+      return;
+    } else if (session?.user) {
+      // Google OAuth: Sync NextAuth session to localStorage
+      const nextAuthUser = session.user as any;
+      const nextAuthApiKey = nextAuthUser.apiKey;
+      const nextAuthUserId = nextAuthUser.userId;
+
+      if (nextAuthApiKey && nextAuthUserId) {
+        // Save to localStorage for dashboard compatibility
+        const userData = {
+          user_id: nextAuthUserId,
+          email: nextAuthUser.email || '',
+          name: nextAuthUser.name || nextAuthUser.email?.split('@')[0] || '',
+          created_at: new Date().toISOString()
+        };
+
+        localStorage.setItem('vrin_api_key', nextAuthApiKey);
+        localStorage.setItem('vrin_user', JSON.stringify(userData));
+
+        // Update component state
+        setApiKey(nextAuthApiKey);
+        setUser(userData);
+        setVrinService(new VRINService(nextAuthApiKey));
+        console.log('Synced NextAuth session to localStorage:', { apiKey: nextAuthApiKey, user: userData });
+      }
+      setIsCheckingAuth(false);
+    } else {
+      setIsCheckingAuth(false);
     }
 
     // Check for URL query parameter to set active section
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    if (tab && ['overview', 'knowledge', 'search', 'insert', 'data-sources', 'graph', 'ai-specialization', 'api-keys', 'api-docs'].includes(tab)) {
+    if (tab && ['home', 'data-sources', 'graph', 'ai-specialization', 'api-keys', 'api-docs'].includes(tab)) {
       setActiveSection(tab);
     }
-  }, []);
+  }, [session, sessionStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -143,50 +196,16 @@ export default function Dashboard() {
     actualError: actualGraphError
   });
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim() || !vrinService) return;
-    
-    setIsLoading(true);
-    try {
-      const result = await vrinService.queryKnowledge(searchQuery);
-      setQueryResult(result);
-      setActiveSection('search-results');
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleInsert = async () => {
-    if (!insertContent.trim() || !vrinService) return;
-    
-    setIsLoading(true);
-    try {
-      const result = await vrinService.insertKnowledge(
-        insertContent,
-        insertTitle || undefined,
-        insertTags ? insertTags.split(',').map(t => t.trim()) : undefined
-      );
-      setInsertResult(result);
-      setInsertContent('');
-      setInsertTitle('');
-      setInsertTags('');
-      // Refetch the knowledge graph to show new data
-      await refetchGraph();
-      setActiveSection('insert-results');
-    } catch (error) {
-      console.error('Insert failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear localStorage
     authService.logout();
     setUser(null);
     setApiKey(null);
     setVrinService(null);
+
+    // Also sign out from NextAuth (for Google OAuth users)
+    await signOut({ redirect: false });
+
     window.location.href = '/auth';
   };
 
@@ -208,12 +227,29 @@ export default function Dashboard() {
     setSelectedGraphEdge(null);
   };
 
+  // Show loading state while checking authentication
+  if (isCheckingAuth || sessionStatus === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Loading...</h1>
+            <p className="text-gray-600 mt-2">Checking authentication</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!user || !apiKey) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
+        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Brain className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome to VRIN</h1>
@@ -232,52 +268,12 @@ export default function Dashboard() {
     );
   }
 
-  const sidebarItems = [
-    { id: 'overview', label: 'Overview', icon: BarChart3, color: 'blue' },
-    { id: 'knowledge', label: 'Knowledge Hub', icon: Brain, color: 'purple' },
-    { id: 'search', label: 'Smart Search', icon: Search, color: 'green' },
-    { id: 'insert', label: 'Add Knowledge', icon: Plus, color: 'orange' },
-    { id: 'data-sources', label: 'Data Sources', icon: Globe, color: 'cyan', badge: 'NEW' },
-    { id: 'graph', label: 'Knowledge Graph', icon: Database, color: 'pink' },
-    { id: 'ai-specialization', label: 'AI Specialization', icon: Sparkles, color: 'purple' },
-    { id: 'api-keys', label: 'API Keys', icon: Key, color: 'indigo' },
-    { id: 'api-docs', label: 'Documentation', icon: FileText, color: 'teal' },
-  ];
-
   const renderContent = () => {
     switch (activeSection) {
-      case 'overview':
-        return <OverviewSection user={user} graphData={graphData} />;
-      case 'search':
-        return (
-          <SearchSection
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            handleSearch={handleSearch}
-            isLoading={isLoading}
-          />
-        );
-      case 'search-results':
-        return <SearchResultsSection result={queryResult} />;
-      case 'insert':
-        return (
-          <InsertSection
-            content={insertContent}
-            setContent={setInsertContent}
-            title={insertTitle}
-            setTitle={setInsertTitle}
-            tags={insertTags}
-            setTags={setInsertTags}
-            handleInsert={handleInsert}
-            isLoading={isLoading}
-          />
-        );
-      case 'insert-results':
-        return <InsertResultsSection result={insertResult} />;
+      case 'home':
+        return <HomeSection user={user} onNavigate={setActiveSection} />;
       case 'data-sources':
-        return <DataSourcesSection apiKey={apiKey || undefined} />;
-      case 'knowledge':
-        return <KnowledgeHubSection graphData={graphData} />;
+        return <DataSourcesSection apiKey={apiKey || undefined} userId={user?.user_id} userEmail={user?.email} />;
       case 'graph':
         return (
           <div className="space-y-6">
@@ -354,7 +350,7 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <div className="h-[700px] bg-white rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden relative">
+            <div className="h-[700px] bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
               <ModernGraph 
                 data={graphData || undefined} 
                 selectedProject="Default Project"
@@ -385,12 +381,12 @@ export default function Dashboard() {
           </div>
         );
       default:
-        return <OverviewSection user={user} graphData={graphData} />;
+        return <HomeSection user={user} onNavigate={setActiveSection} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-white">
       {/* Command Palette */}
       <AnimatePresence>
         {showCommandPalette && (
@@ -405,7 +401,7 @@ export default function Dashboard() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full mx-4"
+              className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -447,41 +443,56 @@ export default function Dashboard() {
         <motion.div
           initial={false}
           animate={{ width: isSidebarOpen ? 280 : 80 }}
-          className={`bg-white/80 backdrop-blur-xl border-r border-gray-200/50 flex flex-col relative z-30 ${
+          className={`bg-white border-r border-gray-200 flex flex-col relative z-30 ${
             isMobileMenuOpen ? 'fixed inset-y-0 left-0' : 'hidden lg:flex'
           }`}
         >
           {/* Sidebar Header - Logo Only */}
-          <div className="p-6">
-            <div className="flex items-center justify-between">
+          <div className="h-[57px] px-6 flex items-center">
+            <div className="flex items-center justify-between w-full">
               {isSidebarOpen ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center gap-3"
+                  className="flex items-center flex-1"
                 >
                   <Image
-                    src="/favicon.ico"
-                    alt="VRIN"
-                    width={56}
-                    height={56}
-                    className="rounded"
+                    src="/og-image.png"
+                    alt="VRiN"
+                    width={80}
+                    height={28}
+                    className="object-contain object-left"
+                    priority
                   />
-                  <p className="text-sm text-gray-500">v0.8.0</p>
                 </motion.div>
               ) : (
-                <Image
-                  src="/favicon.ico"
-                  alt="VRIN"
-                  width={40}
-                  height={40}
-                  className="rounded mx-auto"
-                />
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center justify-center w-full"
+                >
+                  <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="relative group rounded-lg transition-colors flex items-center justify-center hover:bg-gray-100"
+                    title="Expand sidebar"
+                  >
+                    <Image
+                      src={vrinIcon}
+                      alt="VRiN"
+                      width={40}
+                      height={40}
+                      className="group-hover:opacity-0 transition-opacity duration-200"
+                      priority
+                      unoptimized
+                    />
+                    <Menu className="w-5 h-5 text-gray-600 absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </button>
+                </motion.div>
               )}
               {isSidebarOpen && (
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
                 >
                   <Menu className="w-5 h-5 text-gray-600" />
                 </button>
@@ -552,7 +563,7 @@ export default function Dashboard() {
           </div>
 
           {/* User Section */}
-          <div className="p-4 border-t border-gray-100/50">
+          <div className="p-4">
             {isSidebarOpen ? (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -565,10 +576,10 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">
-                      {user.name || user.email.split('@')[0]}
+                      {user.name || user.email?.split('@')[0] || 'User'}
                     </p>
                     <p className="text-xs text-gray-500 truncate">
-                      {user.email}
+                      {user.email || ''}
                     </p>
                   </div>
                 </div>
@@ -599,7 +610,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="bg-white/70 backdrop-blur-xl px-6 py-4 shadow-sm">
+          <header className="bg-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <button
@@ -608,27 +619,69 @@ export default function Dashboard() {
                 >
                   <Menu className="w-5 h-5" />
                 </button>
-                <p className="text-sm text-gray-500">
-                  Hybrid RAG v0.8.0
-                </p>
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Quick Search */}
-                <div className="hidden md:flex items-center gap-2 bg-gray-100/80 rounded-xl px-4 py-2 min-w-[300px]">
-                  <Search className="w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search knowledge..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    className="bg-transparent outline-none flex-1 text-sm"
-                  />
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Command className="w-3 h-3" />
-                    <span>K</span>
+                {/* Menu Search */}
+                <div className="hidden md:flex relative">
+                  <div className="flex items-center gap-2 bg-gray-100/80 rounded-xl px-4 py-2 min-w-[300px]">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search menu..."
+                      value={menuSearchQuery}
+                      onChange={(e) => {
+                        setMenuSearchQuery(e.target.value);
+                        setShowMenuSearch(e.target.value.length > 0);
+                      }}
+                      onFocus={() => menuSearchQuery.length > 0 && setShowMenuSearch(true)}
+                      onBlur={() => setTimeout(() => setShowMenuSearch(false), 200)}
+                      className="bg-transparent outline-none flex-1 text-sm"
+                    />
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Command className="w-3 h-3" />
+                      <span>K</span>
+                    </div>
                   </div>
+
+                  {/* Search Results Dropdown */}
+                  {showMenuSearch && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-50">
+                      {sidebarItems
+                        .filter(item =>
+                          item.label.toLowerCase().includes(menuSearchQuery.toLowerCase()) ||
+                          item.id.toLowerCase().includes(menuSearchQuery.toLowerCase())
+                        )
+                        .map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                setActiveSection(item.id);
+                                setMenuSearchQuery('');
+                                setShowMenuSearch(false);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                            >
+                              <Icon className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm text-gray-700">{item.label}</span>
+                              {item.badge && (
+                                <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded ml-auto">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      {sidebarItems.filter(item =>
+                        item.label.toLowerCase().includes(menuSearchQuery.toLowerCase()) ||
+                        item.id.toLowerCase().includes(menuSearchQuery.toLowerCase())
+                      ).length === 0 && (
+                        <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -651,85 +704,172 @@ export default function Dashboard() {
 }
 
 // Component sections...
-function OverviewSection({ user, graphData }: { user: User; graphData: GraphData | null }) {
+function HomeSection({ user, onNavigate }: { user: User; onNavigate: (section: string) => void }) {
+  const gettingStartedSteps = [
+    {
+      step: 1,
+      title: 'Connect Your Data Sources',
+      description: 'Link your apps like Notion, Google Drive, Slack, and more to automatically sync your knowledge into VRIN.',
+      icon: Globe,
+      action: 'Go to Data Sources',
+      section: 'data-sources',
+      tips: [
+        'Click "Connect New Source" to see available integrations',
+        'Authorize VRIN to access your apps securely',
+        'Your data syncs automatically once connected'
+      ]
+    },
+    {
+      step: 2,
+      title: 'Chat with Your Knowledge',
+      description: 'Ask questions in natural language and get intelligent answers from your connected data using hybrid RAG technology.',
+      icon: MessageSquare,
+      action: 'Open Chat',
+      section: 'chat',
+      isLink: true,
+      href: '/chat',
+      tips: [
+        'Ask questions like "What did we discuss about project X?"',
+        'VRIN searches across all your connected sources',
+        'Get answers with source citations for verification'
+      ]
+    },
+    {
+      step: 3,
+      title: 'Create AI Specialists',
+      description: 'Train custom AI experts with specific knowledge domains, communication styles, and expertise areas.',
+      icon: Sparkles,
+      action: 'Go to AI Specialization',
+      section: 'ai-specialization',
+      tips: [
+        'Define your expert\'s area of expertise',
+        'Customize response style and tone',
+        'Add specific knowledge sources for the expert'
+      ]
+    },
+    {
+      step: 4,
+      title: 'Explore Your Knowledge Graph',
+      description: 'Visualize how your information connects. See entities, relationships, and discover hidden insights.',
+      icon: Database,
+      action: 'View Knowledge Graph',
+      section: 'graph',
+      tips: [
+        'Click on nodes to see entity details',
+        'Zoom and pan to explore connections',
+        'Use filters to focus on specific topics'
+      ]
+    },
+    {
+      step: 5,
+      title: 'Manage API Keys',
+      description: 'Generate API keys to integrate VRIN into your own applications and workflows programmatically.',
+      icon: Key,
+      action: 'Go to API Keys',
+      section: 'api-keys',
+      tips: [
+        'Create separate keys for different applications',
+        'Set permissions and rate limits',
+        'Revoke keys anytime for security'
+      ]
+    }
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* Welcome Header - Minimal Design */}
-      <div className="bg-white p-8 shadow-sm">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          Welcome back, {user.name || user.email.split('@')[0]}
-        </h2>
-        <p className="text-gray-600">
-          Your knowledge graph is growing. Here&apos;s what&apos;s happening today.
+    <div className="space-y-8 max-w-4xl">
+      {/* Welcome Header */}
+      <div>
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+          Welcome to VRIN, {user.name || user.email?.split('@')[0] || 'User'}
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Your intelligent knowledge management platform. Follow these steps to get started.
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Knowledge Nodes"
-          value={graphData?.statistics?.nodeCount?.toString() || '0'}
-          change="+12%"
-          icon={Brain}
-          color="blue"
-        />
-        <StatsCard
-          title="Connections"
-          value={graphData?.statistics?.edgeCount?.toString() || '0'}
-          change="+8%"
-          icon={Activity}
-          color="green"
-        />
-        <StatsCard
-          title="Facts Extracted"
-          value={graphData?.statistics?.tripleCount?.toString() || '0'}
-          change="+15%"
-          icon={Target}
-          color="purple"
-        />
-        <StatsCard
-          title="Graph Density"
-          value={graphData?.statistics?.density?.toFixed(3) || '0.000'}
-          change="+5%"
-          icon={TrendingUp}
-          color="orange"
-        />
+      {/* Getting Started Steps */}
+      <div className="space-y-4">
+        {gettingStartedSteps.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={item.step}
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 transition-colors"
+            >
+              <div className="flex items-start gap-4">
+                {/* Step Number */}
+                <div className="flex-shrink-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  {item.step}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon className="w-5 h-5 text-gray-700" />
+                        <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                      </div>
+                      <p className="text-gray-600 mb-3">{item.description}</p>
+
+                      {/* Tips */}
+                      <ul className="space-y-1 mb-4">
+                        {item.tips.map((tip, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm text-gray-500">
+                            <CheckCircle2 className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <span>{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Action Button */}
+                    {item.isLink ? (
+                      <Link href={item.href || '#'}>
+                        <button className="flex-shrink-0 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+                          {item.action}
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => onNavigate(item.section)}
+                        className="flex-shrink-0 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                      >
+                        {item.action}
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Quick Actions - Minimal Design */}
-      <div className="bg-white p-8 shadow-sm">
-        <h3 className="text-lg font-semibold mb-6 text-gray-900">
-          Quick Actions
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <QuickActionCard
-            title="Add Knowledge"
-            description="Insert new information with smart deduplication"
-            icon={Plus}
-            color="blue"
-            onClick={() => {}}
-          />
-          <QuickActionCard
-            title="Smart Search"
-            description="Query your knowledge with hybrid RAG"
-            icon={Search}
-            color="green"
-            onClick={() => {}}
-          />
-          <QuickActionCard
-            title="Explore Graph"
-            description="Visualize your knowledge connections"
-            icon={Globe}
-            color="purple"
-            onClick={() => {}}
-          />
-          <QuickActionCard
-            title="AI Expert"
-            description="Configure custom AI specialization"
-            icon={Sparkles}
-            color="indigo"
-            onClick={() => {}}
-          />
+      {/* Quick Links */}
+      <div className="bg-gray-50 rounded-xl p-6">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Quick Links</h3>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => onNavigate('api-docs')}
+            className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Documentation
+          </button>
+          <button
+            onClick={() => onNavigate('data-sources')}
+            className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Data Sources
+          </button>
+          <button
+            onClick={() => onNavigate('graph')}
+            className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Knowledge Graph
+          </button>
         </div>
       </div>
     </div>
@@ -752,7 +892,7 @@ function StatsCard({ title, value, change, icon: Icon, color }: {
   };
 
   return (
-    <div className="bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors duration-200">
       <div className="flex items-center justify-between mb-4">
         <Icon className={`w-5 h-5 ${iconColorClasses[color]}`} />
         <span className="text-xs text-gray-500">{change}</span>
@@ -775,7 +915,7 @@ function QuickActionCard({ title, description, icon: Icon, color, onClick }: {
   return (
     <button
       onClick={onClick}
-      className="p-6 bg-gray-50 hover:bg-gray-100 text-left transition-colors duration-200 group"
+      className="p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 text-left transition-colors duration-200 group"
     >
       <div className="flex items-center justify-between mb-3">
         <Icon className="w-5 h-5 text-gray-700" />
@@ -787,384 +927,3 @@ function QuickActionCard({ title, description, icon: Icon, color, onClick }: {
   );
 }
 
-// Search Section
-function SearchSection({ searchQuery, setSearchQuery, handleSearch, isLoading }: {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  handleSearch: () => void;
-  isLoading: boolean;
-}) {
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Smart Search</h2>
-        <p className="text-gray-600">Query your knowledge with hybrid RAG - combining graph reasoning and vector similarity</p>
-      </div>
-
-      <div className="bg-white rounded-2xl p-8 border border-gray-200/50 shadow-sm">
-        <div className="flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSearch()}
-              placeholder="What would you like to know?"
-              className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <button
-            onClick={handleSearch}
-            disabled={isLoading || !searchQuery.trim()}
-            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium disabled:opacity-50 hover:shadow-lg transition-all duration-200 flex items-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Search
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Example Queries */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/50 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-blue-500" />
-          Example Queries
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {[
-            "What is machine learning?",
-            "Explain quantum computing",
-            "How does neural networks work?",
-            "What are the applications of AI?"
-          ].map((example, index) => (
-            <button
-              key={index}
-              onClick={() => setSearchQuery(example)}
-              className="p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm"
-            >
-              {example}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Additional component sections would continue here...
-// For brevity, I'll include the main structure and a few key sections
-
-function SearchResultsSection({ result }: { result: VRINQueryResult | null }) {
-  const [sourcesOpen, setSourcesOpen] = React.useState(false);
-
-  if (!result) return null;
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Result Header */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/50 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Search Results</h2>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {result.search_time}
-            </span>
-            <span className="flex items-center gap-1">
-              <Target className="w-4 h-4" />
-              {result.combined_results} results
-            </span>
-          </div>
-        </div>
-
-        {/* Performance Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 bg-blue-50 rounded-xl">
-            <div className="text-2xl font-bold text-blue-600">{result.total_facts}</div>
-            <div className="text-sm text-blue-600">Graph Facts</div>
-          </div>
-          <div className="text-center p-4 bg-green-50 rounded-xl">
-            <div className="text-2xl font-bold text-green-600">{result.total_chunks}</div>
-            <div className="text-sm text-green-600">Vector Chunks</div>
-          </div>
-          <div className="text-center p-4 bg-purple-50 rounded-xl">
-            <div className="text-2xl font-bold text-purple-600">{result.combined_results}</div>
-            <div className="text-sm text-purple-600">Combined</div>
-          </div>
-        </div>
-
-        {/* Answer */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
-          <h3 className="font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-500" />
-            AI-Generated Answer
-          </h3>
-          <p className="text-gray-800 leading-relaxed">{result.summary}</p>
-        </div>
-
-        {/* Thinking Panel */}
-        {result.metadata && (
-          <ThinkingPanel metadata={result.metadata} />
-        )}
-
-        {/* Sources Button */}
-        {result.sources && result.sources.length > 0 && (
-          <button
-            onClick={() => setSourcesOpen(true)}
-            className="mt-4 px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-700 text-sm font-medium transition-colors flex items-center gap-2"
-          >
-            📚 Sources · {result.sources.length}
-          </button>
-        )}
-
-        {/* Expert Analysis */}
-        {result.expert_analysis && (
-          <div className="mt-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              Expert Analysis Applied
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Specialization:</span>
-                <div className="font-medium">{result.expert_analysis.specialization_applied ? 'Yes' : 'No'}</div>
-              </div>
-              <div>
-                <span className="text-gray-600">Confidence:</span>
-                <div className="font-medium capitalize">{result.expert_analysis.confidence_level}</div>
-              </div>
-              <div>
-                <span className="text-gray-600">Reasoning Chains:</span>
-                <div className="font-medium">{result.expert_analysis.reasoning_chains_used}</div>
-              </div>
-              <div>
-                <span className="text-gray-600">Analysis Depth:</span>
-                <div className="font-medium capitalize">{result.expert_analysis.analysis_depth}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Entities */}
-        {result.entities_found && result.entities_found.length > 0 && (
-          <div className="mt-6">
-            <h4 className="font-medium mb-3">Entities Found:</h4>
-            <div className="flex flex-wrap gap-2">
-              {result.entities_found.map((entity, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
-                >
-                  {entity}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Sources Panel */}
-      {result.sources && (
-        <SourcesPanel
-          sources={result.sources}
-          isOpen={sourcesOpen}
-          onClose={() => setSourcesOpen(false)}
-        />
-      )}
-    </div>
-  );
-}
-
-// Insert Section
-function InsertSection({ content, setContent, title, setTitle, tags, setTags, handleInsert, isLoading }: {
-  content: string;
-  setContent: (content: string) => void;
-  title: string;
-  setTitle: (title: string) => void;
-  tags: string;
-  setTags: (tags: string) => void;
-  handleInsert: () => void;
-  isLoading: boolean;
-}) {
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Add Knowledge</h2>
-        <p className="text-gray-600">Insert new information with smart deduplication and fact extraction</p>
-      </div>
-
-      <div className="bg-white rounded-2xl p-8 border border-gray-200/50 shadow-sm">
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title (Optional)
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a title for your knowledge"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content *
-            </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter the knowledge content you want to insert..."
-              rows={8}
-              required
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags (Optional)
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="tag1, tag2, tag3"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <button
-            onClick={handleInsert}
-            disabled={isLoading || !content.trim()}
-            className="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium disabled:opacity-50 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Insert Knowledge
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Features */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <FeatureCard
-          title="Smart Deduplication"
-          description="Prevents duplicate content, reduces storage by 40-60%"
-          icon={CheckCircle2}
-          color="green"
-        />
-        <FeatureCard
-          title="Fact Extraction"
-          description="Extracts 3-8 high-quality facts with 0.8+ confidence"
-          icon={Brain}
-          color="blue"
-        />
-        <FeatureCard
-          title="Storage Optimization"
-          description="Self-updating system with higher confidence facts"
-          icon={Database}
-          color="purple"
-        />
-      </div>
-    </div>
-  );
-}
-
-function FeatureCard({ title, description, icon: Icon, color }: {
-  title: string;
-  description: string;
-  icon: any;
-  color: 'blue' | 'green' | 'purple' | 'orange' | 'indigo';
-}) {
-  const colorClasses = {
-    green: 'from-green-50 to-green-100 text-green-600',
-    blue: 'from-blue-50 to-blue-100 text-blue-600',
-    purple: 'from-purple-50 to-purple-100 text-purple-600',
-    orange: 'from-orange-50 to-orange-100 text-orange-600',
-    indigo: 'from-indigo-50 to-indigo-100 text-indigo-600',
-  };
-
-  return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200/50 shadow-sm">
-      <div className={`w-12 h-12 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center mb-4`}>
-        <Icon className="w-6 h-6" />
-      </div>
-      <h3 className="font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
-    </div>
-  );
-}
-
-// Placeholder sections for other components
-function InsertResultsSection({ result }: { result: VRINInsertResult | null }) {
-  if (!result) return null;
-
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl p-8 border border-gray-200/50 shadow-sm">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Knowledge Inserted Successfully!</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="text-center p-4 bg-blue-50 rounded-xl">
-            <div className="text-2xl font-bold text-blue-600">{result.facts_extracted}</div>
-            <div className="text-sm text-blue-600">Facts Extracted</div>
-          </div>
-          <div className="text-center p-4 bg-green-50 rounded-xl">
-            <div className="text-2xl font-bold text-green-600">{result.processing_time}</div>
-            <div className="text-sm text-green-600">Processing Time</div>
-          </div>
-          <div className="text-center p-4 bg-purple-50 rounded-xl">
-            <div className="text-lg font-bold text-purple-600">{result.chunk_stored ? 'Yes' : 'No'}</div>
-            <div className="text-sm text-purple-600">Chunk Stored</div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
-          <h3 className="font-semibold mb-3">Storage Details</h3>
-          <p className="text-gray-700 mb-2">{result.storage_details}</p>
-          <p className="text-sm text-gray-600">Reason: {result.chunk_storage_reason.replace(/_/g, ' ')}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function KnowledgeHubSection({ graphData }: { graphData: GraphData | null }) {
-  return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Knowledge Hub</h2>
-        <p className="text-gray-600">Explore and manage your knowledge base</p>
-      </div>
-      
-      <div className="bg-white rounded-2xl p-8 border border-gray-200/50 shadow-sm">
-        <p className="text-center text-gray-500">Knowledge Hub interface coming soon...</p>
-      </div>
-    </div>
-  );
-}
