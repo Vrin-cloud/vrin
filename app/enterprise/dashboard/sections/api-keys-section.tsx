@@ -174,13 +174,13 @@ export default function ApiKeysPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800'
+        return 'bg-gray-100 text-gray-800'
       case 'revoked':
-        return 'bg-red-100 text-red-800'
+        return 'bg-gray-200 text-gray-600'
       case 'expired':
-        return 'bg-orange-100 text-orange-800'
+        return 'bg-gray-200 text-gray-600'
       case 'unknown':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-gray-100 text-gray-700'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -479,7 +479,7 @@ export default function ApiKeysPage() {
                                 }
                               }}
                               disabled={!(apiKey.key || apiKey.api_key) || (apiKey.key || apiKey.api_key).length <= 20}
-                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                              className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
                               title="Set this API key as the active key for Enterprise Chat"
                             >
                               <MessageSquare className="w-4 h-4 mr-1" />
@@ -552,8 +552,8 @@ export default function ApiKeysPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-gray-700" />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">API Key Created Successfully!</h3>

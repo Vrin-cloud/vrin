@@ -13,15 +13,15 @@ export function AnimatedBackground() {
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-purple-50/20 dark:from-blue-950/20 dark:via-transparent dark:to-purple-950/20" />
-      
-      {/* Animated Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-float-slow" />
-      <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-float-slower" />
-      <div className="absolute top-1/2 left-3/4 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-float-reverse" />
-      
-      {/* Floating Particles */}
+      {/* Gradient Background - VRIN Colors */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#8DAA9D]/10 via-transparent to-[#083C5E]/10 dark:from-[#083C5E]/20 dark:via-transparent dark:to-[#8DAA9D]/10" />
+
+      {/* Animated Gradient Orbs - VRIN Sage & Blue */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-[#8DAA9D]/10 to-[#083C5E]/10 rounded-full blur-3xl animate-float-slow" />
+      <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-r from-[#083C5E]/10 to-[#8DAA9D]/10 rounded-full blur-3xl animate-float-slower" />
+      <div className="absolute top-1/2 left-3/4 w-72 h-72 bg-gradient-to-r from-[#8DAA9D]/10 to-[#083C5E]/10 rounded-full blur-3xl animate-float-reverse" />
+
+      {/* Floating Particles - VRIN Colors */}
       <div className="absolute inset-0">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
@@ -34,17 +34,17 @@ export function AnimatedBackground() {
               animationDuration: `${15 + Math.random() * 10}s`
             }}
           >
-            <div className="w-1 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-30 dark:opacity-20" />
+            <div className="w-1 h-1 bg-gradient-to-r from-[#8DAA9D] to-[#083C5E] rounded-full opacity-30 dark:opacity-20" />
           </div>
         ))}
       </div>
-      
-      {/* Grid Pattern */}
+
+      {/* Grid Pattern - VRIN Charcoal */}
       <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]">
         <div className="h-full w-full" style={{
           backgroundImage: `
-            linear-gradient(to right, #000 1px, transparent 1px),
-            linear-gradient(to bottom, #000 1px, transparent 1px)
+            linear-gradient(to right, #201E1E 1px, transparent 1px),
+            linear-gradient(to bottom, #201E1E 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px'
         }} />

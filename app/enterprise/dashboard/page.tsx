@@ -21,6 +21,7 @@ import {
 import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import vrinIcon from '@/app/icon.svg'
 
 // Import section components
 import OverviewSection from './sections/overview-section'
@@ -66,7 +67,7 @@ function DashboardContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           <span className="text-gray-600">Loading...</span>
         </div>
       </div>
@@ -108,14 +109,14 @@ function DashboardContent() {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+          <div className="h-[57px] px-6 flex items-center">
+            <div className="flex items-center justify-between w-full">
               {isSidebarOpen ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex flex-col gap-1 flex-1"
+                  className="flex items-center flex-1"
                 >
                   <Image
                     src="/og-image.png"
@@ -125,7 +126,6 @@ function DashboardContent() {
                     className="object-contain object-left"
                     priority
                   />
-                  <p className="text-xs text-gray-500">Enterprise v0.8.0</p>
                 </motion.div>
               ) : (
                 <motion.div
@@ -136,17 +136,18 @@ function DashboardContent() {
                 >
                   <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="relative group p-2 rounded-lg transition-colors w-12 h-12 flex items-center justify-center"
+                    className="relative group rounded-lg transition-colors flex items-center justify-center hover:bg-gray-100"
                   >
                     <Image
-                      src="/icon.svg"
+                      src={vrinIcon}
                       alt="VRiN"
                       width={40}
                       height={40}
-                      className="object-contain group-hover:opacity-0 transition-opacity"
+                      className="group-hover:opacity-0 transition-opacity duration-200"
                       priority
+                      unoptimized
                     />
-                    <Menu className="w-6 h-6 text-gray-600 absolute opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Menu className="w-5 h-5 text-gray-600 absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </button>
                 </motion.div>
               )}
@@ -172,16 +173,16 @@ function DashboardContent() {
                 return (
                   <Link key={item.id} href={item.href}>
                     <motion.div
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100`}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all bg-gray-900 text-white hover:bg-gray-800`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Icon className="w-5 h-5 flex-shrink-0 text-gray-600" />
+                      <Icon className="w-5 h-5 flex-shrink-0" />
                       {isSidebarOpen && (
                         <span className="font-medium flex-1 text-left truncate">{item.label}</span>
                       )}
                       {item.highlight && isSidebarOpen && (
-                        <Badge className="bg-purple-500 text-white text-xs flex-shrink-0">NEW</Badge>
+                        <span className="px-1.5 py-0.5 bg-white/20 text-xs font-medium rounded flex-shrink-0">NEW</span>
                       )}
                     </motion.div>
                   </Link>
@@ -194,18 +195,18 @@ function DashboardContent() {
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-gray-900' : 'text-gray-600'}`} />
                   {isSidebarOpen && (
                     <span className="font-medium flex-1 text-left truncate">{item.label}</span>
                   )}
                   {item.highlight && isSidebarOpen && (
-                    <Badge className="bg-green-500 text-white text-xs flex-shrink-0">NEW</Badge>
+                    <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded flex-shrink-0">NEW</span>
                   )}
                 </motion.button>
               )
@@ -213,9 +214,9 @@ function DashboardContent() {
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {user.firstName?.charAt(0) || 'A'}
               </div>
               {isSidebarOpen && (
@@ -271,7 +272,7 @@ export default function EnterpriseDashboard() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           <span className="text-gray-600">Loading...</span>
         </div>
       </div>

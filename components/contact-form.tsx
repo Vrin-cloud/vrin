@@ -82,30 +82,30 @@ ${formData.message}
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+      <div
+        className="absolute inset-0 bg-[#201E1E]/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
-      <Card className="relative w-full max-w-md mx-4 bg-background border shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+      <Card className="relative w-full max-w-md mx-4 bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center justify-between p-6 border-b border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-slate-400 to-slate-600 flex items-center justify-center">
-                <Mail className="h-5 w-5 text-white" />
+              <div className="h-10 w-10 rounded-xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center">
+                <Mail className="h-5 w-5 text-[#FFFDFD] dark:text-[#201E1E]" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Get in Touch</h2>
-                <p className="text-sm text-muted-foreground">We&apos;d love to hear from you</p>
+                <h2 className="text-xl font-light text-[#201E1E] dark:text-[#FFFDFD]">Get in Touch</h2>
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">We&apos;d love to hear from you</p>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onClose}
-              className="h-8 w-8 p-0 hover:bg-muted"
+              className="h-8 w-8 p-0 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -115,9 +115,9 @@ ${formData.message}
           <div className="p-6">
             {isSubmitted ? (
               <div className="text-center py-8">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Message Sent!</h3>
-                <p className="text-muted-foreground text-sm">
+                <CheckCircle className="h-16 w-16 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">Message Sent!</h3>
+                <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 text-sm font-light">
                   Thank you for reaching out. We&apos;ll get back to you soon.
                 </p>
               </div>
@@ -210,18 +210,18 @@ ${formData.message}
                     type="button"
                     variant="outline"
                     onClick={onClose}
-                    className="flex-1 bg-transparent"
+                    className="flex-1 bg-transparent border-[#201E1E]/30 dark:border-[#FFFDFD]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20 rounded-full"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 gradient-bg text-white hover:opacity-90"
+                    className="flex-1 bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFDFD] dark:bg-[#FFFDFD] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FFFDFD] dark:border-[#201E1E] mr-2" />
                         Sending...
                       </>
                     ) : (

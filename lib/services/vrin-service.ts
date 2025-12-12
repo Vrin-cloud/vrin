@@ -572,28 +572,33 @@ export class AuthService {
 
       const result = await response.json();
       console.log('Login successful:', result);
-      
+
       // Convert backend response to expected format
+      // Backend returns user_id/email either at top level or nested in 'user' object
       if (result.success && result.api_key) {
+        const userId = result.user_id || result.user?.user_id;
+        const userEmail = result.email || result.user?.email;
+        const userName = result.name || result.user?.name;
+
         const authResponse: AuthResponse = {
           success: true,
           user: {
-            user_id: result.user_id,
-            email: result.email,
-            name: result.name,
+            user_id: userId,
+            email: userEmail,
+            name: userName || userEmail?.split('@')[0],
             created_at: new Date().toISOString()
           },
           api_key: result.api_key,
           message: result.message
         };
-        
+
         // Store API key in localStorage
         localStorage.setItem('vrin_api_key', result.api_key);
         localStorage.setItem('vrin_user', JSON.stringify(authResponse.user));
-        
+
         return authResponse;
       }
-      
+
       return result;
     } catch (error) {
       console.error('Login network error:', error);

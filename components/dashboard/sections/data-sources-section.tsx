@@ -1,15 +1,19 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
+import Nango from '@nangohq/frontend'
 import {
   Link2,
   RefreshCw,
-  Info,
-  Zap,
-  Clock,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Upload,
+  File,
+  Image as ImageIcon,
+  X,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react'
 import { IntegrationCard, ConnectorStatus } from '../integration-card'
 import { NotionIcon, GoogleDriveIcon, SlackIcon } from '../connector-icons'
@@ -47,12 +51,15 @@ interface ConnectorState {
 
 interface DataSourcesSectionProps {
   apiKey?: string
+  userId?: string
+  userEmail?: string
 }
 
-export function DataSourcesSection({ apiKey }: DataSourcesSectionProps) {
+export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSectionProps) {
   const [connectorStates, setConnectorStates] = useState<Record<string, ConnectorState>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [connectingTo, setConnectingTo] = useState<string | null>(null)
 
   // Fetch connector statuses on mount
   useEffect(() => {
@@ -95,43 +102,84 @@ export function DataSourcesSection({ apiKey }: DataSourcesSectionProps) {
   }
 
   const handleConnect = async (connectorId: string) => {
-    // For now, show a placeholder message since Nango isn't set up yet
-    // This will be replaced with actual Nango SDK integration
-
     console.log(`[DataSources] Connecting to ${connectorId}...`)
 
-    // Check if Nango is available
-    if (typeof window !== 'undefined' && (window as any).Nango) {
-      try {
-        const nango = new (window as any).Nango({
-          publicKey: process.env.NEXT_PUBLIC_NANGO_PUBLIC_KEY
-        })
+    if (!userId) {
+      console.error('User ID is required for connecting')
+      alert('Please log in to connect apps')
+      return
+    }
 
-        // Generate unique connection ID
-        const connectionId = `user_${Date.now()}_${connectorId}`
+    setConnectingTo(connectorId)
 
-        // Open Nango OAuth popup
-        await nango.auth(connectorId, connectionId)
+    try {
+      // Step 1: Get a session token from our backend
+      const sessionResponse = await fetch('/api/connectors/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          userId,
+          userEmail,
+          allowedIntegrations: [connectorId], // Only show this specific connector
+        }),
+      })
 
-        // Register with backend
-        await fetch(`/api/user/connectors/${connectorId}/connect`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({ connectionId })
-        })
-
-        // Refresh statuses
-        await fetchConnectorStatuses()
-      } catch (err) {
-        console.error('Nango connection failed:', err)
-        throw err
+      if (!sessionResponse.ok) {
+        const errorData = await sessionResponse.json()
+        throw new Error(errorData.error || 'Failed to create session')
       }
-    } else {
-      // Nango not loaded - show placeholder
-      alert(`Nango SDK not configured yet. To complete setup:\n\n1. Create a Nango account at nango.dev\n2. Add NEXT_PUBLIC_NANGO_PUBLIC_KEY to .env.local\n3. Install @nangohq/frontend package`)
+
+      const { sessionToken } = await sessionResponse.json()
+
+      // Step 2: Open Nango Connect UI with the session token
+      const nango = new Nango()
+
+      const connectUI = nango.openConnectUI({
+        onEvent: async (event) => {
+          console.log('[Nango] Event:', event)
+
+          if (event.type === 'close') {
+            // User closed the modal
+            setConnectingTo(null)
+          } else if (event.type === 'connect') {
+            // Connection successful!
+            const { connectionId, providerConfigKey } = event.payload
+            console.log(`[Nango] Connected! connectionId: ${connectionId}, provider: ${providerConfigKey}`)
+
+            // Register the connection with our backend
+            try {
+              await fetch(`/api/user/connectors/${connectorId}/connect`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                  connectionId,
+                  providerConfigKey,
+                }),
+              })
+            } catch (err) {
+              console.error('Failed to register connection with backend:', err)
+            }
+
+            // Refresh connector statuses
+            await fetchConnectorStatuses()
+            setConnectingTo(null)
+          }
+        },
+      })
+
+      // Set the session token to start the flow
+      connectUI.setSessionToken(sessionToken)
+
+    } catch (err) {
+      console.error('Nango connection failed:', err)
+      setConnectingTo(null)
+      throw err
     }
   }
 
@@ -193,14 +241,82 @@ export function DataSourcesSection({ apiKey }: DataSourcesSectionProps) {
     (sum, s) => sum + (s.documents_synced || 0), 0
   )
 
+  // File upload state
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({})
+  const [uploadedCount, setUploadedCount] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    setUploadedFiles(prev => [...prev, ...files])
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const files = Array.from(e.dataTransfer.files)
+    setUploadedFiles(prev => [...prev, ...files])
+  }
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleUpload = async () => {
+    if (uploadedFiles.length === 0) return
+
+    setUploading(true)
+    let successCount = 0
+
+    for (const file of uploadedFiles) {
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('title', file.name)
+
+        const response = await fetch('/api/knowledge/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: formData,
+        })
+
+        if (response.ok) {
+          successCount++
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }))
+        }
+      } catch (err) {
+        console.error(`Failed to upload ${file.name}:`, err)
+      }
+    }
+
+    setUploadedCount(prev => prev + successCount)
+    setUploadedFiles([])
+    setUploadProgress({})
+    setUploading(false)
+  }
+
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith('image/')) return <ImageIcon className="w-4 h-4" />
+    return <File className="w-4 h-4" />
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Data Sources</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Data Sources</h2>
           <p className="text-gray-600 mt-1">
-            Connect your apps to automatically sync knowledge into VRIN
+            Connect apps or upload files to add knowledge to VRIN
           </p>
         </div>
         <button
@@ -212,90 +328,156 @@ export function DataSourcesSection({ apiKey }: DataSourcesSectionProps) {
         </button>
       </div>
 
-      {/* Stats Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Link2 className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Link2 className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="text-sm text-blue-600 font-medium">Connected Apps</p>
-              <p className="text-2xl font-bold text-blue-900">{connectedCount}</p>
+              <p className="text-sm text-gray-600">Connected Apps</p>
+              <p className="text-2xl font-semibold text-gray-900">{connectedCount}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FileText className="w-5 h-5 text-green-600" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <FileText className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="text-sm text-green-600 font-medium">Documents Synced</p>
-              <p className="text-2xl font-bold text-green-900">{totalDocuments.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Documents Synced</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalDocuments.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Zap className="w-5 h-5 text-purple-600" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Upload className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="text-sm text-purple-600 font-medium">Auto-Sync</p>
-              <p className="text-2xl font-bold text-purple-900">
-                {connectedCount > 0 ? 'Active' : 'Inactive'}
-              </p>
+              <p className="text-sm text-gray-600">Files Uploaded</p>
+              <p className="text-2xl font-semibold text-gray-900">{uploadedCount}</p>
             </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Info Banner */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
-        <div className="flex gap-3">
-          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-amber-900">How it works</h4>
-            <p className="text-sm text-amber-700 mt-1">
-              Connect your apps and VRIN will automatically sync your documents, notes, and conversations.
-              New content is processed and added to your knowledge graph within minutes.
-            </p>
           </div>
         </div>
       </div>
 
-      {/* Connector Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {CONNECTORS.map((connector) => {
-          const state = connectorStates[connector.id]
-          return (
-            <IntegrationCard
-              key={connector.id}
-              id={connector.id}
-              name={connector.name}
-              description={connector.description}
-              icon={connector.icon}
-              status={state?.status || 'disconnected'}
-              lastSync={state?.last_sync_at}
-              documentsCount={state?.documents_synced}
-              errorMessage={state?.error_message}
-              onConnect={() => handleConnect(connector.id)}
-              onDisconnect={() => handleDisconnect(connector.id)}
-              onSync={() => handleSync(connector.id)}
-            />
-          )
-        })}
+      {/* File Upload Section */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Files</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Upload PDFs, images, text files, and other documents to add to your knowledge base.
+        </p>
+
+        {/* Drop Zone */}
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+        >
+          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-600 font-medium">Drop files here or click to browse</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Supports PDF, images, text files, and more
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.gif,.csv,.json"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+        </div>
+
+        {/* File List */}
+        {uploadedFiles.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {uploadedFiles.map((file, index) => (
+              <div
+                key={`${file.name}-${index}`}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white border border-gray-200 rounded-lg">
+                    {getFileIcon(file)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeFile(index)}
+                  className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={handleUpload}
+              disabled={uploading}
+              className="w-full mt-4 px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4" />
+                  Upload {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''}
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Connected Apps Section */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Connect Apps</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Link your favorite apps to automatically sync content into VRIN.
+        </p>
+
+        {/* Connector Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {CONNECTORS.map((connector) => {
+            const state = connectorStates[connector.id]
+            return (
+              <IntegrationCard
+                key={connector.id}
+                id={connector.id}
+                name={connector.name}
+                description={connector.description}
+                icon={connector.icon}
+                status={state?.status || 'disconnected'}
+                lastSync={state?.last_sync_at}
+                documentsCount={state?.documents_synced}
+                errorMessage={state?.error_message}
+                onConnect={() => handleConnect(connector.id)}
+                onDisconnect={() => handleDisconnect(connector.id)}
+                onSync={() => handleSync(connector.id)}
+              />
+            )
+          })}
+        </div>
       </div>
 
       {/* Coming Soon Section */}
-      <div className="mt-8">
+      <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {['Asana', 'Linear', 'Confluence', 'Dropbox', 'Trello', 'ClickUp', 'Airtable'].map((name) => (
@@ -309,22 +491,16 @@ export function DataSourcesSection({ apiKey }: DataSourcesSectionProps) {
         </div>
       </div>
 
-      {/* Setup Instructions (shown when no Nango key) */}
-      {!process.env.NEXT_PUBLIC_NANGO_PUBLIC_KEY && (
-        <div className="mt-8 bg-gray-50 border border-gray-200 rounded-xl p-6">
+      {/* Setup Instructions (shown when userId is missing) */}
+      {!userId && (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-medium text-gray-900">Setup Required</h4>
-              <p className="text-sm text-gray-600 mt-1 mb-3">
-                To enable app connections, complete the following setup:
+              <h4 className="font-medium text-gray-900">Login Required</h4>
+              <p className="text-sm text-gray-600 mt-1">
+                Please log in to connect your apps to VRIN.
               </p>
-              <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
-                <li>Create a free account at <a href="https://nango.dev" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">nango.dev</a></li>
-                <li>Configure OAuth apps for Notion, Google Drive, and Slack</li>
-                <li>Add <code className="px-1.5 py-0.5 bg-gray-200 rounded text-xs">NEXT_PUBLIC_NANGO_PUBLIC_KEY</code> to your environment</li>
-                <li>Install the Nango frontend SDK: <code className="px-1.5 py-0.5 bg-gray-200 rounded text-xs">npm install @nangohq/frontend</code></li>
-              </ol>
             </div>
           </div>
         </div>

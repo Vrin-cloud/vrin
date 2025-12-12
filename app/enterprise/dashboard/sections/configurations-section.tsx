@@ -173,11 +173,11 @@ export default function ConfigurationsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 border-green-200'
+        return 'bg-gray-100 text-gray-800 border-gray-200'
       case 'inactive':
         return 'bg-gray-100 text-gray-800 border-gray-200'
       case 'draft':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        return 'bg-gray-100 text-gray-700 border-gray-200'
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -247,13 +247,13 @@ export default function ConfigurationsPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Active Configuration Summary */}
         {activeConfiguration && (
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-gray-200 bg-gray-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-800">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
                 <Activity className="w-5 h-5" />
                 Active Configuration
               </CardTitle>
-              <CardDescription className="text-green-700">
+              <CardDescription className="text-gray-600">
                 This configuration is currently being used for API key operations
               </CardDescription>
             </CardHeader>
@@ -262,15 +262,15 @@ export default function ConfigurationsPage() {
                 <div className="flex items-center gap-4">
                   <div className="text-2xl">{getCloudProviderIcon(activeConfiguration.cloud_provider)}</div>
                   <div>
-                    <p className="font-medium text-green-900">
+                    <p className="font-medium text-gray-900">
                       {activeConfiguration.cloud_provider.toUpperCase()} - {activeConfiguration.deployment_mode.replace('_', ' ')}
                     </p>
-                    <p className="text-sm text-green-700">
+                    <p className="text-sm text-gray-600">
                       Activated {formatDistanceToNow(new Date(activeConfiguration.activated_at! * 1000), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-green-100 text-green-800 border-green-200">
+                <Badge className="bg-gray-100 text-gray-800 border-gray-200">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Active
                 </Badge>
@@ -281,8 +281,8 @@ export default function ConfigurationsPage() {
 
         {/* No Active Configuration Warning */}
         {!activeConfiguration && configurations.length > 0 && (
-          <Alert className="border-amber-200 bg-amber-50">
-            <AlertDescription className="text-amber-800">
+          <Alert className="border-gray-200 bg-gray-50">
+            <AlertDescription className="text-gray-800">
               <strong>No active configuration found.</strong> You need to activate a configuration before you can generate API keys.
             </AlertDescription>
           </Alert>
@@ -376,7 +376,7 @@ export default function ConfigurationsPage() {
                           <Button
                             onClick={() => activateConfiguration(config.config_id)}
                             disabled={activating === config.config_id}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-gray-900 hover:bg-gray-800"
                           >
                             {activating === config.config_id ? (
                               <>

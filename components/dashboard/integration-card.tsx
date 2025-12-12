@@ -84,11 +84,11 @@ export function IntegrationCard({
   const getStatusColor = () => {
     switch (status) {
       case 'connected':
-        return 'border-green-200 bg-green-50/50'
+        return 'border-gray-200 bg-white'
       case 'syncing':
-        return 'border-blue-200 bg-blue-50/50'
+        return 'border-gray-200 bg-white'
       case 'error':
-        return 'border-red-200 bg-red-50/50'
+        return 'border-gray-200 bg-white'
       default:
         return 'border-gray-200 bg-white'
     }
@@ -98,19 +98,19 @@ export function IntegrationCard({
     switch (status) {
       case 'connected':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
             <Check className="w-3 h-3 mr-1" /> Connected
           </span>
         )
       case 'syncing':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
             <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Syncing
           </span>
         )
       case 'error':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
             <X className="w-3 h-3 mr-1" /> Error
           </span>
         )
@@ -185,7 +185,7 @@ export function IntegrationCard({
         <button
           onClick={handleConnect}
           disabled={loading}
-          className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -215,11 +215,11 @@ export function IntegrationCard({
 
           {/* Error message */}
           {status === 'error' && errorMessage && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{errorMessage}</p>
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-700">{errorMessage}</p>
               <button
                 onClick={handleConnect}
-                className="mt-2 text-sm font-medium text-red-600 hover:text-red-700"
+                className="mt-2 text-sm font-medium text-gray-900 hover:text-gray-700"
               >
                 Try reconnecting →
               </button>
@@ -242,15 +242,15 @@ export function IntegrationCard({
           {/* Syncing progress */}
           {status === 'syncing' && (
             <div className="space-y-2">
-              <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-gray-600 rounded-full"
                   initial={{ width: '0%' }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 />
               </div>
-              <p className="text-xs text-blue-600 text-center">Syncing documents...</p>
+              <p className="text-xs text-gray-600 text-center">Syncing documents...</p>
             </div>
           )}
         </div>

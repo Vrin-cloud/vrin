@@ -484,9 +484,9 @@ function InfrastructureConfigurationContent() {
       {/* Success Alert */}
       {savedSuccessfully && (
         <div className="max-w-6xl mx-auto px-6 pt-4">
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <AlertDescription className="text-green-800">
+          <Alert className="border-gray-200 bg-gray-50">
+            <CheckCircle className="w-4 h-4 text-gray-700" />
+            <AlertDescription className="text-gray-800">
               <div className="flex items-center justify-between">
                 <div>
                   {editConfigId ? (
@@ -501,7 +501,7 @@ function InfrastructureConfigurationContent() {
                   )}
                 </div>
                 {!editConfigId && (
-                  <div className="text-sm text-green-700 ml-4 font-medium">
+                  <div className="text-sm text-gray-700 ml-4 font-medium">
                     🚀 Next step: Generate your first API key!
                   </div>
                 )}
@@ -576,9 +576,9 @@ function InfrastructureConfigurationContent() {
 
               {/* Azure Configuration */}
               <TabsContent value="azure" className="space-y-6">
-                <Alert className="border-blue-200 bg-blue-50">
-                  <Info className="w-4 h-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800">
+                <Alert className="border-gray-200 bg-gray-50">
+                  <Info className="w-4 h-4 text-gray-600" />
+                  <AlertDescription className="text-gray-800">
                     <strong>What you&apos;ll need:</strong> Azure Cosmos DB endpoint, Azure Cognitive Search endpoint with API key, 
                     and an Azure Storage account name. AI services are provided by VRIN.
                   </AlertDescription>
@@ -683,15 +683,15 @@ function InfrastructureConfigurationContent() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                          <span className="font-medium text-green-900">Automatically Configured</span>
+                          <CheckCircle className="w-5 h-5 text-gray-700" />
+                          <span className="font-medium text-gray-900">Automatically Configured</span>
                         </div>
-                        <p className="text-sm text-green-800">
+                        <p className="text-sm text-gray-700">
                           VRIN provides OpenAI services through our secure proxy. No additional setup required.
                         </p>
-                        <div className="mt-3 text-xs text-green-700">
+                        <div className="mt-3 text-xs text-gray-600">
                           <div>• GPT-4o & GPT-4o-mini models available</div>
                           <div>• Secure, enterprise-grade access</div>
                           <div>• No API keys needed from your side</div>
@@ -835,10 +835,10 @@ function InfrastructureConfigurationContent() {
 
               {/* Google Cloud Configuration */}
               <TabsContent value="gcp" className="space-y-6">
-                <Alert className="border-green-200 bg-green-50">
-                  <Info className="w-4 h-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    <strong>Coming Soon:</strong> Google Cloud Platform integration is in development. 
+                <Alert className="border-gray-200 bg-gray-50">
+                  <Info className="w-4 h-4 text-gray-600" />
+                  <AlertDescription className="text-gray-800">
+                    <strong>Coming Soon:</strong> Google Cloud Platform integration is in development.
                     Please use Azure or AWS for now.
                   </AlertDescription>
                 </Alert>
@@ -868,8 +868,8 @@ function InfrastructureConfigurationContent() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-blue-600 font-semibold">1</span>
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-gray-700 font-semibold">1</span>
                 </div>
                 <h4 className="font-medium mb-2">Configure Services</h4>
                 <p className="text-sm text-gray-600">
@@ -877,8 +877,8 @@ function InfrastructureConfigurationContent() {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-semibold">2</span>
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-gray-700 font-semibold">2</span>
                 </div>
                 <h4 className="font-medium mb-2">Test Connections</h4>
                 <p className="text-sm text-gray-600">
@@ -886,8 +886,8 @@ function InfrastructureConfigurationContent() {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-purple-600 font-semibold">3</span>
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-gray-700 font-semibold">3</span>
                 </div>
                 <h4 className="font-medium mb-2">Generate API Keys</h4>
                 <p className="text-sm text-gray-600">

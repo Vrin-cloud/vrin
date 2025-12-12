@@ -125,38 +125,34 @@ export function StickyNavChallengeSection() {
   };
 
   return (
-    <section ref={ref} className="py-16 bg-white dark:bg-slate-900">
+    <section ref={ref} className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E]">
       <div className="px-4 sm:px-6 lg:px-8 mx-auto max-w-[1400px]">
         {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={controls}
-          className="text-center max-w-4xl mx-auto mb-12"
+          className="text-center max-w-4xl mx-auto mb-16"
         >
-          <motion.div variants={itemVariants} className="mb-4">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-medium border border-red-200 dark:border-red-800">
-              <AlertCircle className="w-4 h-4" />
+          <motion.div variants={itemVariants} className="mb-6">
+            <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D]">
               The Challenge
             </span>
           </motion.div>
 
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl lg:text-5xl font-light mb-4 leading-tight"
+            className="text-3xl md:text-4xl lg:text-5xl font-extralight mb-6 leading-tight text-[#201E1E] dark:text-[#FFFDFD]"
           >
-            <span className="text-gray-900 dark:text-gray-100">Your AI </span>
-            <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent font-medium">
-              Forgets Everything
-            </span>
+            Your AI Forgets Everything
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed"
+            className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed"
           >
             Vector search was a breakthrough—until teams realized it&apos;s just
-            <span className="font-medium text-gray-900 dark:text-gray-100"> expensive keyword matching</span>.
+            <span className="font-medium text-[#201E1E] dark:text-[#FFFDFD]"> expensive keyword matching</span>.
             While you&apos;re building custom RAG systems for months, your AI still can&apos;t connect the dots.
           </motion.p>
         </motion.div>
@@ -173,14 +169,14 @@ export function StickyNavChallengeSection() {
             <div className="lg:w-[400px] lg:flex-shrink-0">
               <div className="lg:sticky lg:top-24">
                 <div className="space-y-2 p-6">
-                  <div className="text-center mb-6">
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-white" />
+                  <div className="text-center mb-8">
+                    <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#201E1E] dark:bg-[#FFFDFD] flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-[#FFFDFD] dark:text-[#201E1E]" />
                     </div>
-                    <h3 className="text-xl font-light text-gray-900 dark:text-gray-100 mb-1">
+                    <h3 className="text-xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-1">
                       The Problems
                     </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <p className="text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
                       Why traditional AI fails teams
                     </p>
                   </div>
@@ -204,7 +200,7 @@ export function StickyNavChallengeSection() {
                           <motion.div
                             initial={{ scaleY: 0 }}
                             animate={{ scaleY: 1 }}
-                            className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-red-500 to-orange-500 rounded-r-full"
+                            className="absolute left-0 top-0 w-1 h-full bg-[#083C5E] dark:bg-[#8DAA9D] rounded-r-full"
                           />
                         )}
 
@@ -212,16 +208,16 @@ export function StickyNavChallengeSection() {
                           <div className="flex items-start gap-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                               isActive
-                                ? `bg-gradient-to-r ${challenge.color}`
-                                : 'bg-gray-200 dark:bg-slate-600'
+                                ? 'bg-[#083C5E] dark:bg-[#8DAA9D]'
+                                : 'bg-[#201E1E]/10 dark:bg-[#FFFDFD]/10'
                             }`}>
-                              <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400'}`} />
+                              <Icon className={`w-5 h-5 ${isActive ? 'text-[#FFFDFD] dark:text-[#201E1E]' : 'text-[#201E1E]/60 dark:text-[#FFFDFD]/60'}`} />
                             </div>
 
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs font-medium uppercase tracking-wide ${
-                                  isActive ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'
+                                <span className={`text-xs font-medium uppercase tracking-widest ${
+                                  isActive ? 'text-[#083C5E] dark:text-[#8DAA9D]' : 'text-[#201E1E]/50 dark:text-[#FFFDFD]/50'
                                 }`}>
                                   Problem #{index + 1}
                                 </span>
@@ -229,15 +225,15 @@ export function StickyNavChallengeSection() {
                                   <motion.div
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="w-1.5 h-1.5 rounded-full bg-red-500"
+                                    className="w-1.5 h-1.5 rounded-full bg-[#083C5E] dark:bg-[#8DAA9D]"
                                   />
                                 )}
                               </div>
 
                               <h4 className={`font-medium transition-colors ${
                                 isActive
-                                  ? 'text-base text-red-600 dark:text-red-400 mb-3'
-                                  : 'text-sm text-gray-700 dark:text-gray-300'
+                                  ? 'text-base text-[#201E1E] dark:text-[#FFFDFD] mb-3'
+                                  : 'text-sm text-[#201E1E]/70 dark:text-[#FFFDFD]/70'
                               }`}>
                                 {challenge.title}
                               </h4>
@@ -250,7 +246,7 @@ export function StickyNavChallengeSection() {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mt-1"
+                                    className="text-xs text-[#201E1E]/50 dark:text-[#FFFDFD]/50 line-clamp-1 mt-1"
                                   >
                                     {challenge.problem}
                                   </motion.p>
@@ -264,16 +260,16 @@ export function StickyNavChallengeSection() {
                                     exit={{ opacity: 0, height: 0 }}
                                     transition={{ duration: 0.3 }}
                                   >
-                                    <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 mb-2">
+                                    <p className="text-sm leading-relaxed text-[#201E1E]/70 dark:text-[#FFFDFD]/70 mb-2">
                                       {challenge.problem}
                                     </p>
 
-                                    <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                    <p className="text-xs leading-relaxed text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
                                       {challenge.impact}
                                     </p>
 
-                                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                                      <div className="flex items-center gap-2 text-xs font-medium text-blue-600 dark:text-blue-400">
+                                    <div className="mt-3 pt-3 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                      <div className="flex items-center gap-2 text-xs font-medium text-[#083C5E] dark:text-[#8DAA9D]">
                                         <ArrowRight className="w-3 h-3" />
                                         <span>See VRIN Solution</span>
                                       </div>
@@ -306,57 +302,57 @@ export function StickyNavChallengeSection() {
                     >
                       {/* Solution Section Only */}
                       <div className="w-full">
-                        <div className="text-center mb-8">
-                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                        <div className="text-center mb-10">
+                          <span className="text-xs font-medium text-[#8DAA9D] uppercase tracking-widest">
                             VRIN Solution #{index + 1}
                           </span>
-                          <h2 className="text-2xl md:text-4xl font-light text-gray-900 dark:text-gray-100 mt-2 mb-6">
+                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mt-3 mb-6">
                             {challenge.solution}
                           </h2>
                         </div>
 
                         <div className="max-w-4xl mx-auto">
                           {/* Large Solution Card */}
-                          <div className="p-8 md:p-10">
-                            <div className="text-center mb-8">
-                              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center mb-6">
-                                <SolutionIcon className="w-10 h-10 text-white" />
+                          <div className="p-8 md:p-12 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-3xl border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                            <div className="text-center mb-10">
+                              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center mb-6">
+                                <SolutionIcon className="w-8 h-8 text-[#FFFDFD] dark:text-[#201E1E]" />
                               </div>
 
-                              <h3 className="text-xl md:text-2xl font-medium text-gray-900 dark:text-gray-100 mb-4">
+                              <h3 className="text-xl md:text-2xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-4">
                                 How {challenge.solution} Works
                               </h3>
                             </div>
 
-                            <div className="text-center space-y-6">
-                              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <div className="text-center space-y-8">
+                              <p className="text-base md:text-lg text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light leading-relaxed">
                                 {challenge.solutionDetail}
                               </p>
 
                               {/* Solution Benefits */}
                               <div className="grid md:grid-cols-2 gap-6 mt-12">
-                                <div className="p-6 rounded-2xl">
-                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                                <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
                                   </div>
-                                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                  <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
                                     {index === 0 ? "Never Forgets" : index === 1 ? "Connects Insights" : "Instant Deployment"}
                                   </h4>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
                                     {index === 0 ? "Persistent knowledge across all conversations" :
                                      index === 1 ? "Advanced multi-hop reasoning capabilities" :
                                      "Production-ready in minutes, not months"}
                                   </p>
                                 </div>
 
-                                <div className="p-6 rounded-2xl">
-                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                                    <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
+                                    <Zap className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
                                   </div>
-                                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                  <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
                                     {index === 0 ? "Dramatic Cost Savings" : index === 1 ? "Professional Insights" : "70% Cost Reduction"}
                                   </h4>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
                                     {index === 0 ? "Memory-efficient storage with space reduction" :
                                      index === 1 ? "Expert-level analysis from connected data" :
                                      "Compared to traditional DIY approaches"}

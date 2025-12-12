@@ -44,33 +44,27 @@ export function CoreFeatures() {
   });
 
   return (
-    <section className="py-16 bg-slate-900 dark:bg-black relative overflow-hidden">
-      {/* Corner dots and connecting lines */}
+    <section className="py-20 bg-[#201E1E] relative overflow-hidden">
+      {/* Sophisticated corner accents */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Corner dots */}
-        <div className="absolute top-8 left-8 w-2 h-2 rounded-full bg-blue-400/50"></div>
-        <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-blue-400/50"></div>
-        <div className="absolute bottom-8 left-8 w-2 h-2 rounded-full bg-blue-400/50"></div>
-        <div className="absolute bottom-8 right-8 w-2 h-2 rounded-full bg-blue-400/50"></div>
+        <div className="absolute top-8 left-8 w-1.5 h-1.5 rounded-full bg-[#8DAA9D]"></div>
+        <div className="absolute top-8 right-8 w-1.5 h-1.5 rounded-full bg-[#8DAA9D]"></div>
+        <div className="absolute bottom-8 left-8 w-1.5 h-1.5 rounded-full bg-[#8DAA9D]"></div>
+        <div className="absolute bottom-8 right-8 w-1.5 h-1.5 rounded-full bg-[#8DAA9D]"></div>
 
         {/* Connecting lines */}
-        <div className="absolute top-8 left-8 right-8 h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
-        <div className="absolute bottom-8 left-8 right-8 h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
-        <div className="absolute top-8 bottom-8 left-8 w-px bg-gradient-to-b from-transparent via-blue-400/30 to-transparent"></div>
-        <div className="absolute top-8 bottom-8 right-8 w-px bg-gradient-to-b from-transparent via-blue-400/30 to-transparent"></div>
+        <div className="absolute top-8 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#8DAA9D]/30 to-transparent"></div>
+        <div className="absolute bottom-8 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#8DAA9D]/30 to-transparent"></div>
+        <div className="absolute top-8 bottom-8 left-8 w-px bg-gradient-to-b from-transparent via-[#8DAA9D]/30 to-transparent"></div>
+        <div className="absolute top-8 bottom-8 right-8 w-px bg-gradient-to-b from-transparent via-[#8DAA9D]/30 to-transparent"></div>
 
-        {/* Animated light beams */}
+        {/* Subtle animated light beams */}
         <div className="absolute top-8 left-8 right-8 h-px overflow-hidden">
-          <div className="h-full w-32 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-beam-horizontal"></div>
+          <div className="h-full w-32 bg-gradient-to-r from-transparent via-[#8DAA9D] to-transparent animate-beam-horizontal"></div>
         </div>
         <div className="absolute bottom-8 left-8 right-8 h-px overflow-hidden">
-          <div className="h-full w-32 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-beam-horizontal-reverse" style={{ animationDelay: '2s' }}></div>
-        </div>
-        <div className="absolute top-8 bottom-8 left-8 w-px overflow-hidden">
-          <div className="w-full h-32 bg-gradient-to-b from-transparent via-blue-400 to-transparent animate-beam-vertical"></div>
-        </div>
-        <div className="absolute top-8 bottom-8 right-8 w-px overflow-hidden">
-          <div className="w-full h-32 bg-gradient-to-b from-transparent via-purple-400 to-transparent animate-beam-vertical-reverse" style={{ animationDelay: '1s' }}></div>
+          <div className="h-full w-32 bg-gradient-to-r from-transparent via-[#FFFDFD] to-transparent animate-beam-horizontal-reverse" style={{ animationDelay: '2s' }}></div>
         </div>
       </div>
 
@@ -80,20 +74,17 @@ export function CoreFeatures() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 max-w-4xl mx-auto"
+          className="text-center mb-16 max-w-4xl mx-auto"
         >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-semibold text-blue-400 uppercase tracking-wide" style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 600 }}>
-              Core Features
-            </span>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
+            Core Features
+          </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4" style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#FFFDFD] mb-6">
             What&apos;s inside VRIN?
           </h2>
 
-          <p className="text-base md:text-lg text-gray-400 leading-relaxed" style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 400 }}>
+          <p className="text-lg text-[#FFFDFD]/70 font-light leading-relaxed max-w-2xl mx-auto">
             Teams choose VRIN because it transforms AI from forgetful assistants into expert systems with persistent memory and deep reasoning.
           </p>
         </motion.div>
@@ -109,21 +100,21 @@ export function CoreFeatures() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group p-6 bg-slate-800/50 dark:bg-slate-900/50 rounded-2xl border border-slate-700 dark:border-slate-800 hover:border-blue-500/50 transition-all duration-300"
+                className="group p-8 bg-[#201E1E]/30 rounded-2xl border border-[#FFFDFD]/10 hover:border-[#8DAA9D]/50 transition-all duration-300"
               >
                 {/* Icon */}
-                <div className="mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-white" />
+                <div className="mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-[#8DAA9D] flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-[#201E1E]" />
                   </div>
                 </div>
 
                 {/* Content */}
-                <h3 className="text-lg font-bold text-white mb-2" style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+                <h3 className="text-lg font-medium text-[#FFFDFD] mb-3">
                   {feature.title}
                 </h3>
 
-                <p className="text-sm text-gray-400 leading-relaxed" style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 400 }}>
+                <p className="text-sm text-[#FFFDFD]/60 font-light leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

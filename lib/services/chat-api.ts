@@ -80,7 +80,9 @@ class ChatAPI {
       query: request.message,           // message → query
       user_id: userId,                   // Required by RAG endpoint
       maintain_context: true,            // Enable conversation persistence to backend
-      stream: false                      // Non-streaming mode
+      stream: false,                     // Non-streaming mode
+      response_mode: request.response_mode || 'chat',
+      web_search_enabled: request.web_search_enabled || false
     };
 
     // Only include session_id if we have one (for follow-up queries)
@@ -166,7 +168,9 @@ class ChatAPI {
       query: request.message,           // message → query
       user_id: userId,                   // Required by RAG endpoint
       maintain_context: true,            // Enable conversation persistence to backend
-      stream: true                       // Enable streaming
+      stream: true,                      // Enable streaming
+      response_mode: request.response_mode || 'chat',
+      web_search_enabled: request.web_search_enabled || false
     };
 
     // Only include session_id if we have one (for follow-up queries)
@@ -176,6 +180,8 @@ class ChatAPI {
     }
 
     console.log('🌊 === STREAMING CHAT REQUEST (RAG Format) ===');
+    console.log('Response mode:', ragRequest.response_mode);
+    console.log('Web search enabled:', ragRequest.web_search_enabled);
     console.log('URL:', url, '(proxied to Lambda Function URL)');
     console.log('API Key:', apiKey.substring(0, 15) + '...');
     console.log('Request Body:', JSON.stringify(ragRequest, null, 2));

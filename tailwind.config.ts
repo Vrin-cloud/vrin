@@ -61,6 +61,13 @@ const config: Config = {
             foreground: "hsl(var(--sidebar-accent-foreground))",
           },
         },
+        // Custom VRIN Brand Colors
+        vrin: {
+          cream: "#FFFDFD",
+          charcoal: "#201E1E",
+          blue: "#083C5E",
+          sage: "#8DAA9D",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

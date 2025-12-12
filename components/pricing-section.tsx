@@ -105,17 +105,17 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
   }
 
   return (
-    <section id="pricing" className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <section id="pricing" className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E]">
       <div className="container">
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <Badge variant="outline" className="mb-4 px-3 py-1">
+        <div className="text-center max-w-4xl mx-auto mb-20">
+          <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
             Pricing Plans
-          </Badge>
-          <h2 className="text-4xl font-bold mb-6">
-            Choose Your <span className="text-blue-600">Intelligence Level</span>
+          </span>
+          <h2 className="text-4xl md:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mb-6">
+            Choose Your Intelligence Level
           </h2>
-          <p className="text-xl text-muted-foreground leading-relaxed">
-            From individual developers to enterprise deployments, VRIN scales with your needs. 
+          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed">
+            From individual developers to enterprise deployments, VRIN scales with your needs.
             All plans include our revolutionary user-defined AI specialization.
           </p>
         </div>
@@ -130,52 +130,47 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
               viewport={{ once: true }}
               className="h-full"
             >
-              <Card className={`h-full relative overflow-hidden ${
-                plan.popular 
-                  ? 'border-blue-500 shadow-lg shadow-blue-500/20 scale-105' 
-                  : 'border-gray-200 dark:border-gray-800'
+              <Card className={`h-full relative overflow-hidden rounded-2xl ${
+                plan.popular
+                  ? 'border-2 border-[#083C5E] dark:border-[#8DAA9D] shadow-xl scale-105'
+                  : 'border border-[#201E1E]/10 dark:border-[#FFFDFD]/10'
               }`}>
                 {plan.popular && (
-                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-center py-2 text-sm font-medium">
+                  <div className="absolute top-0 left-0 right-0 bg-[#083C5E] dark:bg-[#8DAA9D] text-[#FFFDFD] dark:text-[#201E1E] text-center py-2 text-xs font-medium uppercase tracking-widest">
                     {plan.badge}
                   </div>
                 )}
-                
-                <CardHeader className={`${plan.popular ? 'pt-12' : 'pt-6'}`}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 rounded-lg ${
-                      plan.name === 'Builder' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
-                      plan.name === 'Team' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
-                      plan.name === 'Business' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' :
-                      'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                    }`}>
+
+                <CardHeader className={`${plan.popular ? 'pt-14' : 'pt-8'}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-[#8DAA9D]/20 dark:bg-[#083C5E]/30 text-[#083C5E] dark:text-[#8DAA9D]">
                       {plan.icon}
                     </div>
                     <div>
-                      <CardTitle className="text-xl">{plan.name}</CardTitle>
+                      <CardTitle className="text-xl font-medium text-[#201E1E] dark:text-[#FFFDFD]">{plan.name}</CardTitle>
                       {!plan.popular && (
-                        <Badge variant="outline" className="text-xs">
+                        <span className="text-xs uppercase tracking-widest text-[#8DAA9D]">
                           {plan.badge}
-                        </Badge>
+                        </span>
                       )}
                     </div>
                   </div>
-                  
-                  <p className="text-sm text-muted-foreground">
+
+                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
                     {plan.description}
                   </p>
                 </CardHeader>
 
                 <CardContent className="pt-0">
-                  <div className="space-y-4 mb-6">
-                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                  <div className="space-y-4 mb-8">
+                    <h4 className="text-xs font-medium text-[#8DAA9D] uppercase tracking-widest">
                       What&apos;s Included:
                     </h4>
                     <ul className="space-y-3">
                       {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
+                        <li key={featureIndex} className="flex items-start gap-3">
+                          <Check className="h-4 w-4 text-[#083C5E] dark:text-[#8DAA9D] mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -183,12 +178,10 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
 
                   <Button
                     onClick={() => handleAction(plan.action, plan.name)}
-                    className={`w-full ${
-                      plan.name === 'Builder'
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : plan.popular
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : 'bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'
+                    className={`w-full rounded-full ${
+                      plan.popular
+                        ? 'bg-[#083C5E] hover:bg-[#083C5E]/90 text-[#FFFDFD] dark:bg-[#8DAA9D] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D]/90'
+                        : 'bg-[#201E1E]/10 hover:bg-[#201E1E]/20 text-[#201E1E] dark:bg-[#FFFDFD]/10 dark:text-[#FFFDFD] dark:hover:bg-[#FFFDFD]/20'
                     }`}
                   >
                     {plan.cta}
@@ -206,60 +199,60 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
           viewport={{ once: true }}
-          className="mt-16 max-w-4xl mx-auto"
+          className="mt-20 max-w-4xl mx-auto"
         >
-          <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/30 to-purple-50/30 dark:from-blue-950/10 dark:to-purple-950/10">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">All Plans Include</h3>
-                <p className="text-muted-foreground">Revolutionary capabilities that set VRIN apart</p>
+          <Card className="border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-2xl">
+            <CardContent className="p-10">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-2">All Plans Include</h3>
+                <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">Revolutionary capabilities that set VRIN apart</p>
               </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
+
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-blue-500" />
+                  <h4 className="font-medium flex items-center gap-2 text-[#083C5E] dark:text-[#8DAA9D]">
+                    <Zap className="h-4 w-4" />
                     Core Intelligence
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6">
-                    <li>• User-defined AI specialization</li>
-                    <li>• Multi-hop reasoning across documents</li>
-                    <li>• Smart deduplication (40-60% savings)</li>
-                    <li>• Temporal knowledge graphs</li>
-                    <li>• Lightning-fast fact retrieval (&lt;1.8s)</li>
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">
+                    <li>User-defined AI specialization</li>
+                    <li>Multi-hop reasoning across documents</li>
+                    <li>Smart deduplication (40-60% savings)</li>
+                    <li>Temporal knowledge graphs</li>
+                    <li>Lightning-fast fact retrieval (&lt;1.8s)</li>
                   </ul>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Building className="h-4 w-4 text-purple-500" />
+                  <h4 className="font-medium flex items-center gap-2 text-[#083C5E] dark:text-[#8DAA9D]">
+                    <Building className="h-4 w-4" />
                     Enterprise Features
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6">
-                    <li>• Complete audit trails</li>
-                    <li>• Explainable AI responses</li>
-                    <li>• High-confidence fact extraction</li>
-                    <li>• Cross-document synthesis</li>
-                    <li>• Production-grade security</li>
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">
+                    <li>Complete audit trails</li>
+                    <li>Explainable AI responses</li>
+                    <li>High-confidence fact extraction</li>
+                    <li>Cross-document synthesis</li>
+                    <li>Production-grade security</li>
                   </ul>
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
-                <p className="text-sm text-muted-foreground mb-4">
+              <div className="mt-10 text-center">
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light mb-6">
                   Questions about pricing or need a custom solution?
                 </p>
                 <div className="flex justify-center gap-4">
-                  <Button 
+                  <Button
                     onClick={() => openContactForm("Pricing Questions")}
                     variant="outline"
-                    className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950/20"
+                    className="border-[#201E1E]/30 dark:border-[#FFFDFD]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#083C5E]/20 rounded-full px-6"
                   >
                     Ask About Pricing
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => openContactForm("Custom Enterprise Solution")}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFDFD] dark:bg-[#FFFDFD] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full px-6"
                   >
                     Custom Solution
                   </Button>
@@ -270,9 +263,9 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
         </motion.div>
 
         {/* ROI Note */}
-        <div className="text-center mt-12 max-w-2xl mx-auto">
-          <p className="text-sm text-muted-foreground">
-            <strong>ROI Guarantee:</strong> VRIN typically pays for itself within the first quarter through 
+        <div className="text-center mt-16 max-w-2xl mx-auto">
+          <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
+            <span className="font-medium text-[#083C5E] dark:text-[#8DAA9D]">ROI Guarantee:</span> VRIN typically pays for itself within the first quarter through
             reduced engineering costs, faster time-to-market, and superior analysis quality.
           </p>
         </div>

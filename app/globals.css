@@ -7,31 +7,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    /* VRIN Off-White #FFFDFD instead of pure white */
+    --background: 0 100% 99.6%;
+    --foreground: 0 3% 12%;
+    --card: 0 100% 99.6%;
+    --card-foreground: 0 3% 12%;
+    --popover: 0 100% 99.6%;
+    --popover-foreground: 0 3% 12%;
+    /* VRIN Charcoal #201E1E for primary */
+    --primary: 0 3% 12%;
+    --primary-foreground: 0 100% 99.6%;
+    /* Subtle sage-tinted secondary */
+    --secondary: 150 16% 95%;
+    --secondary-foreground: 0 3% 12%;
+    --muted: 150 16% 95%;
+    --muted-foreground: 0 3% 45%;
+    /* Sage-tinted accent */
+    --accent: 150 16% 95%;
+    --accent-foreground: 0 3% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 71.4% 29.8%;
+    /* VRIN charcoal-based borders */
+    --border: 0 3% 90%;
+    --input: 0 3% 90%;
+    /* VRIN sage for focus rings */
+    --ring: 150 16% 61%;
     --radius: 0.5rem;
 
+    /* Custom VRIN Brand Colors */
+    /* Off-White #FFFDFD */
+    --vrin-cream: 0 100% 99.6%;
+    /* Warm Charcoal #201E1E */
+    --vrin-charcoal: 0 3% 12%;
+    /* Deep Blue #083C5E */
+    --vrin-blue: 203 84% 20%;
+    /* Sage Green #8DAA9D */
+    --vrin-sage: 150 16% 61%;
+
     /* Brand colors */
-    --brand-primary: 215 100% 50%;
-    --brand-secondary: 262 83% 58%;
-    --brand-accent: 142 71.4% 29.8%;
+    --brand-primary: 203 84% 20%;
+    --brand-secondary: 150 16% 61%;
+    --brand-accent: 150 16% 61%;
 
     /* Sidebar colors */
     --sidebar-background: 0 0% 98%;
@@ -65,10 +81,16 @@
     --input: 240 3.7% 15.9%;
     --ring: 142 71.4% 29.8%;
 
+    /* Custom VRIN Brand Colors (same in dark mode) */
+    --vrin-cream: 0 100% 99.6%;
+    --vrin-charcoal: 0 3% 12%;
+    --vrin-blue: 203 84% 20%;
+    --vrin-sage: 150 16% 61%;
+
     /* Brand colors */
-    --brand-primary: 215 100% 60%;
-    --brand-secondary: 262 83% 68%;
-    --brand-accent: 142 71.4% 39.8%;
+    --brand-primary: 203 84% 30%;
+    --brand-secondary: 150 16% 71%;
+    --brand-accent: 150 16% 71%;
 
     /* Sidebar colors */
     --sidebar-background: 240 5.9% 10%;
@@ -96,12 +118,175 @@
   }
 }
 
+/* VRIN Custom Color Palette Design System */
+/* Off-White: #FFFDFD | Charcoal: #201E1E | Blue: #083C5E | Sage: #8DAA9D */
+
+/* Custom color utilities */
+.bg-vrin-cream {
+  background-color: #FFFDFD;
+}
+
+.bg-vrin-charcoal {
+  background-color: #201E1E;
+}
+
+.bg-vrin-blue {
+  background-color: #083C5E;
+}
+
+.bg-vrin-sage {
+  background-color: #8DAA9D;
+}
+
+.text-vrin-cream {
+  color: #FFFDFD;
+}
+
+.text-vrin-charcoal {
+  color: #201E1E;
+}
+
+.text-vrin-blue {
+  color: #083C5E;
+}
+
+.text-vrin-sage {
+  color: #8DAA9D;
+}
+
+.border-vrin-cream {
+  border-color: #FFFDFD;
+}
+
+.border-vrin-charcoal {
+  border-color: #201E1E;
+}
+
+.border-vrin-blue {
+  border-color: #083C5E;
+}
+
+.border-vrin-sage {
+  border-color: #8DAA9D;
+}
+
+/* Gradient utilities */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400;
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, #201E1E, #083C5E, #201E1E);
+}
+
+.dark .gradient-text {
+  background-image: linear-gradient(to right, #FFFDFD, #8DAA9D, #FFFDFD);
 }
 
 .gradient-bg {
-  @apply bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500;
+  background-color: #201E1E;
+}
+
+.dark .gradient-bg {
+  background-color: #FFFDFD;
+}
+
+/* Accent text with brand colors */
+.accent-text {
+  color: #083C5E;
+}
+
+.dark .accent-text {
+  color: #8DAA9D;
+}
+
+/* Section backgrounds */
+.section-light {
+  background-color: #FFFDFD;
+}
+
+.dark .section-light {
+  background-color: #201E1E;
+}
+
+.section-muted {
+  background-color: rgba(141, 170, 157, 0.1);
+}
+
+.dark .section-muted {
+  background-color: rgba(8, 60, 94, 0.2);
+}
+
+.section-dark {
+  background-color: #201E1E;
+  color: #FFFDFD;
+}
+
+.dark .section-dark {
+  background-color: #FFFDFD;
+  color: #201E1E;
+}
+
+/* Card styling */
+.card-elegant {
+  background-color: #FFFDFD;
+  border: 1px solid rgba(32, 30, 30, 0.1);
+  @apply shadow-sm hover:shadow-md transition-shadow duration-300;
+}
+
+.dark .card-elegant {
+  background-color: #201E1E;
+  border: 1px solid rgba(255, 253, 253, 0.1);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #201E1E;
+  color: #FFFDFD;
+  @apply transition-all duration-200;
+}
+
+.btn-primary:hover {
+  background-color: #083C5E;
+}
+
+.dark .btn-primary {
+  background-color: #FFFDFD;
+  color: #201E1E;
+}
+
+.dark .btn-primary:hover {
+  background-color: #8DAA9D;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid rgba(32, 30, 30, 0.3);
+  color: #201E1E;
+  @apply transition-all duration-200;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(141, 170, 157, 0.1);
+}
+
+.dark .btn-secondary {
+  border-color: rgba(255, 253, 253, 0.3);
+  color: #FFFDFD;
+}
+
+.dark .btn-secondary:hover {
+  background-color: rgba(8, 60, 94, 0.2);
+}
+
+/* Badge styling */
+.badge-elegant {
+  background-color: rgba(8, 60, 94, 0.1);
+  color: #083C5E;
+  border: 1px solid rgba(8, 60, 94, 0.2);
+}
+
+.dark .badge-elegant {
+  background-color: rgba(141, 170, 157, 0.1);
+  color: #8DAA9D;
+  border: 1px solid rgba(141, 170, 157, 0.2);
 }
 
 /* Grid background pattern */

@@ -69,12 +69,12 @@ const architecturePipelines = [
 
 const getComponentColor = (type: string) => {
   switch (type) {
-    case 'storage': return 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
-    case 'processing': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300';
-    case 'retrieval': return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
-    case 'generation': return 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200';
-    case 'enhancement': return 'bg-blue-200 dark:bg-blue-800/30 text-blue-800 dark:text-blue-200';
-    default: return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+    case 'storage': return 'bg-[#201E1E]/10 dark:bg-[#FFFDFD]/10 text-[#201E1E]/70 dark:text-[#FFFDFD]/70';
+    case 'processing': return 'bg-[#083C5E]/10 dark:bg-[#083C5E]/30 text-[#083C5E] dark:text-[#8DAA9D]';
+    case 'retrieval': return 'bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/20 text-[#083C5E] dark:text-[#8DAA9D]';
+    case 'generation': return 'bg-[#201E1E]/5 dark:bg-[#FFFDFD]/10 text-[#201E1E] dark:text-[#FFFDFD]';
+    case 'enhancement': return 'bg-[#083C5E]/20 dark:bg-[#8DAA9D]/30 text-[#083C5E] dark:text-[#8DAA9D]';
+    default: return 'bg-[#201E1E]/10 dark:bg-[#FFFDFD]/10 text-[#201E1E]/70 dark:text-[#FFFDFD]/70';
   }
 };
 
@@ -96,13 +96,13 @@ function PipelineDiagram({ pipeline, index, isInView }: PipelineDiagramProps) {
         {/* Text Content */}
         <div className={`${index % 2 === 1 ? 'lg:order-2' : ''}`}>
           <div className="mb-6">
-            <Badge variant="outline" className="mb-3">
+            <Badge variant="outline" className="mb-3 bg-[#8DAA9D]/10 dark:bg-[#8DAA9D]/20 border-[#8DAA9D]/30 text-[#083C5E] dark:text-[#8DAA9D]">
               Pipeline {index + 1}
             </Badge>
-            <h3 className="text-3xl font-medium text-foreground mb-4">
+            <h3 className="text-3xl font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-4">
               {pipeline.title}
             </h3>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 leading-relaxed mb-6">
               {pipeline.description}
             </p>
           </div>
@@ -110,23 +110,23 @@ function PipelineDiagram({ pipeline, index, isInView }: PipelineDiagramProps) {
           {/* Performance Metrics */}
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-background border border-border/50 rounded-lg">
-                <div className="text-lg font-medium text-foreground">
+              <div className="text-center p-4 bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 rounded-lg">
+                <div className="text-lg font-medium text-[#201E1E] dark:text-[#FFFDFD]">
                   {pipeline.performance.accuracy}
                 </div>
-                <div className="text-xs text-muted-foreground">Accuracy</div>
+                <div className="text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Accuracy</div>
               </div>
-              <div className="text-center p-4 bg-background border border-border/50 rounded-lg">
-                <div className="text-lg font-medium text-foreground">
+              <div className="text-center p-4 bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 rounded-lg">
+                <div className="text-lg font-medium text-[#201E1E] dark:text-[#FFFDFD]">
                   {pipeline.performance.speed}
                 </div>
-                <div className="text-xs text-muted-foreground">Response Time</div>
+                <div className="text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Response Time</div>
               </div>
-              <div className="text-center p-4 bg-background border border-border/50 rounded-lg">
+              <div className="text-center p-4 bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 rounded-lg">
                 <div className="text-lg font-medium text-red-600 dark:text-red-400">
                   {pipeline.performance.limitation}
                 </div>
-                <div className="text-xs text-muted-foreground">Limitation</div>
+                <div className="text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Limitation</div>
               </div>
             </div>
           </div>
@@ -134,22 +134,22 @@ function PipelineDiagram({ pipeline, index, isInView }: PipelineDiagramProps) {
 
         {/* Architecture Diagram */}
         <div className={`${index % 2 === 1 ? 'lg:order-1' : ''}`}>
-          <div className="bg-background border border-border/50 rounded-xl p-8">
+          <div className="bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 rounded-xl p-8">
             <div className="text-center mb-6">
-              <h4 className="text-lg font-medium text-foreground mb-2">System Architecture</h4>
-              <div className="w-full h-px bg-border"></div>
+              <h4 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">System Architecture</h4>
+              <div className="w-full h-px bg-[#201E1E]/10 dark:bg-[#FFFDFD]/10"></div>
             </div>
             
             {/* Diagram Flow */}
             <div className="space-y-6">
               {/* Input */}
               <div className="flex items-center">
-                <div className="w-20 h-12 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">Input</span>
+                <div className="w-20 h-12 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5 border border-[#201E1E]/20 dark:border-[#FFFDFD]/20 rounded flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#201E1E]/60 dark:text-[#FFFDFD]/60" />
+                  <span className="ml-2 text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Input</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-400 mx-3" />
-                <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                <ArrowRight className="w-4 h-4 text-[#8DAA9D] mx-3" />
+                <div className="flex-1 h-px bg-[#201E1E]/20 dark:bg-[#FFFDFD]/20"></div>
               </div>
 
               {/* Processing Components */}
@@ -178,11 +178,11 @@ function PipelineDiagram({ pipeline, index, isInView }: PipelineDiagramProps) {
 
               {/* Output */}
               <div className="flex items-center">
-                <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
-                <ArrowRight className="w-4 h-4 text-gray-400 mx-3" />
-                <div className="w-20 h-12 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">Output</span>
+                <div className="flex-1 h-px bg-[#201E1E]/20 dark:bg-[#FFFDFD]/20"></div>
+                <ArrowRight className="w-4 h-4 text-[#8DAA9D] mx-3" />
+                <div className="w-20 h-12 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5 border border-[#201E1E]/20 dark:border-[#FFFDFD]/20 rounded flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-[#201E1E]/60 dark:text-[#FFFDFD]/60" />
+                  <span className="ml-2 text-xs text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Output</span>
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function ModernSystemArchitecture() {
   });
 
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E]">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
@@ -210,15 +210,15 @@ export default function ModernSystemArchitecture() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <Badge variant="outline" className="mb-4 px-3 py-1">
+          <Badge variant="outline" className="mb-4 px-3 py-1 bg-[#8DAA9D]/10 dark:bg-[#8DAA9D]/20 border-[#8DAA9D]/30 text-[#083C5E] dark:text-[#8DAA9D]">
             System Architecture Comparison
           </Badge>
-          
-          <h2 className="text-4xl md:text-5xl font-light text-foreground mb-6">
+
+          <h2 className="text-4xl md:text-5xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-6">
             Architecture Comparison: Traditional vs HybridRAG
           </h2>
-          
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+
+          <p className="text-xl text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-4xl mx-auto leading-relaxed">
             Technical analysis of different RAG pipeline architectures, comparing performance, 
             limitations, and architectural components across three distinct approaches.
           </p>
@@ -241,13 +241,13 @@ export default function ModernSystemArchitecture() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-20 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-8 md:p-12 border border-border/50"
+          className="mt-20 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-xl p-8 md:p-12 border border-[#201E1E]/10 dark:border-[#FFFDFD]/10"
         >
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-medium text-foreground mb-4">
+            <h3 className="text-3xl font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-4">
               Architecture Performance Summary
             </h3>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 text-lg">
               Comparative analysis across key performance metrics
             </p>
           </div>
@@ -255,35 +255,35 @@ export default function ModernSystemArchitecture() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-4 px-6 font-medium text-foreground">Architecture</th>
-                  <th className="text-left py-4 px-6 font-medium text-foreground">Accuracy</th>
-                  <th className="text-left py-4 px-6 font-medium text-foreground">Speed</th>
-                  <th className="text-left py-4 px-6 font-medium text-foreground">Specialization</th>
-                  <th className="text-left py-4 px-6 font-medium text-foreground">Multi-hop</th>
+                <tr className="border-b border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                  <th className="text-left py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">Architecture</th>
+                  <th className="text-left py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">Accuracy</th>
+                  <th className="text-left py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">Speed</th>
+                  <th className="text-left py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">Specialization</th>
+                  <th className="text-left py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">Multi-hop</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border/50">
-                  <td className="py-4 px-6 text-muted-foreground">Traditional RAG</td>
-                  <td className="py-4 px-6 text-muted-foreground">68.18 F1</td>
-                  <td className="py-4 px-6 text-muted-foreground">~2-5s</td>
+                <tr className="border-b border-[#201E1E]/5 dark:border-[#FFFDFD]/5">
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Traditional RAG</td>
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">68.18 F1</td>
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">~2-5s</td>
                   <td className="py-4 px-6 text-red-600 dark:text-red-400">None</td>
                   <td className="py-4 px-6 text-red-600 dark:text-red-400">Limited</td>
                 </tr>
-                <tr className="border-b border-border/50">
-                  <td className="py-4 px-6 text-muted-foreground">Graph RAG</td>
-                  <td className="py-4 px-6 text-muted-foreground">71.17 Acc</td>
-                  <td className="py-4 px-6 text-muted-foreground">~5-10s</td>
+                <tr className="border-b border-[#201E1E]/5 dark:border-[#FFFDFD]/5">
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Graph RAG</td>
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">71.17 Acc</td>
+                  <td className="py-4 px-6 text-[#201E1E]/60 dark:text-[#FFFDFD]/60">~5-10s</td>
                   <td className="py-4 px-6 text-red-600 dark:text-red-400">None</td>
-                  <td className="py-4 px-6 text-green-600 dark:text-green-400">Good</td>
+                  <td className="py-4 px-6 text-[#8DAA9D]">Good</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium text-foreground">VRIN HybridRAG</td>
-                  <td className="py-4 px-6 text-blue-600 dark:text-blue-400 font-medium">71.17+ Acc</td>
-                  <td className="py-4 px-6 text-blue-600 dark:text-blue-400 font-medium">&lt;1.8s</td>
-                  <td className="py-4 px-6 text-green-600 dark:text-green-400 font-medium">User-Defined</td>
-                  <td className="py-4 px-6 text-green-600 dark:text-green-400 font-medium">Advanced</td>
+                  <td className="py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFDFD]">VRIN HybridRAG</td>
+                  <td className="py-4 px-6 text-[#083C5E] dark:text-[#8DAA9D] font-medium">71.17+ Acc</td>
+                  <td className="py-4 px-6 text-[#083C5E] dark:text-[#8DAA9D] font-medium">&lt;1.8s</td>
+                  <td className="py-4 px-6 text-[#8DAA9D] font-medium">User-Defined</td>
+                  <td className="py-4 px-6 text-[#8DAA9D] font-medium">Advanced</td>
                 </tr>
               </tbody>
             </table>

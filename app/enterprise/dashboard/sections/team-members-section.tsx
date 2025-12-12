@@ -307,7 +307,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
           </div>
           <Button
             onClick={() => setShowInviteForm(!showInviteForm)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            className="bg-gray-900 hover:bg-gray-800"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Invite Member
@@ -321,13 +321,13 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-gray-200 bg-gray-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-900">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
                 <Mail className="w-5 h-5" />
                 Send Invitation
               </CardTitle>
-              <CardDescription className="text-blue-700">
+              <CardDescription className="text-gray-600">
                 Invite a new team member to join your organization
               </CardDescription>
             </CardHeader>
@@ -416,7 +416,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                   <Button
                     onClick={handleSendInvite}
                     disabled={sendingInvite}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-gray-900 hover:bg-gray-800"
                   >
                     {sendingInvite ? (
                       <>
@@ -446,8 +446,8 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                 <p className="text-sm text-gray-600">Total Members</p>
                 <h3 className="text-3xl font-bold text-gray-900">{members.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-gray-700" />
               </div>
             </div>
           </CardContent>
@@ -460,8 +460,8 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                 <p className="text-sm text-gray-600">Pending Invitations</p>
                 <h3 className="text-3xl font-bold text-gray-900">{pendingInvitations.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Mail className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                <Mail className="w-6 h-6 text-gray-700" />
               </div>
             </div>
           </CardContent>
@@ -474,8 +474,8 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                 <p className="text-sm text-gray-600">Total Invitations</p>
                 <h3 className="text-3xl font-bold text-gray-900">{invitations.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-gray-700" />
               </div>
             </div>
           </CardContent>
@@ -490,7 +490,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
               <Button
                 variant={activeTab === 'members' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('members')}
-                className={activeTab === 'members' ? 'bg-gradient-to-r from-blue-500 to-purple-600' : ''}
+                className={activeTab === 'members' ? 'bg-gray-900 hover:bg-gray-800' : ''}
               >
                 <Users className="w-4 h-4 mr-2" />
                 Members ({members.length})
@@ -498,7 +498,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
               <Button
                 variant={activeTab === 'invitations' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('invitations')}
-                className={activeTab === 'invitations' ? 'bg-gradient-to-r from-blue-500 to-purple-600' : ''}
+                className={activeTab === 'invitations' ? 'bg-gray-900 hover:bg-gray-800' : ''}
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Invitations ({invitations.length})
@@ -557,7 +557,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                       <tr key={member.user_id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold">
                               {member.firstName.charAt(0)}{member.lastName.charAt(0)}
                             </div>
                             <div>
@@ -566,7 +566,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                                   {member.firstName} {member.lastName}
                                 </p>
                                 {(member.user_id === user?.id || member.email === user?.email) && (
-                                  <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">
+                                  <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50 text-xs">
                                     You
                                   </Badge>
                                 )}
@@ -590,7 +590,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                           {member.department || '-'}
                         </td>
                         <td className="px-6 py-4">
-                          <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                          <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             {member.status}
                           </Badge>
@@ -676,7 +676,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                               Pending
                             </Badge>
                           ) : invitation.status === 'accepted' ? (
-                            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                            <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Accepted
                             </Badge>

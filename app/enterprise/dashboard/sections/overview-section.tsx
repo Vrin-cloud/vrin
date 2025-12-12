@@ -141,10 +141,10 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
           className="cursor-pointer group"
         >
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-              <Users className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <Users className="w-5 h-5 text-gray-700" />
             </div>
-            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 text-xs">
+            <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50 text-xs">
               +{stats.usersChange}%
             </Badge>
           </div>
@@ -163,10 +163,10 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
           className="cursor-pointer group"
         >
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-              <Mail className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <Mail className="w-5 h-5 text-gray-700" />
             </div>
-            <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50 text-xs">
+            <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50 text-xs">
               +{stats.invitationsChange}%
             </Badge>
           </div>
@@ -185,8 +185,8 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
           className="cursor-pointer group"
         >
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-              <Key className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <Key className="w-5 h-5 text-gray-700" />
             </div>
             <Badge variant="outline" className="text-gray-500 border-gray-200 bg-gray-50 text-xs">
               {stats.apiKeysChange === 0 ? 'Stable' : `+${stats.apiKeysChange}%`}
@@ -207,10 +207,10 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
           className="cursor-pointer group"
         >
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-              <Database className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <Database className="w-5 h-5 text-gray-700" />
             </div>
-            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 text-xs">
+            <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50 text-xs">
               <CheckCircle className="w-3 h-3 mr-1" />
               Active
             </Badge>
@@ -244,7 +244,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
             onClick={() => handleNavigate('team-members')}
             className="group cursor-pointer flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-800 transition-colors">
               <UserPlus className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -259,7 +259,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
             onClick={() => handleNavigate('api-keys')}
             className="group cursor-pointer flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-800 transition-colors">
               <Key className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -274,7 +274,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
             onClick={() => handleNavigate('infrastructure')}
             className="group cursor-pointer flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-800 transition-colors">
               <Database className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -289,7 +289,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
             onClick={() => handleNavigate('configurations')}
             className="group cursor-pointer flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-800 transition-colors">
               <Settings className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">

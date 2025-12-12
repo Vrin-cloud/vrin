@@ -81,6 +81,7 @@ export interface SendMessageRequest {
   session_id?: string;
   include_sources?: boolean;
   response_mode?: ResponseMode;
+  web_search_enabled?: boolean;
 }
 
 export interface SendMessageResponse {

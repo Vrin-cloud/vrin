@@ -13,10 +13,12 @@ interface SampleFact {
 
 interface SourceDocument {
   document_name: string
-  document_id: string
-  facts_count: number
-  avg_confidence: number
-  sample_facts: SampleFact[]
+  document_id?: string
+  upload_id?: string  // Backend streaming sends upload_id instead of document_id
+  source_type?: 'graph' | 'vector'  // Backend streaming sends source_type
+  facts_count?: number
+  avg_confidence?: number
+  sample_facts?: SampleFact[]
 }
 
 interface SourcesPanelProps {
@@ -101,48 +103,70 @@ export function SourcesPanel({ isOpen, onClose, sources, metadata }: SourcesPane
 function SourceCard({ source, index }: { source: SourceDocument; index: number }) {
   const [showFacts, setShowFacts] = React.useState(false)
 
+  // Handle both rich and simple source formats
+  const documentId = source.document_id || source.upload_id || `source-${index}`
+  const hasStats = source.facts_count !== undefined && source.avg_confidence !== undefined
+  const hasFacts = source.sample_facts && source.sample_facts.length > 0
+
   return (
     <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
       {/* Document Header */}
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <FileText className="w-5 h-5 text-blue-600" />
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+          source.source_type === 'graph' ? 'bg-purple-100' : 'bg-blue-100'
+        }`}>
+          <FileText className={`w-5 h-5 ${
+            source.source_type === 'graph' ? 'text-purple-600' : 'text-blue-600'
+          }`} />
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-gray-900 truncate">
             {source.document_name}
           </h4>
-          <p className="text-xs text-gray-500 truncate mt-0.5">
-            {source.document_id}
-          </p>
+          {documentId && (
+            <p className="text-xs text-gray-500 truncate mt-0.5">
+              {source.source_type && (
+                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium mr-1 ${
+                  source.source_type === 'graph'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {source.source_type === 'graph' ? 'Knowledge Graph' : 'Vector Search'}
+                </span>
+              )}
+              {documentId.substring(0, 20)}...
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-4 mb-3">
-        <div className="flex items-center gap-1.5 text-sm">
-          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-          <span className="text-gray-700">{source.facts_count} {source.facts_count === 1 ? 'fact' : 'facts'}</span>
+      {/* Stats - only show if available */}
+      {hasStats && (
+        <div className="flex items-center gap-4 mb-3">
+          <div className="flex items-center gap-1.5 text-sm">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span className="text-gray-700">{source.facts_count} {source.facts_count === 1 ? 'fact' : 'facts'}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm">
+            <TrendingUp className="w-3.5 h-3.5 text-green-600" />
+            <span className="text-gray-700">{Math.round((source.avg_confidence || 0) * 100)}% confidence</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-sm">
-          <TrendingUp className="w-3.5 h-3.5 text-green-600" />
-          <span className="text-gray-700">{Math.round(source.avg_confidence * 100)}% confidence</span>
-        </div>
-      </div>
+      )}
 
-      {/* Sample Facts */}
-      {source.sample_facts && source.sample_facts.length > 0 && (
+      {/* Sample Facts - only show if available */}
+      {hasFacts && (
         <div className="mt-3 pt-3 border-t border-gray-200">
           <button
             onClick={() => setShowFacts(!showFacts)}
             className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            {showFacts ? 'Hide' : 'Show'} sample facts ({source.sample_facts.length})
+            {showFacts ? 'Hide' : 'Show'} sample facts ({source.sample_facts!.length})
           </button>
 
           {showFacts && (
             <div className="mt-2 space-y-2">
-              {source.sample_facts.slice(0, 3).map((fact, i) => (
+              {source.sample_facts!.slice(0, 3).map((fact, i) => (
                 <div key={i} className="bg-white border border-gray-200 rounded-lg p-2.5 text-xs">
                   <div className="flex items-start gap-2">
                     <div className="flex-1 space-y-1">
