@@ -59,7 +59,7 @@
     "leva": "^0.10.0",
     "lucide-react": "^0.454.0",
     "motion": "^12.23.3",
-    "next": "^15.3.3",
+    "next": "15.3.8",
     "next-auth": "^4.24.13",
     "next-themes": "latest",
     "react": "^19",
