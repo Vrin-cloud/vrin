@@ -9,7 +9,19 @@ import { useAuth } from './use-auth';
 const fetchKnowledgeGraph = async (apiKey: string): Promise<KnowledgeGraphResponse> => {
   try {
     console.log('fetchKnowledgeGraph - fetching with apiKey:', apiKey.substring(0, 8) + '...');
-    const response = await apiCall(API_CONFIG.ENDPOINTS.KNOWLEDGE_GRAPH, {}, apiKey);
+    // Use MAIN_API_URL for the graph endpoint (separate from Auth API)
+    const url = `${API_CONFIG.MAIN_API_URL}${API_CONFIG.ENDPOINTS.KNOWLEDGE_GRAPH}?user_only=true`;
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`API call failed: ${res.status} ${res.statusText} - ${errorText}`);
+    }
+    const response = await res.json();
     console.log('fetchKnowledgeGraph - raw response:', response);
     console.log('fetchKnowledgeGraph - response.data.nodes length:', response.data?.nodes?.length);
     console.log('fetchKnowledgeGraph - response.data.edges length:', response.data?.edges?.length);

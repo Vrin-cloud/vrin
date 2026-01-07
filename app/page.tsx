@@ -26,6 +26,7 @@ import { PricingSection } from "@/components/pricing-section"
 import ModernSystemArchitecture from "@/components/modern-system-architecture"
 import { StickyNavChallengeSection } from "@/components/sticky-nav-challenge-section"
 import { CoreFeatures } from "@/components/core-features"
+import { AnnouncementBar } from "@/components/announcement-bar"
 // import { InteractiveFeaturesShowcase } from "@/components/interactive-features-showcase"
 
 export default function Home() {
@@ -39,6 +40,12 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <AnimatedBackground />
+      <AnnouncementBar
+        badge="New"
+        message="See how Vrin resolves complex support tickets faster"
+        linkText="Watch the Demo"
+        linkHref="/industries/customer-support#demo"
+      />
       <Header />
       
             {/* Enhanced Hero Section */}

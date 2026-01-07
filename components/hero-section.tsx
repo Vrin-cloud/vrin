@@ -136,7 +136,7 @@ export function HeroSection() {
                   size="lg"
                   variant="outline"
                   className="px-8 py-6 text-base font-medium border-2 border-vrin-charcoal/20 dark:border-vrin-cream/20 text-vrin-charcoal dark:text-vrin-cream hover:bg-vrin-sage/10 dark:hover:bg-vrin-blue/10 rounded-full transition-all duration-300"
-                  onClick={() => openContactForm("Schedule a Demo")}
+                  onClick={() => window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")}
                 >
                   <Calendar className="mr-2 h-5 w-5" />
                   Schedule Demo

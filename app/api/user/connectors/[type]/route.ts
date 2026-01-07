@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Backend API URL
-const BACKEND_URL = process.env.VRIN_API_URL || 'https://api.vrin.co'
+// Backend Connector Management API (Lambda Function URL)
+const CONNECTOR_API_URL = process.env.CONNECTOR_API_URL || 'https://5eg7t4rk23haj2mhe5j7zh2xau0fdthb.lambda-url.us-east-1.on.aws'
 
-// Valid connector types
-const VALID_CONNECTORS = ['notion', 'google-drive', 'slack']
+// Valid connector types (matches nango.yaml integrations)
+const VALID_CONNECTORS = [
+  'notion',
+  'google-drive',
+  'slack',
+  'confluence',
+  'linear',
+  'asana',
+  'dropbox',
+]
 
 interface RouteParams {
   params: Promise<{ type: string }>
@@ -36,17 +44,32 @@ export async function GET(
       )
     }
 
-    // TODO: Call backend API
-    // const response = await fetch(`${BACKEND_URL}/user/connectors/${type}`, {
-    //   headers: { 'Authorization': authHeader },
-    // })
-
-    // Placeholder response
-    return NextResponse.json({
-      connector_type: type,
-      status: 'disconnected',
-      message: 'Backend integration pending'
+    // Call backend Lambda to get connector status
+    const response = await fetch(`${CONNECTOR_API_URL}/connectors/${type}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
     })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] Backend error:', response.status, errorText)
+
+      // Return disconnected status if not found
+      if (response.status === 404) {
+        return NextResponse.json({
+          connector_type: type,
+          status: 'disconnected'
+        })
+      }
+
+      throw new Error(`Backend error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return NextResponse.json(data)
   } catch (error) {
     console.error('[API] Error fetching connector status:', error)
     return NextResponse.json(
@@ -84,20 +107,23 @@ export async function DELETE(
 
     console.log(`[API] Disconnecting connector: ${type}`)
 
-    // TODO: Call backend API to disconnect
-    // const response = await fetch(`${BACKEND_URL}/user/connectors/${type}`, {
-    //   method: 'DELETE',
-    //   headers: { 'Authorization': authHeader },
-    // })
-
-    // TODO: Also revoke connection in Nango
-    // const nango = new Nango({ secretKey: process.env.NANGO_SECRET_KEY })
-    // await nango.deleteConnection(type, connectionId)
-
-    return NextResponse.json({
-      success: true,
-      message: `Disconnected from ${type}`
+    // Call backend Lambda to disconnect
+    const response = await fetch(`${CONNECTOR_API_URL}/connectors/${type}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
     })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] Backend error:', response.status, errorText)
+      throw new Error(`Backend error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return NextResponse.json(data)
   } catch (error) {
     console.error('[API] Error disconnecting connector:', error)
     return NextResponse.json(

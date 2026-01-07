@@ -16,9 +16,9 @@ import {
   Loader2
 } from 'lucide-react'
 import { IntegrationCard, ConnectorStatus } from '../integration-card'
-import { NotionIcon, GoogleDriveIcon, SlackIcon } from '../connector-icons'
+import { NotionIcon, GoogleDriveIcon, SlackIcon, ConfluenceIcon, LinearIcon, AsanaIcon, DropboxIcon } from '../connector-icons'
 
-// Connector definitions for MVP (3 connectors)
+// All supported connectors
 const CONNECTORS = [
   {
     id: 'notion',
@@ -37,6 +37,30 @@ const CONNECTORS = [
     name: 'Slack',
     description: 'Index team conversations and threads',
     icon: <SlackIcon className="w-7 h-7" />,
+  },
+  {
+    id: 'confluence',
+    name: 'Confluence',
+    description: 'Sync your enterprise wiki and documentation',
+    icon: <ConfluenceIcon className="w-7 h-7" />,
+  },
+  {
+    id: 'linear',
+    name: 'Linear',
+    description: 'Import issues, projects, and comments',
+    icon: <LinearIcon className="w-7 h-7" />,
+  },
+  {
+    id: 'asana',
+    name: 'Asana',
+    description: 'Sync tasks, projects, and team updates',
+    icon: <AsanaIcon className="w-7 h-7" />,
+  },
+  {
+    id: 'dropbox',
+    name: 'Dropbox',
+    description: 'Import files and documents from Dropbox',
+    icon: <DropboxIcon className="w-7 h-7" />,
   },
 ]
 
@@ -467,6 +491,7 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
                 lastSync={state?.last_sync_at}
                 documentsCount={state?.documents_synced}
                 errorMessage={state?.error_message}
+                apiKey={apiKey}
                 onConnect={() => handleConnect(connector.id)}
                 onDisconnect={() => handleDisconnect(connector.id)}
                 onSync={() => handleSync(connector.id)}
@@ -479,8 +504,8 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
       {/* Coming Soon Section */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          {['Asana', 'Linear', 'Confluence', 'Dropbox', 'Trello', 'ClickUp', 'Airtable'].map((name) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {['Jira', 'Trello', 'ClickUp', 'Airtable', 'GitHub', 'Microsoft Teams'].map((name) => (
             <div
               key={name}
               className="flex items-center justify-center p-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-400"

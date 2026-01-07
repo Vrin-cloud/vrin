@@ -104,7 +104,7 @@ export default function EnterpriseLandingPage() {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/enterprise/contact">
+              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
                 <Button variant="outline">Contact Sales</Button>
               </Link>
               <Link href="/enterprise/auth/login">
@@ -286,7 +286,7 @@ export default function EnterpriseLandingPage() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="/enterprise/contact">
+              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
                 <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white hover:text-blue-600">
                   Contact Sales
                 </Button>

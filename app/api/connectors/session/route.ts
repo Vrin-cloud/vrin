@@ -52,7 +52,15 @@ export async function POST(request: NextRequest) {
         email: userEmail || undefined,
         display_name: userEmail?.split('@')[0] || undefined,
       },
-      allowed_integrations: allowedIntegrations || ['notion', 'google-drive', 'slack'],
+      allowed_integrations: allowedIntegrations || [
+        'notion',
+        'google-drive',
+        'slack',
+        'confluence',
+        'linear',
+        'asana',
+        'dropbox',
+      ],
     }
     console.log('[Connectors] Nango request body:', JSON.stringify(nangoRequestBody))
 

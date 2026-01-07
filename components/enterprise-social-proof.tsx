@@ -253,10 +253,10 @@ export function EnterpriseSocialProof() {
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
-                <button className="inline-flex items-center px-6 py-3 border border-white/30 text-white rounded-lg hover:bg-white/10 transition-colors font-semibold">
+                <a href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 border border-white/30 text-white rounded-lg hover:bg-white/10 transition-colors font-semibold">
                   <Users className="mr-2 h-5 w-5" />
                   Schedule Demo
-                </button>
+                </a>
               </div>
             </div>
           </motion.div>

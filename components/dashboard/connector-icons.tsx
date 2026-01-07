@@ -38,6 +38,67 @@ export function SlackIcon({ className = "w-6 h-6" }: { className?: string }) {
   )
 }
 
+// Confluence Icon
+export function ConfluenceIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 256 246" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient x1="99.14%" y1="112.72%" x2="24.37%" y2="54.88%" id="confluence-a">
+          <stop stopColor="#0052CC" offset="0%"/>
+          <stop stopColor="#2684FF" offset="100%"/>
+        </linearGradient>
+        <linearGradient x1="0.86%" y1="-12.72%" x2="75.63%" y2="45.12%" id="confluence-b">
+          <stop stopColor="#0052CC" offset="0%"/>
+          <stop stopColor="#2684FF" offset="100%"/>
+        </linearGradient>
+      </defs>
+      <path d="M9.26 187.28c-3.23 5.21-6.78 11.18-9.26 15.87a10.28 10.28 0 003.78 14.06l63.09 38.75a10.27 10.27 0 0014.18-3.37c2.17-3.65 5-8.47 8.08-13.55 21.45-35.65 43.25-31.32 82.33-11.76l62.53 31.3a10.28 10.28 0 0013.71-4.76l30.58-60.87a10.27 10.27 0 00-4.53-13.79c-17.2-8.91-51.5-26.62-71.49-36.77-67.77-34.34-125.66-31.94-193 45.13z" fill="url(#confluence-a)"/>
+      <path d="M246.11 58.24c3.23-5.22 6.78-11.18 9.26-15.87a10.28 10.28 0 00-3.78-14.06L188.5-.44a10.27 10.27 0 00-14.18 3.37c-2.17 3.65-5 8.47-8.08 13.55-21.45 35.65-43.25 31.32-82.33 11.76L21.38-3.06A10.28 10.28 0 007.67 1.7L-22.91 62.57a10.27 10.27 0 004.53 13.79c17.2 8.91 51.5 26.62 71.49 36.77 67.77 34.34 125.66 31.94 193-45.13z" fill="url(#confluence-b)" transform="translate(2.46 2.46)"/>
+    </svg>
+  )
+}
+
+// Linear Icon
+export function LinearIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1.225 61.527a50.372 50.372 0 0 0 37.248 37.248L1.225 61.527Z" fill="#5E6AD2"/>
+      <path d="M.027 46.627a50.217 50.217 0 0 0 .942 10.528l42.876 42.876c3.504.627 7.08.969 10.732.969 2.466 0 4.897-.179 7.283-.523L1.073 39.69A50.29 50.29 0 0 0 .027 46.627Z" fill="#5E6AD2"/>
+      <path d="M2.636 34.142 65.858 97.364a50.01 50.01 0 0 0 13.27-5.29L6.456 19.403a50.014 50.014 0 0 0-3.82 14.739Z" fill="#5E6AD2"/>
+      <path d="M9.194 15.161l75.645 75.645a50.07 50.07 0 0 0 9.248-9.248L18.442 5.913a50.071 50.071 0 0 0-9.248 9.248Z" fill="#5E6AD2"/>
+      <path d="M23.117 4.07 95.929 76.882a50.014 50.014 0 0 0 3.82-14.739L62.502.395a50.218 50.218 0 0 0-9.83-.392 50.216 50.216 0 0 0-29.555 4.068Z" fill="#5E6AD2"/>
+      <path d="M44.147.274 99.726 55.853a50.37 50.37 0 0 0-3.98-17.426L61.573.256A50.32 50.32 0 0 0 44.147.274Z" fill="#5E6AD2"/>
+      <path d="M72.467 2.21 97.79 27.533a50.226 50.226 0 0 0-4.984-9.68L82.147 7.194a50.226 50.226 0 0 0-9.68-4.984Z" fill="#5E6AD2"/>
+    </svg>
+  )
+}
+
+// Asana Icon
+export function AsanaIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="asana-a" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFB900"/>
+          <stop offset="100%" stopColor="#F95353"/>
+        </radialGradient>
+      </defs>
+      <circle cx="256" cy="130" r="114" fill="url(#asana-a)"/>
+      <circle cx="114" cy="372" r="114" fill="url(#asana-a)"/>
+      <circle cx="398" cy="372" r="114" fill="url(#asana-a)"/>
+    </svg>
+  )
+}
+
+// Dropbox Icon
+export function DropboxIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 256 218" xmlns="http://www.w3.org/2000/svg">
+      <path d="M63.995 0L0 40.771l63.995 40.772L128 40.771 63.995 0zM192.005 0L128 40.771l64.005 40.772L256 40.771 192.005 0zM0 122.321l63.995 40.772L128 122.321 63.995 81.543 0 122.321zM192.005 81.543L128 122.321l64.005 40.772L256 122.321l-63.995-40.778zM64.006 176.771L128.01 217.6l64.006-40.829-64.005-40.771-64.005 40.771z" fill="#0061FF"/>
+    </svg>
+  )
+}
+
 // Generic connector icon for future use
 export function ConnectorIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (

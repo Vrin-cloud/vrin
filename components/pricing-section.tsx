@@ -99,8 +99,8 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
       // Redirect to auth page for free plan
       window.location.href = "/auth"
     } else {
-      // Open contact form for paid plans
-      openContactForm(`${planName} Plan Inquiry`)
+      // Redirect to Calendly for paid plans
+      window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")
     }
   }
 

@@ -80,13 +80,10 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li>
                 <a
-                  href="#contact"
+                  href="https://calendly.com/vedant-vrin/15-minute-meeting"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[#FFFDFD]/60 hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const contactSection = document.querySelector('[data-contact-form]') || document.getElementById('contact');
-                    contactSection?.scrollIntoView({ behavior: 'smooth' });
-                  }}
                 >
                   Contact
                 </a>

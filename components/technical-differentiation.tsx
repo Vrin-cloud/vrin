@@ -301,10 +301,10 @@ export function TechnicalDifferentiation() {
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
-                <button className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">
+                <a href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">
                   <Clock className="mr-2 h-5 w-5" />
                   Schedule Demo
-                </button>
+                </a>
               </div>
             </div>
           </motion.div>

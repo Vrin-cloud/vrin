@@ -3,8 +3,8 @@ export const API_CONFIG = {
   // Authentication API (Production)
   AUTH_BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   
-  // RAG API (Lambda Function URL - TRUE Streaming with FastAPI + Lambda Web Adapter)
-  RAG_BASE_URL: 'https://43tybsfy52ehi3fctubc7jwlpi0fgkcz.lambda-url.us-east-1.on.aws',
+  // RAG API (Lambda Function URL - Main Query Handler with streaming support)
+  RAG_BASE_URL: 'https://ludeelasqiubh3fxmhtjdzwsou0uundi.lambda-url.us-east-1.on.aws',
 
   // Chat API (Conversation Management with File Upload)
   CHAT_BASE_URL: 'https://cg7yind3j5.execute-api.us-east-1.amazonaws.com/dev',
@@ -20,7 +20,10 @@ export const API_CONFIG = {
 
   // Enterprise Permission API (4-Layer Security & Access Control)
   ENTERPRISE_PERMISSION_API_URL: 'https://e4oqdoz0j4.execute-api.us-east-1.amazonaws.com/dev',
-  
+
+  // Main API (Knowledge Graph, Insert, Query - separate from Auth)
+  MAIN_API_URL: 'https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev',
+
   // Legacy support for existing code
   BASE_URL: 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod',
   API_KEY: '',

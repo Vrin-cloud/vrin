@@ -3,8 +3,16 @@ import { NextRequest, NextResponse } from 'next/server'
 // Backend API URL
 const BACKEND_URL = process.env.VRIN_API_URL || 'https://api.vrin.co'
 
-// Valid connector types
-const VALID_CONNECTORS = ['notion', 'google-drive', 'slack']
+// Valid connector types (matches nango.yaml integrations)
+const VALID_CONNECTORS = [
+  'notion',
+  'google-drive',
+  'slack',
+  'confluence',
+  'linear',
+  'asana',
+  'dropbox',
+]
 
 interface RouteParams {
   params: Promise<{ type: string }>

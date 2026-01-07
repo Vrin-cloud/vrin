@@ -7,6 +7,9 @@
 
 @layer base {
   :root {
+    /* Announcement bar height - controlled by JS, default to 0 for pages without banner */
+    --announcement-bar-height: 0px;
+
     /* VRIN Off-White #FFFDFD instead of pure white */
     --background: 0 100% 99.6%;
     --foreground: 0 3% 12%;
@@ -542,6 +545,20 @@
 
 .animate-beam-vertical-reverse {
   animation: beam-vertical-reverse 8s linear infinite;
+}
+
+/* Announcement bar shimmer effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
 }
 
 /* Markdown content styles for chat messages */

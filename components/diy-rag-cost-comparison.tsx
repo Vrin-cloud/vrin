@@ -274,7 +274,7 @@ export function DIYRAGCostComparison({ openContactForm }: CostBreakdownProps) {
                   Get Custom ROI Analysis
                 </Button>
                 <Button
-                  onClick={() => openContactForm("Platform Demo Request")}
+                  onClick={() => window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")}
                   variant="outline"
                   className="border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800"
                 >
