@@ -69,37 +69,40 @@ export function StickyNavChallengeSection() {
 
   const challenges = [
     {
-      id: 'context-amnesia',
-      icon: RotateCcw,
-      title: "AI Without Memory Can't Scale",
-      problem: "Knowledge workers waste 20-30% of their time re-explaining context that AI should already know",
-      impact: "Fragmented information across 20+ disconnected tools means your AI starts every conversation from scratch. Teams spend hours searching instead of solving.",
-      solution: "Facts-First Memory Architecture",
-      solutionDetail: "VRIN's knowledge graph extracts and stores facts, not embeddings. Your AI builds a persistent understanding that compounds over time—remembering relationships, user preferences, and domain expertise across all interactions. Unlike vector search that forgets everything, VRIN creates institutional memory that gets smarter with every conversation.",
-      solutionIcon: Database,
-      color: "from-red-500 to-orange-500"
+      id: 'data-silos',
+      icon: Database,
+      title: "Your Data Lives in 30+ Apps",
+      problem: "Slack, Notion, Drive, Salesforce, Zendesk, Jira... Your team's knowledge is scattered across dozens of disconnected tools.",
+      solution: "One Connected Knowledge Base",
+      solutionHeadline: "All Your Apps. One AI That Understands Them.",
+      solutionDetail: "VRIN connects to your entire SaaS stack and builds a unified knowledge graph. Ask questions that span Slack conversations, Notion docs, and Salesforce records—get answers that connect all the dots.",
+      solutionIcon: Network,
+      visualType: "image", // User will create in Figma
+      color: "from-blue-500 to-cyan-500"
     },
     {
-      id: 'surface-analysis',
+      id: 'siloed-ai',
       icon: Target,
-      title: "Vector Search Misses What Matters",
-      problem: "Traditional RAG retrieves similar text but can't connect insights across documents or reason through complex questions",
-      impact: "Your team gets keyword matches when they need expert-level analysis. Without multi-hop reasoning, AI can't answer 'why' or trace cause-and-effect across your data.",
-      solution: "HybridRAG with Multi-Hop Reasoning",
-      solutionDetail: "VRIN combines the speed of vector search with the intelligence of graph traversal. Our constraint-solver engine automatically reasons across multiple documents, time periods, and data sources to answer complex questions that require connecting the dots. Define AI specialists for your domains—sales, engineering, finance—and get expert insights, not surface matches.",
+      title: "AI Can't See Across Your Stack",
+      problem: "Current AI tools work in silos. They can search Slack OR Notion—never both. Complex questions that span multiple systems get no answer.",
+      solution: "Multi-Source Reasoning",
+      solutionHeadline: "AI That Reasons Across Everything",
+      solutionDetail: "Ask 'What did our team decide about the Q4 roadmap?' and VRIN traces the answer across your Slack discussions, Notion planning docs, and Jira tickets—giving you one comprehensive answer with sources.",
       solutionIcon: Network,
-      color: "from-orange-500 to-yellow-500"
+      visualType: "image", // User will create in Figma/DaVinci
+      color: "from-purple-500 to-pink-500"
     },
     {
       id: 'diy-trap',
       icon: DollarSign,
-      title: "Building RAG In-House Is A Trap",
-      problem: "Custom RAG systems take 6-12 months to build, require specialized ML talent, and still underperform production-ready platforms",
-      impact: "While your engineers wrestle with vector databases, embedding models, and prompt engineering, competitors ship AI features. You're building infrastructure when you should be building products.",
-      solution: "Enterprise-Ready in Days, Not Months",
-      solutionDetail: "VRIN deploys in your cloud (AWS, Azure, GCP) or ours—your choice with BYOC/BYOK. Simple REST APIs integrate with your existing stack in hours. No data migration, no vendor lock-in, no infrastructure headaches. We handle the complexity of hybrid retrieval, temporal consistency, and conflict resolution so you can focus on building features your users love.",
+      title: "Building This In-House? Don't.",
+      problem: "Custom RAG pipelines take 6-12 months, require ML expertise, and you'll still spend months building integrations. Your engineers should be shipping products, not infrastructure.",
+      solution: "Ready Today, Not Next Year",
+      solutionHeadline: "Skip the Science Project. Start Asking Questions.",
+      solutionDetail: "Pre-built connectors for 50+ SaaS apps. Production-grade RAG that actually works. Connect your tools in minutes, deploy in your cloud (AWS, Azure, GCP), and let your team focus on what matters.",
       solutionIcon: Zap,
-      color: "from-yellow-500 to-red-500"
+      visualType: "code", // Code snippet
+      color: "from-green-500 to-emerald-500"
     }
   ];
 
@@ -144,16 +147,15 @@ export function StickyNavChallengeSection() {
             variants={itemVariants}
             className="text-3xl md:text-4xl lg:text-5xl font-extralight mb-6 leading-tight text-[#201E1E] dark:text-[#FFFDFD]"
           >
-            Your AI Forgets Everything
+            Why Traditional AI Fails Your Team
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
             className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed"
           >
-            Vector search was a breakthrough—until teams realized it&apos;s just
-            <span className="font-medium text-[#201E1E] dark:text-[#FFFDFD]"> expensive keyword matching</span>.
-            While you&apos;re building custom RAG systems for months, your AI still can&apos;t connect the dots.
+            Your company data lives in dozens of disconnected apps.
+            <span className="font-medium text-[#201E1E] dark:text-[#FFFDFD]"> No AI can see across all of them</span>—until now.
           </motion.p>
         </motion.div>
 
@@ -260,12 +262,8 @@ export function StickyNavChallengeSection() {
                                     exit={{ opacity: 0, height: 0 }}
                                     transition={{ duration: 0.3 }}
                                   >
-                                    <p className="text-sm leading-relaxed text-[#201E1E]/70 dark:text-[#FFFDFD]/70 mb-2">
+                                    <p className="text-sm leading-relaxed text-[#201E1E]/70 dark:text-[#FFFDFD]/70">
                                       {challenge.problem}
-                                    </p>
-
-                                    <p className="text-xs leading-relaxed text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
-                                      {challenge.impact}
                                     </p>
 
                                     <div className="mt-3 pt-3 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
@@ -306,58 +304,106 @@ export function StickyNavChallengeSection() {
                           <span className="text-xs font-medium text-[#8DAA9D] uppercase tracking-widest">
                             VRIN Solution #{index + 1}
                           </span>
-                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mt-3 mb-6">
+                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mt-3 mb-2">
                             {challenge.solution}
                           </h2>
+                          <h3 className="text-lg md:text-xl font-medium text-[#083C5E] dark:text-[#8DAA9D]">
+                            {challenge.solutionHeadline}
+                          </h3>
                         </div>
 
                         <div className="max-w-4xl mx-auto">
                           {/* Large Solution Card */}
                           <div className="p-8 md:p-12 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-3xl border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
-                            <div className="text-center mb-10">
-                              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center mb-6">
-                                <SolutionIcon className="w-8 h-8 text-[#FFFDFD] dark:text-[#201E1E]" />
+                            {/* Text description - hide for Problem 1 since image speaks for itself */}
+                            {index !== 0 && (
+                              <div className="text-center mb-8">
+                                <p className="text-base md:text-lg text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light leading-relaxed">
+                                  {challenge.solutionDetail}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Visual Element */}
+                            {index === 0 ? (
+                              /* Knowledge Graph Image for Problem 1 */
+                              <div className="mb-8 rounded-2xl overflow-hidden">
+                                <img
+                                  src="/Vrin KG.png"
+                                  alt="VRIN Knowledge Graph - All your apps connected into one unified AI"
+                                  className="w-full h-auto rounded-2xl"
+                                />
+                              </div>
+                            ) : challenge.visualType === 'code' ? (
+                              /* Code Snippet for Problem 3 */
+                              <div className="mb-8 rounded-2xl overflow-hidden">
+                                <div className="bg-[#1e1e1e] p-1">
+                                  <div className="flex items-center gap-2 px-4 py-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                                    <span className="ml-2 text-xs text-gray-400">vrin_quickstart.py</span>
+                                  </div>
+                                  <pre className="p-4 text-sm overflow-x-auto">
+                                    <code className="text-gray-300">
+{`import vrin
+
+# Connect your apps in minutes
+vrin.connect("notion", api_key="...")
+vrin.connect("slack", api_key="...")
+vrin.connect("salesforce", api_key="...")
+
+# Ask questions across everything
+answer = vrin.query("What's our Q4 roadmap?")
+print(answer.text)     # The answer
+print(answer.sources)  # Where it came from`}
+                                    </code>
+                                  </pre>
+                                </div>
+                              </div>
+                            ) : (
+                              /* Image Placeholder for Problem 2 */
+                              <div className="mb-8 rounded-2xl border-2 border-dashed border-[#201E1E]/20 dark:border-[#FFFDFD]/20 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5 p-8 text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 flex items-center justify-center">
+                                  <SolutionIcon className="w-8 h-8 text-[#083C5E]/50 dark:text-[#8DAA9D]/50" />
+                                </div>
+                                <p className="text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50">
+                                  Visual: Query tracing through multiple data sources
+                                </p>
+                                <p className="text-xs text-[#201E1E]/30 dark:text-[#FFFDFD]/30 mt-2">
+                                  (Image to be added)
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Solution Benefits */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
+                                  <CheckCircle className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
+                                </div>
+                                <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
+                                  {index === 0 ? "50+ Connectors" : index === 1 ? "Cross-App Answers" : "Deploy Anywhere"}
+                                </h4>
+                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
+                                  {index === 0 ? "Slack, Notion, Salesforce, Zendesk, and more" :
+                                   index === 1 ? "One answer that cites multiple sources" :
+                                   "AWS, Azure, GCP, or our cloud"}
+                                </p>
                               </div>
 
-                              <h3 className="text-xl md:text-2xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-4">
-                                How {challenge.solution} Works
-                              </h3>
-                            </div>
-
-                            <div className="text-center space-y-8">
-                              <p className="text-base md:text-lg text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light leading-relaxed">
-                                {challenge.solutionDetail}
-                              </p>
-
-                              {/* Solution Benefits */}
-                              <div className="grid md:grid-cols-2 gap-6 mt-12">
-                                <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
-                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
-                                    <CheckCircle className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
-                                  </div>
-                                  <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
-                                    {index === 0 ? "Never Forgets" : index === 1 ? "Connects Insights" : "Instant Deployment"}
-                                  </h4>
-                                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
-                                    {index === 0 ? "Persistent knowledge across all conversations" :
-                                     index === 1 ? "Advanced multi-hop reasoning capabilities" :
-                                     "Production-ready in minutes, not months"}
-                                  </p>
+                              <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
+                                  <Zap className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
                                 </div>
-
-                                <div className="p-6 rounded-2xl bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
-                                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#8DAA9D]/20 dark:bg-[#8DAA9D]/30 flex items-center justify-center">
-                                    <Zap className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
-                                  </div>
-                                  <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
-                                    {index === 0 ? "Dramatic Cost Savings" : index === 1 ? "Professional Insights" : "70% Cost Reduction"}
-                                  </h4>
-                                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
-                                    {index === 0 ? "Memory-efficient storage with space reduction" :
-                                     index === 1 ? "Expert-level analysis from connected data" :
-                                     "Compared to traditional DIY approaches"}
-                                  </p>
-                                </div>
+                                <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">
+                                  {index === 0 ? "Zero Data Migration" : index === 1 ? "Trace Every Fact" : "Simple REST APIs"}
+                                </h4>
+                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
+                                  {index === 0 ? "Connect without moving your data" :
+                                   index === 1 ? "Full source attribution for every answer" :
+                                   "Integrate in hours, not months"}
+                                </p>
                               </div>
                             </div>
                           </div>
