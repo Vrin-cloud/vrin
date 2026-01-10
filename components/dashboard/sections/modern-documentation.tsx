@@ -415,7 +415,7 @@ if 'graph_facts' in detailed_response:
                     example={{
                       language: 'bash',
                       title: 'cURL with Bearer Token',
-                      code: `curl -X POST "https://api.vrin.ai/insert" \\
+                      code: `curl -X POST "https://api.vrin.cloud/insert" \\
   -H "Authorization: Bearer ${apiKey}" \\
   -H "Content-Type: application/json" \\
   -d '{

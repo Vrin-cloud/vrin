@@ -4,12 +4,14 @@ import { BlogPost } from './types'
 export const blogPosts: BlogPost[] = [
   {
     slug: 'benchmark-results-ragbench-multihop',
-    title: 'How We Achieved 97.5% Accuracy on Financial QA Where Others Struggle at 47%',
-    description: 'A transparent look at VRIN\'s performance on industry-standard RAG benchmarks. We break down our methodology, share what worked, and honestly discuss our limitations.',
+    title: 'How We Achieved 97.5% Accuracy on Financial QA - 22% Better Than Oracle Baselines',
+    description: 'A transparent look at VRIN\'s performance on industry-standard RAG benchmarks with Oracle context. We break down our methodology, share what worked, and honestly discuss our limitations.',
     date: '2026-01-05',
     author: {
-      name: 'VRIN Research Team',
-      role: 'Engineering',
+      name: 'Vedant Patel',
+      role: 'Founder & CEO',
+      avatar: '/blogs/Profile Photo.JPEG',
+      linkedin: 'https://www.linkedin.com/in/vedant1033/',
     },
     category: 'research',
     tags: ['benchmarks', 'RAG', 'performance', 'FinQA', 'MultiHop-RAG', 'hybrid-rag'],
@@ -27,14 +29,18 @@ This post is our attempt to be completely transparent about what we found, how w
 
 <div class="benchmark-highlight">
 
-| Benchmark | Metric | VRIN | Best Competitor | Gap |
-|-----------|--------|------|-----------------|-----|
-| **RAGBench FinQA** | Number Match | **97.5%** | 47.2% (LLaMA 3.3-70B) | +107% |
-| **MultiHop-RAG** | Semantic Accuracy | **82.6%** | 63.0% (Multi-Meta RAG + GPT-4) | +31% |
+| Benchmark | Metric | VRIN | Oracle Baseline | Improvement |
+|-----------|--------|------|-----------------|-------------|
+| **RAGBench FinQA** | Number Match | **97.5% ±3.2%** | 79.4% (LLaMA 3.3-70B Oracle) | **+22.8%** |
+| **MultiHop-RAG** | Semantic Accuracy | **82.6% ±3.2%** | 63.0% (Multi-Meta RAG + GPT-4) | **+31%** |
 
 </div>
 
-These aren't cherry-picked results. They're from statistically rigorous tests against public benchmarks with published baselines. Let us show you exactly how we got here.
+*Results at 95% confidence (±3.2% margin) using 28% of each test dataset with Oracle context methodology. Full methodology, raw data, and reproduction scripts available on [GitHub](https://github.com/Programmer7129/vrin-benchmarks).*
+
+**Important Note on Methodology:** These benchmarks use "Oracle + Noise" context—each question receives a curated set of 2-5 documents that includes the relevant information plus some distractors. This measures **reasoning quality** (can the system extract and compute the correct answer?) rather than **retrieval capability** (can the system find the right documents from thousands?). We compare against other systems using the same Oracle context methodology for a fair comparison.
+
+These aren't cherry-picked results. They're from statistically rigorous tests against public benchmarks with published Oracle baselines. Let us show you exactly how we got here.
 
 ---
 
@@ -52,7 +58,7 @@ Financial documents are the ultimate stress test for RAG systems. They combine:
 
 The benchmark contains **32,908 question-answer pairs** from 9,095 real-world financial reports. When a financial analyst asks "What was the percentage change in goodwill from 2016 to 2017?", the system needs to find the right table, extract the correct cells, and compute the answer.
 
-Most RAG systems struggle here. The current leaderboard tops out at **47.2%** with LLaMA 3.3-70B using sophisticated retrieval strategies.
+Most systems struggle here even with Oracle context. The T²-RAGBench leaderboard shows LLaMA 3.3-70B achieves **79.4%** with Oracle context (where relevant documents are pre-provided). Retrieval-based systems drop to ~47% when they must find documents from a larger corpus.
 
 ### MultiHop-RAG: The Cross-Document Reasoning Challenge
 
@@ -77,22 +83,24 @@ We followed rigorous statistical protocols to ensure our results are meaningful 
 ### Sample Design
 
 \`\`\`
-Sample Size:     384 questions per benchmark
-Confidence:      95%
-Margin of Error: ±5%
-Sampling:        Random selection, reproducible seed (42)
+Sample Coverage:  28% of each test dataset (~670 questions)
+Confidence:       95% with ±3.2% margin of error
+Sampling:         Random selection, reproducible seed (42)
+Context Type:     Oracle + Noise (2-5 documents per question)
 \`\`\`
 
-This sample size follows standard statistical practice—for populations over 10,000, ~384 samples provide 95% confidence with ±5% margin of error.
+This sample size follows BetterBench statistical guidelines. Results plateaued across multiple test runs, indicating stable performance.
 
-### Test Protocol
+### Test Protocol (Oracle Context)
 
 For each benchmark question:
 
-1. **Ingest**: Insert the relevant financial documents into a fresh VRIN instance
+1. **Ingest**: Insert the provided documents for that question into VRIN (Oracle context)
 2. **Extract**: Let VRIN's entity-centric pipeline process the content
 3. **Query**: Submit the benchmark question
 4. **Evaluate**: Compare VRIN's response against the expected answer
+
+**Note**: This methodology matches how the T²-RAGBench leaderboard evaluates Oracle context performance. Each question receives its designated document set (2-5 documents, some relevant, some distractors). This tests reasoning capability, not retrieval from a large corpus.
 
 ### Evaluation Criteria
 
@@ -164,49 +172,58 @@ Queries with 3+ simultaneous constraints sometimes miss edge cases. "Find all Q4
 
 Tables with 50+ rows can exceed optimal chunk sizes. We're working on hierarchical table processing.
 
-### Sample vs. Full Dataset
+### Statistical Rigor
 
-While 384 samples provides statistical validity, we haven't yet run the complete 32,908 FinQA questions. Full-dataset validation is on our roadmap.
+Our tests sample 28% of each benchmark dataset (~670 questions), providing ±3.2% margin of error at 95% confidence following BetterBench guidelines. Results plateaued across multiple runs with reproducible seed (42).
 
 ---
 
 ## What This Means for Your Team
 
-These benchmark results translate to real capabilities:
+These benchmark results translate to real capabilities for reasoning over provided documents:
 
 ### If You're Building Financial Applications
 
-97.5% accuracy on FinQA means you can build AI assistants that actually work with financial reports. Due diligence, earnings analysis, regulatory compliance—tasks where "close enough" isn't acceptable.
+97.5% accuracy on FinQA (Oracle context) means VRIN can reason accurately over financial reports when you provide the relevant documents. Due diligence, earnings analysis, regulatory compliance—tasks where numerical precision matters.
 
 ### If You Have Knowledge Across Many Documents
 
-82.6% on MultiHop-RAG means your AI can synthesize information the way a research analyst would. Legal discovery, competitive intelligence, technical documentation—anywhere answers span multiple sources.
+82.6% on MultiHop-RAG means your AI can synthesize information across related documents the way a research analyst would. Legal discovery, competitive intelligence, technical documentation—anywhere answers span multiple sources you've ingested.
 
-### If You've Tried RAG and It "Almost Works"
+### Understanding Oracle Context
 
-The ~50% accuracy ceiling on traditional RAG is real. If you've built something that's "pretty good but not reliable enough for production," the hybrid approach might be what you're missing.
+These results use "Oracle context"—the relevant documents are provided for each question. In production, you'd ingest your document corpus and VRIN retrieves relevant content. The benchmark measures reasoning capability; production performance also depends on retrieval quality from your specific corpus.
 
 ---
 
 ## Reproduce Our Results
 
-Our benchmark scripts are open source. You can verify everything:
+Our benchmark scripts, raw results, and evaluation logs are fully open source:
 
 \`\`\`bash
-# Clone the VRIN repository
-git clone https://github.com/vrin-ai/vrin-engine
+# Clone the benchmark repository
+git clone https://github.com/Programmer7129/vrin-benchmarks
+cd vrin-benchmarks
 
-# Navigate to benchmarks
-cd benchmarks
+# Install dependencies
+pip install -r requirements.txt
 
-# Run FinQA benchmark (requires API key)
+# Run FinQA benchmark (requires VRIN API key)
 python run_finqa_benchmark.py --sample 100
 
 # Run MultiHop-RAG benchmark
 python run_multihop_benchmark.py --sample 100
+
+# View our actual results
+ls results/  # Contains raw JSON logs from our runs
 \`\`\`
 
-The evaluation logic is straightforward—no hidden post-processing or result filtering.
+**What's in the repo:**
+- \`run_finqa_benchmark.py\` - FinQA evaluation script
+- \`run_multihop_benchmark.py\` - MultiHop-RAG evaluation script
+- \`README.md\` - Detailed methodology documentation
+
+The evaluation logic is straightforward—no hidden post-processing or result filtering. Every answer is logged with the expected response for full transparency.
 
 ---
 
@@ -214,7 +231,7 @@ The evaluation logic is straightforward—no hidden post-processing or result fi
 
 Benchmarks are useful, but your documents are what matter. We encourage you to:
 
-1. **Sign up** at [vrin.ai](https://vrin.ai)
+1. **Sign up** at [vrin.cloud](https://vrin.cloud)
 2. **Ingest** a few of your challenging documents
 3. **Ask** the questions that current solutions can't answer well
 4. **Compare** the results
@@ -236,25 +253,32 @@ We're continuing to push on several fronts:
 
 ## The Bottom Line
 
-VRIN's performance on RAGBench FinQA (97.5%) and MultiHop-RAG (82.6%) demonstrates that the hybrid approach—knowledge graphs plus vector search—dramatically outperforms traditional RAG architectures.
+VRIN's performance on RAGBench FinQA (97.5%) and MultiHop-RAG (82.6%) demonstrates that the hybrid approach—knowledge graphs plus vector search—delivers superior reasoning capability on Oracle context benchmarks:
 
-This isn't about having a better language model. It's about smarter retrieval, structured knowledge, and systems that reason across documents the way humans do.
+- **+22.8%** better than LLaMA 3.3-70B Oracle baseline on FinQA
+- **+31%** better than Multi-Meta RAG + GPT-4 on MultiHop-RAG
+
+This isn't about having a better language model. It's about smarter extraction, structured knowledge, and systems that reason across documents the way humans do. Our entity-centric extraction and temporal disambiguation enable accurate numerical reasoning that even 70B parameter models struggle with.
+
+**What these results mean**: When given the right documents, VRIN extracts and reasons over financial data more accurately than leading LLMs. The next frontier is combining this reasoning capability with robust retrieval for real-world deployments.
 
 The code is open. The methodology is documented. The results are reproducible. We're betting that transparency about what works (and what doesn't yet) is more valuable than marketing claims.
 
 ---
 
-*Questions about methodology or want to discuss results? Reach out at research@vrin.ai*
+*Questions about methodology or want to discuss results? [Open an issue on GitHub](https://github.com/Programmer7129/vrin-benchmarks/issues) or contact us at [vrin.cloud](https://vrin.cloud)*
 `,
   },
   {
     slug: 'controlled-creativity-brainstorming-mode',
-    title: 'Why Your AI Gives You Safe, Boring Ideas (And How We Fixed It)',
+    title: 'Why Enterprise AI Plays It Safe (And How We Built Controlled Creativity)',
     description: 'Enterprise AI tools suppress creativity to avoid hallucinations. We took a different approach: controlled creativity validated against your knowledge graph. The result? 11-25% better strategic ideas than Gemini 3 Pro and ChatGPT 5.2.',
     date: '2026-01-05',
     author: {
-      name: 'VRIN Research Team',
-      role: 'Engineering',
+      name: 'Vedant Patel',
+      role: 'Founder & CEO',
+      avatar: '/blogs/Profile Photo.JPEG',
+      linkedin: 'https://www.linkedin.com/in/vedant1033/',
     },
     category: 'research',
     tags: ['brainstorming', 'creativity', 'LLM', 'enterprise-ai', 'knowledge-graph'],
@@ -262,13 +286,13 @@ The code is open. The methodology is documented. The results are reproducible. W
     featured: true,
     image: '/blog/brainstorming-mode-hero.png',
     content: `
-There's a dirty secret in enterprise AI: **your tools are designed to be boring**.
+Enterprise AI tools face a fundamental tension: **creativity versus reliability**.
 
-Every enterprise AI vendor—Glean, Microsoft Copilot, Google Vertex—has made the same choice: minimize LLM creativity to prevent hallucinations. It's the safe play. It's also why these tools can tell you what's in your documents but can't help you think differently about your business.
+Most vendors—Glean, Microsoft Copilot, Google Vertex—have chosen to minimize LLM creativity to prevent hallucinations. It's a reasonable approach for accuracy, but it comes with a tradeoff. These tools excel at retrieving what's in your documents, but they struggle to help you think differently about your business.
 
-We built something different. And when we tested it against Gemini 3 Pro on a real strategic problem, our approach scored **93/100 vs. 74/100**—a 25% improvement in idea quality.
+We took a different approach. When we tested it against Gemini 3 Pro on a real strategic problem, our method scored **93/100 vs. 74/100**—a 25% improvement in idea quality.
 
-This post explains why we made a contrarian bet on "controlled creativity" and how it works.
+This post explains why we built "controlled creativity" and how it works.
 
 ---
 
@@ -293,7 +317,7 @@ This is a real limitation. When you ask your current AI assistant for marketing 
 - Industry-standard best practices
 - Generic frameworks from training data
 
-You don't get novel, company-specific insights that leverage your unique constraints and opportunities. The AI has been trained to stay in its lane.
+You don't get novel, company-specific insights that leverage your unique constraints and opportunities. The AI has been optimized for safety over creativity.
 
 ---
 
@@ -481,9 +505,9 @@ Here's where it gets interesting. Each idea is validated against your knowledge 
 
 **Ideas are categorized:**
 
-- **✅ Grounded**: Supported by company data, ready for implementation planning
-- **🔍 Plausible**: Potentially feasible, needs more research to confirm
-- **⚠️ Likely Impossible**: Contradicts known constraints (but preserved for future re-evaluation)
+- **Grounded**: Supported by company data, ready for implementation planning
+- **Plausible**: Potentially feasible, needs more research to confirm
+- **Likely Impossible**: Contradicts known constraints (but preserved for future re-evaluation)
 
 ### Stage 4: Deep Dive (Evidence-Backed Plans)
 
@@ -508,7 +532,7 @@ An idea marked "Likely Impossible" today might become Plausible tomorrow when:
 - Strategy pivots
 - Market conditions shift
 
-VRIN preserves these ideas and re-evaluates them as your knowledge graph evolves. The "crazy" idea that got flagged in Q1 might surface as actionable in Q3 when constraints change.
+VRIN preserves these ideas and re-evaluates them as your knowledge graph evolves. An unconventional idea flagged in Q1 might surface as actionable in Q3 when constraints change.
 
 This is closer to how successful entrepreneurs actually think. They don't permanently discard bold ideas—they wait for the right moment.
 
@@ -547,7 +571,7 @@ Most competitors are philosophically opposed to "controlled hallucinations." The
 - Retrieves current budget, team capacity, past campaign performance
 - Generates 20 ideas ranging from conventional to bold
 - Validates each against constraints (budget, team, past success rates)
-- Delivers: "Partner with Industry Analyst C" (✅ Grounded—warm relationship exists, budget available, 3.5x historical ROI) with full implementation plan
+- Delivers: "Partner with Industry Analyst C" (Grounded—warm relationship exists, budget available, 3.5x historical ROI) with full implementation plan
 
 ### Product Roadmap
 
@@ -571,7 +595,7 @@ Most competitors are philosophically opposed to "controlled hallucinations." The
 - Analyzes actual cloud spend patterns, usage data, team capacity
 - Generates 12 cost reduction strategies
 - Validates against performance requirements, migration risks, team expertise
-- Delivers: "Switch to reserved instances for stable workloads" (✅ Grounded—90% of compute is stable, projected savings $15K/month) with migration plan
+- Delivers: "Switch to reserved instances for stable workloads" (Grounded—90% of compute is stable, projected savings $15K/month) with migration plan
 
 ---
 
@@ -579,7 +603,7 @@ Most competitors are philosophically opposed to "controlled hallucinations." The
 
 Brainstorm Mode is available in VRIN today. To use it:
 
-1. **Sign up** at [vrin.ai](https://vrin.ai)
+1. **Sign up** at [vrin.cloud](https://vrin.cloud)
 2. **Ingest your company documents** (the more context, the better validation)
 3. **Select "Brainstorm" mode** when asking strategic questions
 4. **Get ideas categorized** by feasibility with evidence-backed reasoning
@@ -603,11 +627,11 @@ When tested head-to-head against frontier models on a real strategic problem:
 
 The difference wasn't marginal. VRIN delivered actionable, founder-specific ideas with implementation plans. The frontier models delivered technically sound but strategically generic suggestions. As one independent judge put it: "VRIN is the superior Technical Co-founder."
 
-If your AI assistant gives you safe, boring ideas, it's working as designed. But you deserve tools that help you think differently—not just recall what you already know.
+If your AI assistant prioritizes caution over creativity, it's working as designed. But there's room for tools that help you think differently—not just recall what you already know.
 
 ---
 
-*Want to see how brainstorming mode works with your company's knowledge? Try VRIN at [vrin.ai](https://vrin.ai)*
+*Want to see how brainstorming mode works with your company's knowledge? Try VRIN at [vrin.cloud](https://vrin.cloud)*
 `,
   },
 ]

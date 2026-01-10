@@ -3,7 +3,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { chatAPI } from '@/lib/services/chat-api';
-import type { ChatMessage, ChatSession, ResponseMode } from '@/types/chat';
+import type { ChatMessage, ChatSession, ResponseMode, FileAttachment } from '@/types/chat';
 
 interface UseChatSessionReturn {
   session: ChatSession | null;
@@ -12,7 +12,7 @@ interface UseChatSessionReturn {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
-  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean) => Promise<void>;
+  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean, attachments?: FileAttachment[], conversationUploadIds?: string[]) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
   endSession: () => Promise<void>;
@@ -101,7 +101,9 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     message: string,
     mode: ResponseMode = 'chat',
     enableStreaming: boolean = true,
-    webSearchEnabled: boolean = false
+    webSearchEnabled: boolean = false,
+    attachments?: FileAttachment[],
+    conversationUploadIds?: string[]
   ) => {
     console.log('=== sendMessage called ===');
     console.log('API Key:', apiKey ? apiKey.substring(0, 10) + '...' : 'MISSING');
@@ -109,6 +111,8 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     console.log('Message:', message.substring(0, 50) + '...');
     console.log('Streaming enabled:', enableStreaming);
     console.log('Web search enabled:', webSearchEnabled);
+    console.log('Attachments:', attachments?.length || 0);
+    console.log('Conversation upload IDs:', conversationUploadIds?.length || 0);
 
     if (!apiKey) {
       const error = 'API key is required';
@@ -125,15 +129,16 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     setIsLoading(true);
     setError(null);
 
-    // Add user message immediately
+    // Add user message immediately (with attachments if provided)
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      attachments: attachments && attachments.length > 0 ? attachments : undefined
     };
 
-    console.log('Adding user message to UI');
+    console.log('Adding user message to UI', attachments?.length ? `with ${attachments.length} attachment(s)` : '');
     setMessages(prev => [...prev, userMessage]);
 
     try {
@@ -142,7 +147,8 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         session_id: session?.session_id,
         include_sources: true,
         response_mode: mode,
-        web_search_enabled: webSearchEnabled
+        web_search_enabled: webSearchEnabled,
+        conversation_upload_ids: conversationUploadIds  // For temporary doc isolation
       };
 
       // STREAMING MODE

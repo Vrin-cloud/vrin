@@ -91,6 +91,11 @@ class ChatAPI {
       ragRequest.session_id = request.session_id;
     }
 
+    // Include conversation-specific upload IDs for temporary doc isolation
+    if (request.conversation_upload_ids && request.conversation_upload_ids.length > 0) {
+      ragRequest.conversation_upload_ids = request.conversation_upload_ids;
+    }
+
     // CRITICAL: Log the exact request being sent to backend
     console.log('🌐 === CHAT API REQUEST (RAG Format) ===');
     console.log('URL:', url, '(proxied to Lambda Function URL)');
@@ -179,6 +184,11 @@ class ChatAPI {
       ragRequest.session_id = request.session_id;
     }
 
+    // Include conversation-specific upload IDs for temporary doc isolation
+    if (request.conversation_upload_ids && request.conversation_upload_ids.length > 0) {
+      ragRequest.conversation_upload_ids = request.conversation_upload_ids;
+    }
+
     console.log('🌊 === STREAMING CHAT REQUEST (RAG Format) ===');
     console.log('Response mode:', ragRequest.response_mode);
     console.log('Web search enabled:', ragRequest.web_search_enabled);
@@ -252,21 +262,27 @@ class ChatAPI {
 
   /**
    * Upload a file for knowledge extraction
+   * @param file - The file to upload
+   * @param apiKey - User's API key
+   * @param saveToMemory - If true, save to VRIN Knowledge Graph permanently; if false, use for this chat only
    */
   async uploadFile(
     file: File,
-    apiKey: string
+    apiKey: string,
+    saveToMemory: boolean = true
   ): Promise<UploadFileResponse> {
     console.log('📤 === FILE UPLOAD REQUEST ===');
     console.log('File:', file.name);
     console.log('Size:', (file.size / 1024).toFixed(2), 'KB');
     console.log('Type:', file.type);
+    console.log('Save to memory:', saveToMemory);
     console.log('URL: /api/chat/upload (proxied to backend)');
     console.log('API Key:', apiKey.substring(0, 15) + '...');
     console.log('============================');
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('save_to_memory', saveToMemory.toString());
 
     try {
       // Use local API proxy to avoid CORS

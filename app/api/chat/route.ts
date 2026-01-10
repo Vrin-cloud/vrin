@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       userId: body.user_id
     });
 
-    // Proxy to chat backend (Lambda Function URL - no timeout limit)
+    // Proxy to chat backend (no retry - fast processing means docs are ready)
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
         ...(isStreaming && { 'Accept': 'text/event-stream' })
       },
       body: JSON.stringify(body),
-      // No timeout - Lambda Function URLs support long-running requests
     });
 
     if (!response.ok) {

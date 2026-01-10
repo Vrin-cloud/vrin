@@ -7,6 +7,7 @@ export interface BlogPost {
     name: string
     role: string
     avatar?: string
+    linkedin?: string
   }
   category: 'technical' | 'research' | 'product' | 'company'
   tags: string[]

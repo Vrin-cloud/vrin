@@ -240,9 +240,9 @@ const config: Config = {
 ### **Environment Configuration**
 ```bash
 # Production environment variables
-NEXT_PUBLIC_API_URL=https://api.vrin.ai
-NEXT_PUBLIC_AUTH_URL=https://auth.vrin.ai
-NEXT_PUBLIC_SOCKET_URL=https://realtime.vrin.ai
+NEXT_PUBLIC_API_URL=https://api.vrin.cloud
+NEXT_PUBLIC_AUTH_URL=https://auth.vrin.cloud
+NEXT_PUBLIC_SOCKET_URL=https://realtime.vrin.cloud
 ```
 
 ## 🎯 What Makes VRIN Frontend Unique

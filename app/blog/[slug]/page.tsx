@@ -2,6 +2,7 @@
 
 import { useParams, notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -80,11 +81,27 @@ export default function BlogPostPage() {
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-6 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-[#083C5E] dark:text-[#8DAA9D] font-medium">
-                  {post.author.name.split(' ').map(n => n[0]).join('')}
-                </div>
+                {post.author.avatar ? (
+                  <Image
+                    src={post.author.avatar}
+                    alt={post.author.name}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-[#083C5E] dark:text-[#8DAA9D] font-medium">
+                    {post.author.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                )}
                 <div>
-                  <p className="font-medium text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                  {post.author.linkedin ? (
+                    <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFDFD] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                      {post.author.name}
+                    </a>
+                  ) : (
+                    <p className="font-medium text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                  )}
                   <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">{post.author.role}</p>
                 </div>
               </div>
@@ -135,9 +152,12 @@ export default function BlogPostPage() {
               components={{
                 code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '')
-                  const isInline = !match && !className
+                  // Check if it's inline code: no language AND no newlines
+                  const codeString = String(children)
+                  const hasNewlines = codeString.includes('\n')
+                  const isInlineCode = !match && !className && !hasNewlines
 
-                  if (isInline) {
+                  if (isInlineCode) {
                     return (
                       <code className={className} {...props}>
                         {children}
@@ -154,9 +174,10 @@ export default function BlogPostPage() {
                         margin: 0,
                         borderRadius: '0.75rem',
                         fontSize: '0.875rem',
+                        padding: '1rem',
                       }}
                     >
-                      {String(children).replace(/\n$/, '')}
+                      {codeString.replace(/\n$/, '')}
                     </SyntaxHighlighter>
                   )
                 },
@@ -218,11 +239,27 @@ export default function BlogPostPage() {
             className="mt-12 p-8 rounded-2xl bg-[#083C5E]/5 dark:bg-[#8DAA9D]/5 border border-[#083C5E]/10 dark:border-[#8DAA9D]/10"
           >
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-xl text-[#083C5E] dark:text-[#8DAA9D] font-medium flex-shrink-0">
-                {post.author.name.split(' ').map(n => n[0]).join('')}
-              </div>
+              {post.author.avatar ? (
+                <Image
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-xl text-[#083C5E] dark:text-[#8DAA9D] font-medium flex-shrink-0">
+                  {post.author.name.split(' ').map(n => n[0]).join('')}
+                </div>
+              )}
               <div>
-                <p className="font-medium text-lg text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                {post.author.linkedin ? (
+                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-lg text-[#201E1E] dark:text-[#FFFDFD] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                    {post.author.name}
+                  </a>
+                ) : (
+                  <p className="font-medium text-lg text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                )}
                 <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 mb-3">{post.author.role}</p>
                 <p className="text-[#201E1E]/70 dark:text-[#FFFDFD]/70">
                   Building the next generation of enterprise AI memory at VRIN. We believe in transparent research and open benchmarks.

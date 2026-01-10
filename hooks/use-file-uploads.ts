@@ -9,7 +9,7 @@ const POLL_INTERVAL = 2000; // 2 seconds
 
 interface UseFileUploadsReturn {
   uploads: FileUpload[];
-  uploadFile: (file: File) => Promise<FileUpload>;
+  uploadFile: (file: File, saveToMemory?: boolean) => Promise<FileUpload>;
   checkUploadStatus: (uploadId: string) => Promise<FileUpload>;
   clearCompletedUploads: () => void;
 }
@@ -59,9 +59,10 @@ export const useFileUploads = (apiKey: string): UseFileUploadsReturn => {
     return () => clearInterval(interval);
   }, [pollingIds, apiKey]);
 
-  const uploadFile = useCallback(async (file: File): Promise<FileUpload> => {
+  const uploadFile = useCallback(async (file: File, saveToMemory: boolean = true): Promise<FileUpload> => {
     console.log('🎣 useFileUploads.uploadFile called');
     console.log('  - File:', file.name);
+    console.log('  - Save to memory:', saveToMemory);
     console.log('  - API Key present:', !!apiKey);
 
     if (!apiKey) {
@@ -71,12 +72,13 @@ export const useFileUploads = (apiKey: string): UseFileUploadsReturn => {
 
     try {
       console.log('📡 Calling chatAPI.uploadFile...');
-      const response = await chatAPI.uploadFile(file, apiKey);
+      const response = await chatAPI.uploadFile(file, apiKey, saveToMemory);
 
       console.log('✅ chatAPI.uploadFile response:', response);
       console.log('  - upload_id:', response.upload_id);
       console.log('  - status:', response.status);
       console.log('  - filename:', response.filename);
+      console.log('  - saveToMemory:', saveToMemory);
 
       const upload: FileUpload = {
         upload_id: response.upload_id,
@@ -85,7 +87,8 @@ export const useFileUploads = (apiKey: string): UseFileUploadsReturn => {
         file_size: response.file_size,
         status: response.status,
         upload_timestamp: Date.now(),
-        progress: 10
+        progress: 10,
+        saveToMemory: saveToMemory
       };
 
       console.log('📊 Created upload object:', upload);

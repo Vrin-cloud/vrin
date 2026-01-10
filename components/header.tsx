@@ -47,7 +47,7 @@ const menuItems = {
     featured: {
       title: "LATEST POST",
       label: "97.5% Accuracy on FinQA",
-      description: "How we achieved industry-leading benchmark results",
+      description: "22% better than Oracle baselines on financial reasoning",
       href: "/blog/benchmark-results-ragbench-multihop",
       hasVideo: false
     }

@@ -13,6 +13,7 @@ export interface ChatMessage {
   sources?: SourceDocument[];  // Document-level sources from backend
   metadata?: MessageMetadata;
   expert_analysis?: ExpertAnalysis;
+  attachments?: FileAttachment[];  // File attachments for user messages
 }
 
 export interface FactSource {
@@ -82,6 +83,7 @@ export interface SendMessageRequest {
   include_sources?: boolean;
   response_mode?: ResponseMode;
   web_search_enabled?: boolean;
+  conversation_upload_ids?: string[];  // Upload IDs for temporary docs in this conversation
 }
 
 export interface SendMessageResponse {
@@ -117,6 +119,26 @@ export interface FileUpload {
   facts_extracted?: number;
   error_message?: string;
   progress?: number;  // 0-100 for UI
+  saveToMemory?: boolean;  // If true, save to VRIN Knowledge Graph; if false, temporary chat only
+}
+
+// Staged file before upload (local state only)
+export interface StagedFile {
+  id: string;  // Temporary client-side ID
+  file: File;
+  filename: string;
+  file_size: number;
+  file_type: string;
+  saveToMemory: boolean;  // Default true - save to knowledge graph
+}
+
+// File attachment shown in chat messages
+export interface FileAttachment {
+  id: string;
+  filename: string;
+  file_type: string;  // MIME type
+  file_size: number;
+  upload_id?: string;  // Associated upload ID if uploaded
 }
 
 export interface UploadFileResponse {

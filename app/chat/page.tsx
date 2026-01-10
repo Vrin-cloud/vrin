@@ -53,7 +53,8 @@ import { LoadingAnimation } from '@/components/chat/loading-animation'
 import { formatRelativeTime } from '@/lib/utils/time'
 import { chatAPI } from '@/lib/services/chat-api'
 import toast from 'react-hot-toast'
-import type { ChatMessage as BackendChatMessage, ResponseMode, SourceDocument } from '@/types/chat'
+import type { ChatMessage as BackendChatMessage, ResponseMode, SourceDocument, FileAttachment } from '@/types/chat'
+import { FileAttachmentCard, FileAttachmentCardLight } from '@/components/chat/file-attachment-card'
 import vrinIcon from '@/app/icon.svg'
 
 interface LocalChatSession {
@@ -151,6 +152,9 @@ export default function ChatPage() {
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [pendingAttachments, setPendingAttachments] = useState<FileAttachment[]>([])
+  // Track all upload IDs for this conversation (for temporary doc isolation)
+  const [conversationUploadIds, setConversationUploadIds] = useState<string[]>([])
 
   // NextAuth session for Google OAuth
   const { data: nextAuthSession, status: sessionStatus } = useSession()
@@ -334,8 +338,10 @@ export default function ChatPage() {
   }
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) {
-      console.log('Send message blocked:', { hasMessage: !!inputMessage.trim(), isLoading })
+    // Allow sending if there's text OR attachments
+    const hasContent = inputMessage.trim() || pendingAttachments.length > 0
+    if (!hasContent || isLoading) {
+      console.log('Send message blocked:', { hasMessage: !!inputMessage.trim(), hasAttachments: pendingAttachments.length > 0, isLoading })
       return
     }
 
@@ -345,16 +351,19 @@ export default function ChatPage() {
     }
 
     console.log('Sending message:', inputMessage.substring(0, 50) + '...')
+    console.log('With attachments:', pendingAttachments.length)
     const message = inputMessage
+    const attachmentsToSend = [...pendingAttachments]  // Copy attachments
     const wasNewConversation = !session?.session_id
     setInputMessage('')
+    setPendingAttachments([])  // Clear attachments
     // Reset textarea height after sending
     if (textareaRef.current) {
       textareaRef.current.style.height = '56px'
     }
 
     try {
-      await sendMessage(message, responseMode, enableStreaming, webSearchEnabled)
+      await sendMessage(message || '(Uploaded file)', responseMode, enableStreaming, webSearchEnabled, attachmentsToSend, conversationUploadIds)
       console.log('Message sent successfully')
 
       // Refresh conversation list after first message in new conversation
@@ -364,13 +373,16 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error('Failed to send message:', error)
-      // Restore message on error
+      // Restore message and attachments on error
       setInputMessage(message)
+      setPendingAttachments(attachmentsToSend)
     }
   }
 
   const handleNewChat = async () => {
     setActiveConversationId(null)
+    setConversationUploadIds([])  // Clear upload tracking for new conversation
+    setPendingAttachments([])  // Clear pending attachments
     await startNewSession()
     // Refresh conversations after creating new session
     setTimeout(() => refreshConversations(), 1000)
@@ -378,7 +390,8 @@ export default function ChatPage() {
 
   const handleLoadConversation = async (sessionId: string) => {
     if (isLoadingConversation) return
-
+    setConversationUploadIds([])  // Clear upload tracking when loading different conversation
+    setPendingAttachments([])  // Clear pending attachments
     console.log('Loading conversation:', sessionId)
     setIsLoadingConversation(true)
     setActiveConversationId(sessionId)
@@ -433,10 +446,11 @@ export default function ChatPage() {
     }
   }
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, saveToMemory: boolean = true) => {
     console.log('🔄 handleFileUpload called with file:', file.name)
     console.log('  - Size:', (file.size / 1024).toFixed(2), 'KB')
     console.log('  - Type:', file.type)
+    console.log('  - Save to memory:', saveToMemory)
     console.log('  - API Key present:', !!apiKey)
 
     if (!apiKey) {
@@ -447,14 +461,35 @@ export default function ChatPage() {
 
     try {
       console.log('📤 Calling uploadFile...')
-      const result = await uploadFile(file)
+      const result = await uploadFile(file, saveToMemory)
       console.log('✅ Upload initiated successfully:', result)
-      // Optionally close the upload zone after upload
-      // setShowUploadZone(false)
+
+      // Add to pending attachments for display in input area
+      const attachment: FileAttachment = {
+        id: result?.upload_id || `attachment-${Date.now()}`,
+        filename: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        upload_id: result?.upload_id
+      }
+      setPendingAttachments(prev => [...prev, attachment])
+
+      // Track upload_id for conversation-level isolation of temporary docs
+      if (result?.upload_id) {
+        setConversationUploadIds(prev => [...prev, result.upload_id])
+        console.log('📎 Added upload_id to conversation:', result.upload_id)
+      }
+
+      // Close the upload zone after successful upload
+      setShowUploadZone(false)
     } catch (error) {
       console.error('❌ File upload failed:', error)
       alert(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
+  }
+
+  const handleRemoveAttachment = (attachmentId: string) => {
+    setPendingAttachments(prev => prev.filter(a => a.id !== attachmentId))
   }
 
   const handleDeleteConversation = async (sessionId: string) => {
@@ -1004,7 +1039,15 @@ export default function ChatPage() {
                 >
                   {message.role === 'user' ? (
                     // User message: Background box, aligned right, max-width
-                    <div className="max-w-2xl">
+                    <div className="max-w-2xl space-y-2">
+                      {/* Show attachments above message text */}
+                      {message.attachments && message.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {message.attachments.map((attachment) => (
+                            <FileAttachmentCardLight key={attachment.id} attachment={attachment} />
+                          ))}
+                        </div>
+                      )}
                       <div className="bg-gray-100 text-gray-900 rounded-2xl px-5 py-3">
                         <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                       </div>
@@ -1147,6 +1190,18 @@ export default function ChatPage() {
               }}
               className="relative bg-white/70 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 focus-within:shadow-xl focus-within:border-blue-400/50 transition-all"
             >
+              {/* Pending Attachments Preview */}
+              {pendingAttachments.length > 0 && (
+                <div className="px-4 pt-4 pb-2 flex flex-wrap gap-2">
+                  {pendingAttachments.map((attachment) => (
+                    <FileAttachmentCard
+                      key={attachment.id}
+                      attachment={attachment}
+                      onRemove={() => handleRemoveAttachment(attachment.id)}
+                    />
+                  ))}
+                </div>
+              )}
               <textarea
                 ref={textareaRef}
                 value={inputMessage}
@@ -1194,12 +1249,12 @@ export default function ChatPage() {
                       cancelStreaming()
                     }
                   }}
-                  disabled={!isStreaming && (!inputMessage.trim() || isLoading)}
+                  disabled={!isStreaming && ((!inputMessage.trim() && pendingAttachments.length === 0) || isLoading)}
                   className={`
                     p-2 rounded-lg transition-all backdrop-blur-sm
                     ${isStreaming
                       ? 'bg-red-500/90 hover:bg-red-600/90 text-white shadow-lg'
-                      : inputMessage.trim() && !isLoading
+                      : (inputMessage.trim() || pendingAttachments.length > 0) && !isLoading
                       ? 'bg-blue-500/90 hover:bg-blue-600/90 text-white shadow-lg'
                       : 'bg-gray-300/50 text-gray-400 cursor-not-allowed'
                     }

@@ -375,7 +375,7 @@ result = vrin.insert("Your knowledge here")`}
             <span>GitHub Repository</span>
           </a>
           <a
-            href="https://docs.vrin.ai"
+            href="https://docs.vrin.cloud"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
