@@ -72,10 +72,10 @@ export function StickyNavChallengeSection() {
     },
     {
       id: 'siloed-ai',
-      title: "AI Can't See Across Your Stack",
-      problem: "Current AI tools work in silos. They can search Slack OR Notion—never both. Complex questions that span multiple systems get no answer.",
-      solution: "Multi-Source Reasoning",
-      solutionHeadline: "AI That Reasons Across Everything",
+      title: "Search Isn't Reasoning",
+      problem: "Most AI tools retrieve text snippets based on keyword matching. They find documents—but can't connect the dots. Complex questions that require tracing relationships across your data get fragments, not answers.",
+      solution: "Multi-Hop Reasoning",
+      solutionHeadline: "AI That Connects the Dots Across Everything",
       solutionIcon: Network,
       visualType: "image"
     },
