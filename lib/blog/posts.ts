@@ -36,7 +36,7 @@ This post is our attempt to be completely transparent about what we found, how w
 
 </div>
 
-*Results at 95% confidence (±3.2% margin) using 28% of each test dataset with Oracle context methodology. Full methodology, raw data, and reproduction scripts available on [GitHub](https://github.com/Programmer7129/vrin-benchmarks).*
+*Results at 95% confidence (±3.2% margin) using 28% of each test dataset with Oracle context methodology. Full methodology, raw data, and reproduction scripts available on [GitHub](https://github.com/Vrin-cloud/vrin-benchmarks).*
 
 **Important Note on Methodology:** These benchmarks use "Oracle + Noise" context—each question receives a curated set of 2-5 documents that includes the relevant information plus some distractors. This measures **reasoning quality** (can the system extract and compute the correct answer?) rather than **retrieval capability** (can the system find the right documents from thousands?). We compare against other systems using the same Oracle context methodology for a fair comparison.
 
@@ -202,7 +202,7 @@ Our benchmark scripts, raw results, and evaluation logs are fully open source:
 
 \`\`\`bash
 # Clone the benchmark repository
-git clone https://github.com/Programmer7129/vrin-benchmarks
+git clone https://github.com/Vrin-cloud/vrin-benchmarks
 cd vrin-benchmarks
 
 # Install dependencies
@@ -266,7 +266,7 @@ The code is open. The methodology is documented. The results are reproducible. W
 
 ---
 
-*Questions about methodology or want to discuss results? [Open an issue on GitHub](https://github.com/Programmer7129/vrin-benchmarks/issues) or contact us at [vrin.cloud](https://vrin.cloud)*
+*Questions about methodology or want to discuss results? [Open an issue on GitHub](https://github.com/Vrin-cloud/vrin-benchmarks/issues) or contact us at [vrin.cloud](https://vrin.cloud)*
 `,
   },
   {
