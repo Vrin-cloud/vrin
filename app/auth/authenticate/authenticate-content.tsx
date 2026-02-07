@@ -76,7 +76,10 @@ function AuthenticateContentInner() {
 
   // Check for return_to: localStorage is the reliable source (Stytch strips query params
   // from redirect URLs), URL param is fallback
-  const returnTo = localStorage.getItem('oauth_return_to') || searchParams.get('return_to');
+  const lsReturnTo = localStorage.getItem('oauth_return_to');
+  const spReturnTo = searchParams.get('return_to');
+  const returnTo = lsReturnTo || spReturnTo;
+  console.log('[Authenticate] return_to sources:', { localStorage: lsReturnTo, searchParams: spReturnTo, using: returnTo });
 
   // Prevent double authentication attempts (React strict mode / re-renders)
   const authAttemptedRef = useRef(false);

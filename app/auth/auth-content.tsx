@@ -77,16 +77,17 @@ export default function AuthContent() {
           session_duration_minutes: 60,
         });
         const destination = returnTo || '/dashboard';
+        localStorage.removeItem('oauth_return_to');
         window.location.href = destination;
       } else {
         // Send magic link
-        // Preserve return_to through the magic link redirect
-        const redirectUrl = returnTo
-          ? `${window.location.origin}/auth/authenticate?return_to=${encodeURIComponent(returnTo)}`
-          : `${window.location.origin}/auth/authenticate`;
+        // Save return_to in localStorage (Stytch strips query params from redirect URLs)
+        if (returnTo) {
+          localStorage.setItem('oauth_return_to', returnTo);
+        }
         await stytch.magicLinks.email.discovery.send({
           email_address: email,
-          discovery_redirect_url: redirectUrl,
+          discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
         });
         setMagicLinkSent(true);
       }
@@ -110,12 +111,12 @@ export default function AuthContent() {
 
     try {
       console.log('[Auth] Starting Google OAuth...');
-      // Preserve return_to through the Google OAuth redirect
-      const redirectUrl = returnTo
-        ? `${window.location.origin}/auth/authenticate?return_to=${encodeURIComponent(returnTo)}`
-        : `${window.location.origin}/auth/authenticate`;
+      // Save return_to in localStorage (Stytch strips query params from redirect URLs)
+      if (returnTo) {
+        localStorage.setItem('oauth_return_to', returnTo);
+      }
       await stytch.oauth.google.discovery.start({
-        discovery_redirect_url: redirectUrl,
+        discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
       });
     } catch (err: any) {
       console.error('[Auth] Google OAuth error:', err);
