@@ -60,7 +60,8 @@ async function syncAndStoreCredentials(
  * 2. OAuth callback processing
  * 3. Discovery flow - auto-creates or selects organization
  *
- * After successful authentication, redirects to /dashboard
+ * After successful authentication, redirects to return_to (for OAuth flow)
+ * or /dashboard (default).
  *
  * NOTE: This component must be dynamically imported with ssr: false
  * because it uses Stytch hooks that require the browser.
@@ -74,15 +75,27 @@ function AuthenticateContentInner() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Check for return_to: localStorage is the reliable source (Stytch strips query params
-  // from redirect URLs), URL param is fallback
-  const lsReturnTo = localStorage.getItem('oauth_return_to');
-  const spReturnTo = searchParams.get('return_to');
-  const returnTo = lsReturnTo || spReturnTo;
-  console.log('[Authenticate] return_to sources:', { localStorage: lsReturnTo, searchParams: spReturnTo, using: returnTo });
+  // return_to is passed through Stytch's discoveryRedirectURL as a query param.
+  // Falls back to localStorage (set by OAuth authorize page) as a safety net.
+  const returnTo = searchParams.get('return_to')
+    || localStorage.getItem('oauth_return_to');
+
+  console.log('[Authenticate] return_to:', returnTo, {
+    fromParams: searchParams.get('return_to'),
+    fromStorage: localStorage.getItem('oauth_return_to'),
+  });
 
   // Prevent double authentication attempts (React strict mode / re-renders)
   const authAttemptedRef = useRef(false);
+
+  // Helper to redirect to the right destination
+  const redirectTo = (destination: string) => {
+    localStorage.removeItem('oauth_return_to');
+    setStatus('success');
+    setTimeout(() => {
+      router.replace(destination);
+    }, 1000);
+  };
 
   useEffect(() => {
     if (!stytch || !isInitialized) return;
@@ -92,12 +105,7 @@ function AuthenticateContentInner() {
       const vrinApiKey = localStorage.getItem('vrin_api_key');
       const vrinUser = localStorage.getItem('vrin_user');
       if (vrinApiKey && vrinUser) {
-        setStatus('success');
-        const destination = returnTo || '/dashboard';
-        localStorage.removeItem('oauth_return_to');
-        setTimeout(() => {
-          window.location.href = destination;
-        }, 1000);
+        redirectTo(returnTo || '/dashboard');
         return;
       }
     }
@@ -209,12 +217,7 @@ function AuthenticateContentInner() {
         if (member) {
           const synced = await syncAndStoreCredentials(member, organization, fullName);
           if (synced) {
-            setStatus('success');
-            const destination = returnTo || '/dashboard';
-            localStorage.removeItem('oauth_return_to');
-            setTimeout(() => {
-              window.location.href = destination;
-            }, 1000);
+            redirectTo(returnTo || '/dashboard');
             return;
           }
         }
@@ -255,7 +258,7 @@ function AuthenticateContentInner() {
               Authentication Successful
             </h1>
             <p className="text-gray-600">
-              Redirecting to your dashboard...
+              Redirecting...
             </p>
           </div>
         )}

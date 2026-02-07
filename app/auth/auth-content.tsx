@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Loader2, AlertCircle, Mail, ArrowRight } from 'lucide-react';
@@ -10,6 +10,9 @@ import vrinIcon from '@/app/icon.svg';
 
 /**
  * VRIN Authentication Page Content - Custom UI with Stytch Headless SDK
+ *
+ * Supports return_to parameter for OAuth flows (ChatGPT, Claude Web, etc.).
+ * After login, redirects to return_to or /dashboard.
  *
  * NOTE: This component must be dynamically imported with ssr: false
  * because it uses Stytch hooks that require the browser.
@@ -28,31 +31,38 @@ export default function AuthContent() {
   const [error, setError] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  // Check for return_to parameter (used by OAuth authorize flow)
-  // URL param is primary, localStorage is fallback (Stytch strips query params from redirect URLs)
+  // Read return_to from URL search params (set by OAuth authorize page)
   const returnTo = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('return_to') || localStorage.getItem('oauth_return_to')
+    ? new URLSearchParams(window.location.search).get('return_to')
     : null;
+
+  // Build the discovery redirect URL, preserving return_to through Stytch's redirect chain.
+  // Stytch DOES preserve query params in discoveryRedirectURL (confirmed by Stytch's own demo).
+  const buildDiscoveryRedirectURL = (): string => {
+    if (typeof window === 'undefined') return '/auth/authenticate';
+    const params = new URLSearchParams();
+    if (returnTo) {
+      params.set('return_to', returnTo);
+    }
+    const qs = params.toString();
+    return `${window.location.origin}/auth/authenticate${qs ? `?${qs}` : ''}`;
+  };
 
   // Redirect if already authenticated with VRIN credentials
   useEffect(() => {
     if (isInitialized && session) {
-      // Only redirect if we also have VRIN credentials in localStorage
-      // This prevents redirect loops when Stytch has a session but VRIN sync hasn't happened
       const vrinApiKey = localStorage.getItem('vrin_api_key');
       const vrinUser = localStorage.getItem('vrin_user');
 
       if (vrinApiKey && vrinUser) {
         const destination = returnTo || '/dashboard';
-        localStorage.removeItem('oauth_return_to');
         console.log(`[Auth] Already authenticated, redirecting to ${destination}`);
-        window.location.href = destination;
+        router.replace(destination);
       } else if (returnTo) {
         // Has Stytch session but no VRIN credentials — for OAuth flow,
         // the session is enough, redirect back to authorize page
-        localStorage.removeItem('oauth_return_to');
         console.log('[Auth] Stytch session active, redirecting to OAuth authorize');
-        window.location.href = returnTo;
+        router.replace(returnTo);
       } else {
         console.log('[Auth] Stytch session exists but no VRIN credentials, staying on auth page');
       }
@@ -76,18 +86,12 @@ export default function AuthContent() {
           password: password,
           session_duration_minutes: 60,
         });
-        const destination = returnTo || '/dashboard';
-        localStorage.removeItem('oauth_return_to');
-        window.location.href = destination;
+        router.replace(returnTo || '/dashboard');
       } else {
-        // Send magic link
-        // Save return_to in localStorage (Stytch strips query params from redirect URLs)
-        if (returnTo) {
-          localStorage.setItem('oauth_return_to', returnTo);
-        }
+        // Send magic link — discoveryRedirectURL includes return_to
         await stytch.magicLinks.email.discovery.send({
           email_address: email,
-          discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
+          discovery_redirect_url: buildDiscoveryRedirectURL(),
         });
         setMagicLinkSent(true);
       }
@@ -111,12 +115,8 @@ export default function AuthContent() {
 
     try {
       console.log('[Auth] Starting Google OAuth...');
-      // Save return_to in localStorage (Stytch strips query params from redirect URLs)
-      if (returnTo) {
-        localStorage.setItem('oauth_return_to', returnTo);
-      }
       await stytch.oauth.google.discovery.start({
-        discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
+        discovery_redirect_url: buildDiscoveryRedirectURL(),
       });
     } catch (err: any) {
       console.error('[Auth] Google OAuth error:', err);
