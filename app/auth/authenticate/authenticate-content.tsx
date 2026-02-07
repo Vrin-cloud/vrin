@@ -75,10 +75,11 @@ function AuthenticateContentInner() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // return_to is passed through Stytch's discoveryRedirectURL as a query param.
-  // Falls back to localStorage (set by OAuth authorize page) as a safety net.
-  const returnTo = searchParams.get('return_to')
-    || localStorage.getItem('oauth_return_to');
+  // return_to is stored in localStorage by the auth page (auth-content.tsx)
+  // before initiating the Stytch login flow. We can't pass it as a query param
+  // in the discovery redirect URL because Stytch validates query params strictly.
+  const returnTo = localStorage.getItem('oauth_return_to')
+    || searchParams.get('return_to');
 
   console.log('[Authenticate] return_to:', returnTo, {
     fromParams: searchParams.get('return_to'),

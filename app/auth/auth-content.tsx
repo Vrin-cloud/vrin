@@ -36,17 +36,20 @@ export default function AuthContent() {
     ? new URLSearchParams(window.location.search).get('return_to')
     : null;
 
-  // Build the discovery redirect URL, preserving return_to through Stytch's redirect chain.
-  // Stytch DOES preserve query params in discoveryRedirectURL (confirmed by Stytch's own demo).
-  const buildDiscoveryRedirectURL = (): string => {
-    if (typeof window === 'undefined') return '/auth/authenticate';
-    const params = new URLSearchParams();
+  // Persist return_to in localStorage so it survives the Stytch redirect chain.
+  // We can't put it in the redirect URL because Stytch validates query params
+  // against the exact URLs registered in the dashboard.
+  useEffect(() => {
     if (returnTo) {
-      params.set('return_to', returnTo);
+      localStorage.setItem('oauth_return_to', returnTo);
     }
-    const qs = params.toString();
-    return `${window.location.origin}/auth/authenticate${qs ? `?${qs}` : ''}`;
-  };
+  }, [returnTo]);
+
+  // Discovery redirect URL — must be a clean URL matching the Stytch dashboard exactly.
+  // No query params allowed (Stytch rejects unregistered query param patterns).
+  const discoveryRedirectURL = typeof window !== 'undefined'
+    ? `${window.location.origin}/auth/authenticate`
+    : '/auth/authenticate';
 
   // Redirect if already authenticated with VRIN credentials
   useEffect(() => {
@@ -88,10 +91,10 @@ export default function AuthContent() {
         });
         router.replace(returnTo || '/dashboard');
       } else {
-        // Send magic link — discoveryRedirectURL includes return_to
+        // Send magic link — return_to is persisted in localStorage above
         await stytch.magicLinks.email.discovery.send({
           email_address: email,
-          discovery_redirect_url: buildDiscoveryRedirectURL(),
+          discovery_redirect_url: discoveryRedirectURL,
         });
         setMagicLinkSent(true);
       }
@@ -116,7 +119,7 @@ export default function AuthContent() {
     try {
       console.log('[Auth] Starting Google OAuth...');
       await stytch.oauth.google.discovery.start({
-        discovery_redirect_url: buildDiscoveryRedirectURL(),
+        discovery_redirect_url: discoveryRedirectURL,
       });
     } catch (err: any) {
       console.error('[Auth] Google OAuth error:', err);
