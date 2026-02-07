@@ -17,10 +17,11 @@ function OAuthAuthorizeInner() {
     if (!isInitialized) return;
 
     if (!session) {
-      // No active session — redirect to login, preserving the full OAuth URL
+      // No active session — persist OAuth URL in localStorage (survives Stytch redirects)
+      // and redirect to login
       const currentUrl = window.location.href;
-      const returnTo = encodeURIComponent(currentUrl);
-      window.location.href = `/auth?return_to=${returnTo}`;
+      localStorage.setItem('oauth_return_to', currentUrl);
+      window.location.href = `/auth?return_to=${encodeURIComponent(currentUrl)}`;
     }
   }, [session, isInitialized]);
 

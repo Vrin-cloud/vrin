@@ -29,8 +29,9 @@ export default function AuthContent() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   // Check for return_to parameter (used by OAuth authorize flow)
+  // URL param is primary, localStorage is fallback (Stytch strips query params from redirect URLs)
   const returnTo = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('return_to')
+    ? new URLSearchParams(window.location.search).get('return_to') || localStorage.getItem('oauth_return_to')
     : null;
 
   // Redirect if already authenticated with VRIN credentials
@@ -43,11 +44,13 @@ export default function AuthContent() {
 
       if (vrinApiKey && vrinUser) {
         const destination = returnTo || '/dashboard';
+        localStorage.removeItem('oauth_return_to');
         console.log(`[Auth] Already authenticated, redirecting to ${destination}`);
         window.location.href = destination;
       } else if (returnTo) {
         // Has Stytch session but no VRIN credentials — for OAuth flow,
         // the session is enough, redirect back to authorize page
+        localStorage.removeItem('oauth_return_to');
         console.log('[Auth] Stytch session active, redirecting to OAuth authorize');
         window.location.href = returnTo;
       } else {

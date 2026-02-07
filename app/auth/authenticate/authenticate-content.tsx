@@ -74,8 +74,9 @@ function AuthenticateContentInner() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Check for return_to parameter (preserved from OAuth authorize flow)
-  const returnTo = searchParams.get('return_to');
+  // Check for return_to: localStorage is the reliable source (Stytch strips query params
+  // from redirect URLs), URL param is fallback
+  const returnTo = localStorage.getItem('oauth_return_to') || searchParams.get('return_to');
 
   // Prevent double authentication attempts (React strict mode / re-renders)
   const authAttemptedRef = useRef(false);
@@ -90,6 +91,7 @@ function AuthenticateContentInner() {
       if (vrinApiKey && vrinUser) {
         setStatus('success');
         const destination = returnTo || '/dashboard';
+        localStorage.removeItem('oauth_return_to');
         setTimeout(() => {
           window.location.href = destination;
         }, 1000);
@@ -206,6 +208,7 @@ function AuthenticateContentInner() {
           if (synced) {
             setStatus('success');
             const destination = returnTo || '/dashboard';
+            localStorage.removeItem('oauth_return_to');
             setTimeout(() => {
               window.location.href = destination;
             }, 1000);
