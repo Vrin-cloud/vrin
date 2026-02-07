@@ -74,6 +74,9 @@ function AuthenticateContentInner() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // Check for return_to parameter (preserved from OAuth authorize flow)
+  const returnTo = searchParams.get('return_to');
+
   // Prevent double authentication attempts (React strict mode / re-renders)
   const authAttemptedRef = useRef(false);
 
@@ -86,7 +89,10 @@ function AuthenticateContentInner() {
       const vrinUser = localStorage.getItem('vrin_user');
       if (vrinApiKey && vrinUser) {
         setStatus('success');
-        setTimeout(() => router.replace('/dashboard'), 1000);
+        const destination = returnTo || '/dashboard';
+        setTimeout(() => {
+          window.location.href = destination;
+        }, 1000);
         return;
       }
     }
@@ -199,7 +205,10 @@ function AuthenticateContentInner() {
           const synced = await syncAndStoreCredentials(member, organization, fullName);
           if (synced) {
             setStatus('success');
-            setTimeout(() => router.replace('/dashboard'), 1000);
+            const destination = returnTo || '/dashboard';
+            setTimeout(() => {
+              window.location.href = destination;
+            }, 1000);
             return;
           }
         }

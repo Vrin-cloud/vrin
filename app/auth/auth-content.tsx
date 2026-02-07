@@ -73,12 +73,17 @@ export default function AuthContent() {
           password: password,
           session_duration_minutes: 60,
         });
-        router.replace('/dashboard');
+        const destination = returnTo || '/dashboard';
+        window.location.href = destination;
       } else {
         // Send magic link
+        // Preserve return_to through the magic link redirect
+        const redirectUrl = returnTo
+          ? `${window.location.origin}/auth/authenticate?return_to=${encodeURIComponent(returnTo)}`
+          : `${window.location.origin}/auth/authenticate`;
         await stytch.magicLinks.email.discovery.send({
           email_address: email,
-          discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
+          discovery_redirect_url: redirectUrl,
         });
         setMagicLinkSent(true);
       }
@@ -102,8 +107,12 @@ export default function AuthContent() {
 
     try {
       console.log('[Auth] Starting Google OAuth...');
+      // Preserve return_to through the Google OAuth redirect
+      const redirectUrl = returnTo
+        ? `${window.location.origin}/auth/authenticate?return_to=${encodeURIComponent(returnTo)}`
+        : `${window.location.origin}/auth/authenticate`;
       await stytch.oauth.google.discovery.start({
-        discovery_redirect_url: `${window.location.origin}/auth/authenticate`,
+        discovery_redirect_url: redirectUrl,
       });
     } catch (err: any) {
       console.error('[Auth] Google OAuth error:', err);
