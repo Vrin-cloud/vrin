@@ -1,5 +1,6 @@
 'use client';
 
+import { useStytchB2BClient } from '@stytch/nextjs/b2b';
 import { B2BIdentityProvider } from '@stytch/nextjs/b2b';
 
 /**
@@ -12,6 +13,28 @@ import { B2BIdentityProvider } from '@stytch/nextjs/b2b';
  *   - Completing the OAuth flow and redirecting back to the client
  */
 export default function OAuthAuthorizeContent() {
+  // Check if Stytch client is available (requires NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN)
+  let stytchAvailable = false;
+  try {
+    const client = useStytchB2BClient();
+    stytchAvailable = !!client;
+  } catch {
+    stytchAvailable = false;
+  }
+
+  if (!stytchAvailable) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto p-6 text-center">
+          <h1 className="text-2xl font-bold text-gray-900">VRiN</h1>
+          <p className="text-sm text-red-500 mt-4">
+            Authentication service is not configured. Please contact support.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="w-full max-w-md mx-auto p-6">
