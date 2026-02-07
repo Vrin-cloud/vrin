@@ -287,7 +287,7 @@ export interface EnterpriseUser {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'developer' | 'viewer';
+  role: 'org_owner' | 'org_admin' | 'admin' | 'knowledge_publisher' | 'team_admin' | 'team_lead' | 'team_member' | 'team_guest' | 'developer' | 'viewer';
   permissions: string[];
   ssoEnabled: boolean;
   lastLogin?: Date;

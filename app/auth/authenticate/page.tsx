@@ -15,16 +15,16 @@ function LoadingState() {
   );
 }
 
-// Dynamically import the auth content with SSR disabled
+// Dynamically import the authenticate content with SSR disabled
 // This ensures Stytch hooks are only used client-side
-const AuthContent = dynamic(
-  () => import('./auth-content'),
+const AuthenticateContent = dynamic(
+  () => import('./authenticate-content'),
   {
     ssr: false,
     loading: () => <LoadingState />,
   }
 );
 
-export default function AuthPage() {
-  return <AuthContent />;
+export default function StytchAuthenticatePage() {
+  return <AuthenticateContent />;
 }

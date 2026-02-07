@@ -22,7 +22,8 @@ import {
   Menu,
   Command,
   MessageSquare,
-  Brain
+  Brain,
+  Loader2
 } from 'lucide-react';
 import { AuthService, VRINService } from '../../lib/services/vrin-service';
 import { ModernApiKeysSection } from '../../components/dashboard/sections/modern-api-keys';
@@ -245,24 +246,16 @@ export default function Dashboard() {
   }
 
   if (!user || !apiKey) {
+    // Redirect to auth page immediately instead of showing intermediate screen
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth';
+    }
+    // Show loading while redirecting
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Welcome to VRIN</h1>
-            <p className="text-gray-600 mt-2">Please log in to access your dashboard</p>
-          </div>
-          <div className="text-center">
-            <a
-              href="/auth"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200"
-            >
-              Go to Login <ArrowRight className="w-4 h-4 ml-2" />
-            </a>
-          </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">Redirecting to login...</p>
         </div>
       </div>
     );

@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useSession, signOut } from 'next-auth/react'
 import {
-  Send,
+  ArrowUp,
   Plus,
   Brain,
   User,
@@ -27,8 +27,7 @@ import {
   X,
   Zap,
   Check,
-  Globe,
-  Lightbulb
+  Globe
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -53,8 +52,9 @@ import { LoadingAnimation } from '@/components/chat/loading-animation'
 import { formatRelativeTime } from '@/lib/utils/time'
 import { chatAPI } from '@/lib/services/chat-api'
 import toast from 'react-hot-toast'
-import type { ChatMessage as BackendChatMessage, ResponseMode, SourceDocument, FileAttachment } from '@/types/chat'
+import type { ChatMessage as BackendChatMessage, ResponseMode, QueryDepth, SourceDocument, FileAttachment } from '@/types/chat'
 import { FileAttachmentCard, FileAttachmentCardLight } from '@/components/chat/file-attachment-card'
+import { getModelDisplayName, getModelInfo, MODEL_METADATA, PROVIDERS } from '@/components/chat/model-selector'
 import vrinIcon from '@/app/icon.svg'
 
 interface LocalChatSession {
@@ -141,7 +141,9 @@ export default function ChatPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [inputMessage, setInputMessage] = useState('')
   const [responseMode, setResponseMode] = useState<ResponseMode>('chat')
+  const [queryDepth, setQueryDepth] = useState<QueryDepth | null>(null)  // null = default VRIN, 'thinking' or 'research' = upgraded modes
   const [webSearchEnabled, setWebSearchEnabled] = useState(false)
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false)  // "+" button popover
   const [showUploadZone, setShowUploadZone] = useState(false)
   const [showResponseModeMenu, setShowResponseModeMenu] = useState(false)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
@@ -155,6 +157,16 @@ export default function ChatPage() {
   const [pendingAttachments, setPendingAttachments] = useState<FileAttachment[]>([])
   // Track all upload IDs for this conversation (for temporary doc isolation)
   const [conversationUploadIds, setConversationUploadIds] = useState<string[]>([])
+  // Model selection and user plan limits
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-5.2')
+  const [userPlan, setUserPlan] = useState<string>('free')
+  const [allowedModels, setAllowedModels] = useState<string[]>(['gpt-5.2', 'claude-4-haiku', 'gemini-3-flash', 'grok-3'])
+  const [userFeatures, setUserFeatures] = useState<{ brainstorm_mode: boolean; web_search: boolean }>({
+    brainstorm_mode: false,
+    web_search: true,  // Web search is available to all users
+  })
+  const [showModelSelector, setShowModelSelector] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // NextAuth session for Google OAuth
   const { data: nextAuthSession, status: sessionStatus } = useSession()
@@ -302,6 +314,47 @@ export default function ChatPage() {
     }
   }, [apiKey, fetchConversations])
 
+  // Fetch user limits and allowed models when API key is available
+  useEffect(() => {
+    if (!apiKey) return
+
+    const fetchUserLimits = async () => {
+      try {
+        const response = await fetch('/api/user/limits', {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setUserPlan(data.plan || 'free')
+            setAllowedModels(data.allowed_models || ['gpt-5.2', 'claude-4-haiku', 'gemini-3-flash', 'grok-3'])
+            // Set user features (brainstorm, web search availability)
+            if (data.features) {
+              setUserFeatures({
+                brainstorm_mode: data.features.brainstorm_mode || false,
+                web_search: data.features.web_search || false,
+              })
+            }
+            // Ensure selected model is allowed, otherwise reset to default
+            if (!data.allowed_models?.includes(selectedModel)) {
+              setSelectedModel(data.allowed_models?.[0] || 'gpt-5.2')
+            }
+            console.log('User limits loaded:', { plan: data.plan, allowedModels: data.allowed_models, features: data.features })
+          }
+        } else {
+          console.warn('Failed to fetch user limits, using defaults')
+        }
+      } catch (error) {
+        console.error('Error fetching user limits:', error)
+      }
+    }
+
+    fetchUserLimits()
+  }, [apiKey])
+
   // Auto-scroll only when messages change or streaming starts (not on every chunk)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -324,6 +377,40 @@ export default function ChatPage() {
     }
   }, [showResponseModeMenu])
 
+  // Close model selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showModelSelector) {
+        setShowModelSelector(false)
+      }
+    }
+
+    if (showModelSelector) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showModelSelector])
+
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showOptionsMenu) {
+        setShowOptionsMenu(false)
+      }
+    }
+
+    if (showOptionsMenu) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showOptionsMenu])
+
   const handleLogout = async () => {
     if (session) {
       endSession()
@@ -337,11 +424,22 @@ export default function ChatPage() {
     window.location.href = '/auth'
   }
 
+  // Check if any attachment is still processing (uploading or processing)
+  const hasProcessingAttachments = pendingAttachments.some(a => a.status === 'uploading' || a.status === 'processing')
+  const hasErrorAttachments = pendingAttachments.some(a => a.status === 'error')
+  const allAttachmentsReady = pendingAttachments.length === 0 || pendingAttachments.every(a => a.status === 'ready')
+
   const handleSendMessage = async () => {
-    // Allow sending if there's text OR attachments
-    const hasContent = inputMessage.trim() || pendingAttachments.length > 0
-    if (!hasContent || isLoading) {
-      console.log('Send message blocked:', { hasMessage: !!inputMessage.trim(), hasAttachments: pendingAttachments.length > 0, isLoading })
+    // Allow sending if there's text OR attachments (that are ready)
+    const hasContent = inputMessage.trim() || (pendingAttachments.length > 0 && allAttachmentsReady)
+    if (!hasContent || isLoading || hasProcessingAttachments) {
+      console.log('Send message blocked:', {
+        hasMessage: !!inputMessage.trim(),
+        hasAttachments: pendingAttachments.length > 0,
+        allAttachmentsReady,
+        hasProcessingAttachments,
+        isLoading
+      })
       return
     }
 
@@ -363,7 +461,7 @@ export default function ChatPage() {
     }
 
     try {
-      await sendMessage(message || '(Uploaded file)', responseMode, enableStreaming, webSearchEnabled, attachmentsToSend, conversationUploadIds)
+      await sendMessage(message || '(Uploaded file)', responseMode, enableStreaming, webSearchEnabled, attachmentsToSend, conversationUploadIds, selectedModel, queryDepth)
       console.log('Message sent successfully')
 
       // Refresh conversation list after first message in new conversation
@@ -446,6 +544,74 @@ export default function ChatPage() {
     }
   }
 
+  // Helper to update attachment status
+  const updateAttachmentStatus = (attachmentId: string, status: FileAttachment['status'], errorMessage?: string) => {
+    setPendingAttachments(prev => prev.map(a =>
+      a.id === attachmentId ? { ...a, status, error_message: errorMessage } : a
+    ))
+  }
+
+  // Poll for document processing completion with adaptive intervals
+  const pollForProcessingComplete = async (uploadId: string, attachmentId: string) => {
+    let attempts = 0
+    let consecutiveErrors = 0
+
+    const poll = async (): Promise<boolean> => {
+      try {
+        const status = await chatAPI.getUploadStatus(uploadId, apiKey)
+        consecutiveErrors = 0  // Reset error counter on success
+        console.log(`📊 Processing status for ${uploadId}:`, status.status, `(attempt ${attempts + 1})`)
+
+        if (status.status === 'completed') {
+          updateAttachmentStatus(attachmentId, 'ready')
+          toast.success(`${status.filename} is ready`)
+          return true
+        } else if (status.status === 'failed') {
+          updateAttachmentStatus(attachmentId, 'error', status.error_message || 'Processing failed')
+          toast.error(`Failed to process file: ${status.error_message || 'Unknown error'}`)
+          return true
+        }
+
+        // Still processing - check for timeout
+        attempts++
+
+        // Adaptive timeout: 2 minutes for chat-only docs, 5 minutes for memory docs
+        // Chat-only should use fast path and complete in seconds
+        const maxAttempts = 24  // ~2 minutes with adaptive intervals
+
+        if (attempts >= maxAttempts) {
+          updateAttachmentStatus(attachmentId, 'error', 'Processing taking too long - please try again')
+          toast.error('File processing timed out. The file may be too large or complex.')
+          return true
+        }
+
+        // Adaptive polling: fast at first (2s), then slow down (5s after 5 attempts, 10s after 10)
+        let delay = 2000  // First 5 attempts: 2 seconds
+        if (attempts > 10) {
+          delay = 10000  // After 10 attempts: 10 seconds
+        } else if (attempts > 5) {
+          delay = 5000  // After 5 attempts: 5 seconds
+        }
+
+        await new Promise(resolve => setTimeout(resolve, delay))
+        return poll()
+      } catch (error) {
+        console.error('❌ Error polling status:', error)
+        consecutiveErrors++
+
+        // Fail after 3 consecutive network errors
+        if (consecutiveErrors >= 3) {
+          updateAttachmentStatus(attachmentId, 'error', 'Connection error - please check your network')
+          return true
+        }
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        return poll()
+      }
+    }
+
+    poll()
+  }
+
   const handleFileUpload = async (file: File, saveToMemory: boolean = true) => {
     console.log('🔄 handleFileUpload called with file:', file.name)
     console.log('  - Size:', (file.size / 1024).toFixed(2), 'KB')
@@ -459,32 +625,49 @@ export default function ChatPage() {
       return
     }
 
+    // Create attachment with 'uploading' status immediately
+    const tempId = `attachment-${Date.now()}`
+    const attachment: FileAttachment = {
+      id: tempId,
+      filename: file.name,
+      file_type: file.type,
+      file_size: file.size,
+      status: 'uploading'
+    }
+    setPendingAttachments(prev => [...prev, attachment])
+    setShowUploadZone(false)
+
     try {
       console.log('📤 Calling uploadFile...')
       const result = await uploadFile(file, saveToMemory)
       console.log('✅ Upload initiated successfully:', result)
 
-      // Add to pending attachments for display in input area
-      const attachment: FileAttachment = {
-        id: result?.upload_id || `attachment-${Date.now()}`,
-        filename: file.name,
-        file_type: file.type,
-        file_size: file.size,
-        upload_id: result?.upload_id
-      }
-      setPendingAttachments(prev => [...prev, attachment])
+      // Update attachment with upload_id and set to 'processing'
+      const uploadId = result?.upload_id
+      setPendingAttachments(prev => prev.map(a =>
+        a.id === tempId ? {
+          ...a,
+          id: uploadId || tempId,
+          upload_id: uploadId,
+          status: 'processing' as const
+        } : a
+      ))
 
       // Track upload_id for conversation-level isolation of temporary docs
-      if (result?.upload_id) {
-        setConversationUploadIds(prev => [...prev, result.upload_id])
-        console.log('📎 Added upload_id to conversation:', result.upload_id)
-      }
+      if (uploadId) {
+        setConversationUploadIds(prev => [...prev, uploadId])
+        console.log('📎 Added upload_id to conversation:', uploadId)
 
-      // Close the upload zone after successful upload
-      setShowUploadZone(false)
+        // Start polling for processing completion
+        pollForProcessingComplete(uploadId, uploadId || tempId)
+      } else {
+        // No upload_id means instant ready (shouldn't happen but handle gracefully)
+        updateAttachmentStatus(tempId, 'ready')
+      }
     } catch (error) {
       console.error('❌ File upload failed:', error)
-      alert(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      updateAttachmentStatus(tempId, 'error', error instanceof Error ? error.message : 'Upload failed')
+      toast.error(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -958,7 +1141,7 @@ export default function ChatPage() {
                   className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <Brain className="w-4 h-4 text-purple-500" />
                     <div>
                       <div className="font-medium text-sm">Brainstorm</div>
                       <div className="text-xs text-gray-500">Creative ideation mode</div>
@@ -996,40 +1179,356 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto bg-white pb-32">
+        {/* Main Content Area */}
+        <LayoutGroup>
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           {messages.length === 0 && !isLoading ? (
-            <div className="h-full flex items-center justify-center p-4">
-              <div className="text-center max-w-2xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  What would you like to know?
-                </h2>
-                <p className="text-gray-600 mb-8">
-                  Ask questions about your knowledge base. I can help you search, analyze, and extract insights from the information you&apos;ve stored in VRIN.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                  {[
-                    'Summarize my recent documents',
-                    'Find connections between concepts',
-                    'What are the key insights?',
-                    'Search for specific information'
-                  ].map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setInputMessage(suggestion)}
-                      className="p-4 bg-gray-50 hover:bg-gray-100 rounded-xl text-left transition-all"
-                    >
-                      <p className="text-sm text-gray-700">{suggestion}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            /* ========== CENTERED WELCOME VIEW ========== */
+            <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-16">
+              {/* Tagline */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4 mb-8"
+              >
+                <Image
+                  src={vrinIcon}
+                  alt="VRIN"
+                  width={40}
+                  height={40}
+                  unoptimized
+                />
+                <span
+                  className="text-2xl md:text-3xl text-gray-800 tracking-tight"
+                  style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 500 }}
+                >
+                  Reason through your knowledge
+                </span>
+              </motion.div>
+
+              {/* Centered Input Form */}
+              <motion.div
+                layout
+                layoutId="chat-input"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="w-full max-w-2xl"
+              >
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    handleSendMessage()
+                  }}
+                  className="relative bg-white rounded-2xl border border-gray-300 shadow-lg focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all"
+                >
+                  {/* Pending Attachments Preview */}
+                  {pendingAttachments.length > 0 && (
+                    <div className="px-4 pt-3 pb-1 flex flex-wrap gap-2 border-b border-gray-200">
+                      {pendingAttachments.map((attachment) => (
+                        <FileAttachmentCard
+                          key={attachment.id}
+                          attachment={attachment}
+                          onRemove={() => handleRemoveAttachment(attachment.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Text Input Area */}
+                  <textarea
+                    ref={textareaRef}
+                    value={inputMessage}
+                    onChange={(e) => {
+                      setInputMessage(e.target.value)
+                      adjustTextareaHeight()
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage()
+                        if (textareaRef.current) {
+                          textareaRef.current.style.height = '48px'
+                        }
+                      }
+                    }}
+                    placeholder="Ask anything about your knowledge..."
+                    rows={1}
+                    className="w-full bg-transparent text-gray-900 placeholder-gray-400 px-5 pt-5 pb-2 resize-none outline-none overflow-y-auto text-base"
+                    style={{
+                      minHeight: '52px',
+                      maxHeight: '160px',
+                    }}
+                    disabled={isLoading}
+                    autoFocus
+                  />
+
+                  {/* Bottom Action Bar */}
+                  <div className="flex items-center justify-between px-3 pb-3">
+                    {/* Left Side - Options Menu */}
+                    <div className="flex items-center gap-2">
+                      {/* Options "+" Button */}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowOptionsMenu(!showOptionsMenu)
+                          }}
+                          disabled={isLoading || isStreaming}
+                          className={`
+                            flex items-center justify-center w-8 h-8 rounded-lg transition-all
+                            ${(webSearchEnabled || responseMode === 'brainstorm' || queryDepth)
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'text-gray-500 hover:bg-gray-100'
+                            }
+                          `}
+                          title="Query options"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </button>
+
+                        {/* Options Popover */}
+                        {showOptionsMenu && (
+                          <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                            <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Query Depth
+                            </div>
+
+                            {/* Thinking Mode */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setQueryDepth(queryDepth === 'thinking' ? null : 'thinking')
+                              }}
+                              className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                queryDepth === 'thinking' ? 'bg-blue-50' : ''
+                              }`}
+                            >
+                              <Sparkles className={`w-5 h-5 ${queryDepth === 'thinking' ? 'text-blue-600' : 'text-gray-400'}`} />
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm ${queryDepth === 'thinking' ? 'text-blue-700' : 'text-gray-700'}`}>
+                                  Thinking
+                                </div>
+                                <div className="text-xs text-gray-500">Cross-document analysis</div>
+                              </div>
+                              {queryDepth === 'thinking' && <Check className="w-4 h-4 text-blue-600" />}
+                            </button>
+
+                            {/* Research Mode */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setQueryDepth(queryDepth === 'research' ? null : 'research')
+                              }}
+                              className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                queryDepth === 'research' ? 'bg-purple-50' : ''
+                              }`}
+                            >
+                              <Search className={`w-5 h-5 ${queryDepth === 'research' ? 'text-purple-600' : 'text-gray-400'}`} />
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm ${queryDepth === 'research' ? 'text-purple-700' : 'text-gray-700'}`}>
+                                  Research
+                                </div>
+                                <div className="text-xs text-gray-500">Deep exhaustive analysis</div>
+                              </div>
+                              {queryDepth === 'research' && <Check className="w-4 h-4 text-purple-600" />}
+                            </button>
+
+                            <div className="my-2 border-t border-gray-100" />
+                            <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Enhancements
+                            </div>
+
+                            {/* Web Search Toggle */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setWebSearchEnabled(!webSearchEnabled)
+                              }}
+                              className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                webSearchEnabled ? 'bg-blue-50' : ''
+                              }`}
+                            >
+                              <Globe className={`w-5 h-5 ${webSearchEnabled ? 'text-blue-600' : 'text-gray-400'}`} />
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm ${webSearchEnabled ? 'text-blue-700' : 'text-gray-700'}`}>
+                                  Web Search
+                                </div>
+                                <div className="text-xs text-gray-500">Search the internet</div>
+                              </div>
+                              {webSearchEnabled && <Check className="w-4 h-4 text-blue-600" />}
+                            </button>
+
+                            {/* Brainstorm Mode Toggle */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (userFeatures.brainstorm_mode) {
+                                  setResponseMode(responseMode === 'brainstorm' ? 'chat' : 'brainstorm')
+                                } else {
+                                  setShowUpgradeModal(true)
+                                  setShowOptionsMenu(false)
+                                }
+                              }}
+                              className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                responseMode === 'brainstorm' ? 'bg-purple-50' : ''
+                              }`}
+                            >
+                              <Brain className={`w-5 h-5 ${responseMode === 'brainstorm' ? 'text-purple-600' : 'text-gray-400'}`} />
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm ${responseMode === 'brainstorm' ? 'text-purple-700' : 'text-gray-700'}`}>
+                                  Brainstorm
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {userFeatures.brainstorm_mode ? 'Creative ideation mode' : 'Upgrade to Pro'}
+                                </div>
+                              </div>
+                              {responseMode === 'brainstorm' && <Check className="w-4 h-4 text-purple-600" />}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Active Mode Indicators */}
+                      {queryDepth === 'thinking' && (
+                        <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                          <Sparkles className="w-3 h-3" /> Thinking
+                        </span>
+                      )}
+                      {queryDepth === 'research' && (
+                        <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                          <Search className="w-3 h-3" /> Research
+                        </span>
+                      )}
+                      {webSearchEnabled && (
+                        <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                          <Globe className="w-3 h-3" /> Search
+                        </span>
+                      )}
+                      {responseMode === 'brainstorm' && (
+                        <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                          <Brain className="w-3 h-3" /> Brainstorm
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Right Side - Model, Attach, Send */}
+                    <div className="flex items-center gap-1">
+                      {/* Model Selector */}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowModelSelector(!showModelSelector)
+                          }}
+                          disabled={isLoading || isStreaming}
+                          className={`
+                            flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm
+                            ${showModelSelector
+                              ? 'bg-gray-200 text-gray-800'
+                              : 'text-gray-500 hover:bg-gray-100'
+                            }
+                          `}
+                          title="Select model"
+                        >
+                          <Zap className="w-4 h-4" />
+                          <span className="hidden sm:inline max-w-[100px] truncate">{getModelDisplayName(selectedModel)}</span>
+                          <ChevronDown className={`w-3 h-3 transition-transform ${showModelSelector ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Model Selector Popup */}
+                        {showModelSelector && (
+                          <div className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-80 overflow-y-auto">
+                            {userPlan === 'free' && (
+                              <div className="px-4 py-2 border-b border-gray-100">
+                                <a href="/pricing" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                  Upgrade for best models
+                                </a>
+                              </div>
+                            )}
+                            <div className="py-1">
+                              {MODEL_METADATA.map((model) => {
+                                const isAllowed = allowedModels.includes(model.id)
+                                const isSelected = selectedModel === model.id
+                                const providerInfo = PROVIDERS[model.provider]
+                                return (
+                                  <button
+                                    key={model.id}
+                                    type="button"
+                                    onClick={() => {
+                                      if (isAllowed) {
+                                        setSelectedModel(model.id)
+                                        setShowModelSelector(false)
+                                      }
+                                    }}
+                                    disabled={!isAllowed}
+                                    className={`
+                                      w-full px-4 py-2.5 text-left flex items-center justify-between
+                                      ${isAllowed ? 'hover:bg-gray-50 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                                      ${isSelected ? 'bg-blue-50' : ''}
+                                    `}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: providerInfo?.color || '#888' }} />
+                                      <span className={`text-sm ${isSelected ? 'font-medium text-blue-700' : 'text-gray-700'}`}>
+                                        {model.displayName}
+                                      </span>
+                                      {model.tierRequired === 'pro' && !isAllowed && (
+                                        <span className="text-[10px] font-medium text-white bg-blue-500 px-1.5 py-0.5 rounded">PRO</span>
+                                      )}
+                                    </div>
+                                    {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* File Attachment Button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowUploadZone(true)}
+                        disabled={isLoading || isStreaming}
+                        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all"
+                        title="Upload files"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                      </button>
+
+                      {/* Send Button */}
+                      <button
+                        type="submit"
+                        disabled={(!inputMessage.trim() && !allAttachmentsReady) || isLoading || hasProcessingAttachments}
+                        className={`
+                          w-8 h-8 rounded-full flex items-center justify-center transition-all
+                          ${(inputMessage.trim() || allAttachmentsReady) && !isLoading && !hasProcessingAttachments
+                            ? 'bg-gray-900 hover:bg-black text-white'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }
+                        `}
+                        title={hasProcessingAttachments ? "Wait for file processing to complete" : "Send message"}
+                      >
+                        <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </motion.div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+            /* ========== CONVERSATION VIEW ========== */
+            <>
+              {/* Scrollable Messages Area */}
+              <div className="flex-1 overflow-y-auto pb-4">
+                <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
@@ -1173,110 +1672,343 @@ export default function ChatPage() {
                 </motion.div>
               )}
 
-              <div ref={messagesEndRef} />
-            </div>
+                  <div ref={messagesEndRef} />
+                </div>
+              </div>
+
+              {/* Bottom Input Area for Conversation View */}
+              <motion.div
+                layout
+                layoutId="chat-input"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="bg-white px-6 pb-4 pt-3"
+              >
+                <div className="max-w-3xl mx-auto">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      handleSendMessage()
+                    }}
+                    className="relative bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition-all"
+                  >
+                    {/* Pending Attachments Preview */}
+                    {pendingAttachments.length > 0 && (
+                      <div className="px-4 pt-3 pb-1 flex flex-wrap gap-2 border-b border-gray-200">
+                        {pendingAttachments.map((attachment) => (
+                          <FileAttachmentCard
+                            key={attachment.id}
+                            attachment={attachment}
+                            onRemove={() => handleRemoveAttachment(attachment.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Text Input Area */}
+                    <textarea
+                      ref={textareaRef}
+                      value={inputMessage}
+                      onChange={(e) => {
+                        setInputMessage(e.target.value)
+                        adjustTextareaHeight()
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSendMessage()
+                          if (textareaRef.current) {
+                            textareaRef.current.style.height = '48px'
+                          }
+                        }
+                      }}
+                      placeholder="Ask a follow-up..."
+                      rows={1}
+                      className="w-full bg-transparent text-gray-900 placeholder-gray-400 px-4 pt-4 pb-2 resize-none outline-none overflow-y-auto"
+                      style={{
+                        minHeight: '48px',
+                        maxHeight: '160px',
+                      }}
+                      disabled={isLoading}
+                    />
+
+                    {/* Bottom Action Bar */}
+                    <div className="flex items-center justify-between px-3 pb-3">
+                      {/* Left Side - Options Menu */}
+                      <div className="flex items-center gap-2">
+                        {/* Options "+" Button */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowOptionsMenu(!showOptionsMenu)
+                            }}
+                            disabled={isLoading || isStreaming}
+                            className={`
+                              flex items-center justify-center w-8 h-8 rounded-lg transition-all
+                              ${(webSearchEnabled || responseMode === 'brainstorm' || queryDepth)
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-gray-500 hover:bg-gray-100'
+                              }
+                            `}
+                            title="Query options"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+
+                          {/* Options Popover */}
+                          {showOptionsMenu && (
+                            <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                              <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Query Depth
+                              </div>
+
+                              {/* Thinking Mode */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setQueryDepth(queryDepth === 'thinking' ? null : 'thinking')
+                                }}
+                                className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                  queryDepth === 'thinking' ? 'bg-blue-50' : ''
+                                }`}
+                              >
+                                <Sparkles className={`w-5 h-5 ${queryDepth === 'thinking' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                <div className="flex-1">
+                                  <div className={`font-medium text-sm ${queryDepth === 'thinking' ? 'text-blue-700' : 'text-gray-700'}`}>
+                                    Thinking
+                                  </div>
+                                  <div className="text-xs text-gray-500">Cross-document analysis</div>
+                                </div>
+                                {queryDepth === 'thinking' && <Check className="w-4 h-4 text-blue-600" />}
+                              </button>
+
+                              {/* Research Mode */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setQueryDepth(queryDepth === 'research' ? null : 'research')
+                                }}
+                                className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                  queryDepth === 'research' ? 'bg-purple-50' : ''
+                                }`}
+                              >
+                                <Search className={`w-5 h-5 ${queryDepth === 'research' ? 'text-purple-600' : 'text-gray-400'}`} />
+                                <div className="flex-1">
+                                  <div className={`font-medium text-sm ${queryDepth === 'research' ? 'text-purple-700' : 'text-gray-700'}`}>
+                                    Research
+                                  </div>
+                                  <div className="text-xs text-gray-500">Deep exhaustive analysis</div>
+                                </div>
+                                {queryDepth === 'research' && <Check className="w-4 h-4 text-purple-600" />}
+                              </button>
+
+                              <div className="my-2 border-t border-gray-100" />
+                              <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Enhancements
+                              </div>
+
+                              {/* Web Search Toggle */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setWebSearchEnabled(!webSearchEnabled)
+                                }}
+                                className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                  webSearchEnabled ? 'bg-blue-50' : ''
+                                }`}
+                              >
+                                <Globe className={`w-5 h-5 ${webSearchEnabled ? 'text-blue-600' : 'text-gray-400'}`} />
+                                <div className="flex-1">
+                                  <div className={`font-medium text-sm ${webSearchEnabled ? 'text-blue-700' : 'text-gray-700'}`}>
+                                    Web Search
+                                  </div>
+                                  <div className="text-xs text-gray-500">Search the internet</div>
+                                </div>
+                                {webSearchEnabled && <Check className="w-4 h-4 text-blue-600" />}
+                              </button>
+
+                              {/* Brainstorm Mode Toggle */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (userFeatures.brainstorm_mode) {
+                                    setResponseMode(responseMode === 'brainstorm' ? 'chat' : 'brainstorm')
+                                  } else {
+                                    setShowUpgradeModal(true)
+                                    setShowOptionsMenu(false)
+                                  }
+                                }}
+                                className={`w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-gray-50 ${
+                                  responseMode === 'brainstorm' ? 'bg-purple-50' : ''
+                                }`}
+                              >
+                                <Brain className={`w-5 h-5 ${responseMode === 'brainstorm' ? 'text-purple-600' : 'text-gray-400'}`} />
+                                <div className="flex-1">
+                                  <div className={`font-medium text-sm ${responseMode === 'brainstorm' ? 'text-purple-700' : 'text-gray-700'}`}>
+                                    Brainstorm
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {userFeatures.brainstorm_mode ? 'Creative ideation mode' : 'Upgrade to Pro'}
+                                  </div>
+                                </div>
+                                {responseMode === 'brainstorm' && <Check className="w-4 h-4 text-purple-600" />}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Active Mode Indicators */}
+                        {queryDepth === 'thinking' && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                            <Sparkles className="w-3 h-3" /> Thinking
+                          </span>
+                        )}
+                        {queryDepth === 'research' && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                            <Search className="w-3 h-3" /> Research
+                          </span>
+                        )}
+                        {webSearchEnabled && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                            <Globe className="w-3 h-3" /> Search
+                          </span>
+                        )}
+                        {responseMode === 'brainstorm' && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                            <Brain className="w-3 h-3" /> Brainstorm
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right Side - Model, Attach, Send */}
+                      <div className="flex items-center gap-1">
+                        {/* Model Selector */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowModelSelector(!showModelSelector)
+                            }}
+                            disabled={isLoading || isStreaming}
+                            className={`
+                              flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm
+                              ${showModelSelector
+                                ? 'bg-gray-200 text-gray-800'
+                                : 'text-gray-500 hover:bg-gray-100'
+                              }
+                            `}
+                            title="Select model"
+                          >
+                            <Zap className="w-4 h-4" />
+                            <span className="hidden sm:inline max-w-[100px] truncate">{getModelDisplayName(selectedModel)}</span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showModelSelector ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {/* Model Selector Popup */}
+                          {showModelSelector && (
+                            <div className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-80 overflow-y-auto">
+                              {userPlan === 'free' && (
+                                <div className="px-4 py-2 border-b border-gray-100">
+                                  <a href="/pricing" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                    Upgrade for best models
+                                  </a>
+                                </div>
+                              )}
+                              <div className="py-1">
+                                {MODEL_METADATA.map((model) => {
+                                  const isAllowed = allowedModels.includes(model.id)
+                                  const isSelected = selectedModel === model.id
+                                  const providerInfo = PROVIDERS[model.provider]
+                                  return (
+                                    <button
+                                      key={model.id}
+                                      type="button"
+                                      onClick={() => {
+                                        if (isAllowed) {
+                                          setSelectedModel(model.id)
+                                          setShowModelSelector(false)
+                                        }
+                                      }}
+                                      disabled={!isAllowed}
+                                      className={`
+                                        w-full px-4 py-2.5 text-left flex items-center justify-between
+                                        ${isAllowed ? 'hover:bg-gray-50 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                                        ${isSelected ? 'bg-blue-50' : ''}
+                                      `}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: providerInfo?.color || '#888' }} />
+                                        <span className={`text-sm ${isSelected ? 'font-medium text-blue-700' : 'text-gray-700'}`}>
+                                          {model.displayName}
+                                        </span>
+                                        {model.tierRequired === 'pro' && !isAllowed && (
+                                          <span className="text-[10px] font-medium text-white bg-blue-500 px-1.5 py-0.5 rounded">PRO</span>
+                                        )}
+                                      </div>
+                                      {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* File Attachment Button */}
+                        <button
+                          type="button"
+                          onClick={() => setShowUploadZone(true)}
+                          disabled={isLoading || isStreaming}
+                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all"
+                          title="Upload files"
+                        >
+                          <Paperclip className="w-4 h-4" />
+                        </button>
+
+                        {/* Send Button */}
+                        <button
+                          type="submit"
+                          onClick={(e) => {
+                            if (isStreaming) {
+                              e.preventDefault()
+                              cancelStreaming()
+                            }
+                          }}
+                          disabled={!isStreaming && ((!inputMessage.trim() && !allAttachmentsReady) || isLoading || hasProcessingAttachments)}
+                          className={`
+                            w-8 h-8 rounded-full flex items-center justify-center transition-all
+                            ${isStreaming
+                              ? 'bg-red-500 hover:bg-red-600 text-white'
+                              : (inputMessage.trim() || allAttachmentsReady) && !isLoading && !hasProcessingAttachments
+                              ? 'bg-gray-900 hover:bg-black text-white'
+                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }
+                          `}
+                          title={isStreaming ? 'Cancel streaming' : hasProcessingAttachments ? 'Wait for file processing to complete' : 'Send message'}
+                        >
+                          {isStreaming ? (
+                            <StopCircle className="w-4 h-4" />
+                          ) : isLoading ? (
+                            <StopCircle className="w-4 h-4 opacity-50" />
+                          ) : (
+                            <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </motion.div>
+            </>
           )}
         </div>
-
-        {/* Input Area */}
-        {/* <div className="sticky bottom-0 left-0 right-0 pointer-events-none"> */}
-          <div className="bg-gradient-to-t from-white via-white to-transparent pb-4 px-6">
-            <div className="max-w-3xl mx-auto pointer-events-auto">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                console.log('Form submitted - calling handleSendMessage')
-                handleSendMessage()
-              }}
-              className="relative bg-white/70 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 focus-within:shadow-xl focus-within:border-blue-400/50 transition-all"
-            >
-              {/* Pending Attachments Preview */}
-              {pendingAttachments.length > 0 && (
-                <div className="px-4 pt-4 pb-2 flex flex-wrap gap-2">
-                  {pendingAttachments.map((attachment) => (
-                    <FileAttachmentCard
-                      key={attachment.id}
-                      attachment={attachment}
-                      onRemove={() => handleRemoveAttachment(attachment.id)}
-                    />
-                  ))}
-                </div>
-              )}
-              <textarea
-                ref={textareaRef}
-                value={inputMessage}
-                onChange={(e) => {
-                  setInputMessage(e.target.value)
-                  adjustTextareaHeight()
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    console.log('Enter pressed - calling handleSendMessage')
-                    handleSendMessage()
-                    // Reset textarea height after sending
-                    if (textareaRef.current) {
-                      textareaRef.current.style.height = '56px'
-                    }
-                  }
-                }}
-                placeholder="Ask VRIN anything about your knowledge..."
-                rows={1}
-                className="w-full bg-transparent text-gray-900 placeholder-gray-400 px-5 py-4 pr-32 resize-none outline-none overflow-y-auto"
-                style={{
-                  minHeight: '56px',
-                  maxHeight: '200px',
-                }}
-                disabled={isLoading}
-              />
-              <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log('📎 Paperclip clicked - opening upload zone')
-                    setShowUploadZone(true)
-                  }}
-                  className="p-2 hover:bg-white/50 backdrop-blur-sm rounded-lg transition-all text-gray-600 hover:text-gray-800"
-                  title="Upload files"
-                >
-                  <Paperclip className="w-5 h-5" />
-                </button>
-                <button
-                  type="submit"
-                  onClick={(e) => {
-                    if (isStreaming) {
-                      e.preventDefault()
-                      cancelStreaming()
-                    }
-                  }}
-                  disabled={!isStreaming && ((!inputMessage.trim() && pendingAttachments.length === 0) || isLoading)}
-                  className={`
-                    p-2 rounded-lg transition-all backdrop-blur-sm
-                    ${isStreaming
-                      ? 'bg-red-500/90 hover:bg-red-600/90 text-white shadow-lg'
-                      : (inputMessage.trim() || pendingAttachments.length > 0) && !isLoading
-                      ? 'bg-blue-500/90 hover:bg-blue-600/90 text-white shadow-lg'
-                      : 'bg-gray-300/50 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
-                  title={isStreaming ? 'Cancel streaming' : 'Send message'}
-                >
-                  {isStreaming ? (
-                    <StopCircle className="w-5 h-5" />
-                  ) : isLoading ? (
-                    <StopCircle className="w-5 h-5 opacity-50" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </form>
-            <p className="text-xs text-gray-500 text-center mt-3">
-              VRIN can make mistakes. Verify important information from your knowledge base.
-            </p>
-            </div>
-          </div>
-        {/* </div> */}
+        </LayoutGroup>
       </div>
 
       {/* File Upload Zone */}
@@ -1306,6 +2038,101 @@ export default function ChatPage() {
         sources={currentSources}
         metadata={currentMetadata}
       />
+
+      {/* Upgrade Modal - Perplexity Style */}
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowUpgradeModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-[#1a1a1a] rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Popular Badge */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Pro</h2>
+                <span className="px-3 py-1 bg-teal-500/20 text-teal-400 text-sm font-medium rounded-full border border-teal-500/30">
+                  Popular
+                </span>
+              </div>
+
+              {/* Price */}
+              <div className="mb-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-white">$19</span>
+                  <span className="text-gray-400">/ month</span>
+                </div>
+                <p className="text-gray-400 mt-2">
+                  Unlock advanced reasoning and premium models
+                </p>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => {
+                  // TODO: Integrate with Stripe checkout
+                  window.location.href = '/auth?plan=pro'
+                }}
+                className="w-full py-3 px-4 bg-teal-500 hover:bg-teal-400 text-gray-900 font-semibold rounded-xl transition-all mb-6"
+              >
+                Get Pro
+              </button>
+
+              {/* Features List */}
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">1,000 queries per month</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">Access to all AI models including GPT-5.2 Turbo, o3, Claude 4 Sonnet & Opus</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">Brainstorm mode for creative reasoning</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">Expert mode with deep analysis</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">100 file uploads & 5 GB storage</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">Unlimited conversations</span>
+                </li>
+              </ul>
+
+              {/* Footer */}
+              <p className="mt-6 text-sm text-gray-500">
+                Existing subscriber?{' '}
+                <a href="/account/billing" className="text-teal-400 hover:underline">
+                  See billing help
+                </a>
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

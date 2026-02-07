@@ -243,7 +243,7 @@ export default function EnterpriseRegisterPage() {
           first_name: firstName,
           last_name: lastName,
           password: password,
-          role: 'admin', // First user is always admin
+          role: 'org_owner', // First user is organization owner
         }),
       });
 

@@ -2,6 +2,7 @@
 // Based on backend API from vrin-engine
 
 export type ResponseMode = 'chat' | 'expert' | 'raw_facts' | 'brainstorm';
+export type QueryDepth = 'thinking' | 'research';  // Optional upgrade modes (null/undefined = default VRIN)
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type UploadStatus = 'uploaded' | 'processing' | 'completed' | 'failed';
 
@@ -82,8 +83,10 @@ export interface SendMessageRequest {
   session_id?: string;
   include_sources?: boolean;
   response_mode?: ResponseMode;
+  query_depth?: QueryDepth | null;  // Optional: 'thinking' or 'research' (null = default VRIN)
   web_search_enabled?: boolean;
   conversation_upload_ids?: string[];  // Upload IDs for temporary docs in this conversation
+  model?: string;  // LLM model to use (validated against user's plan)
 }
 
 export interface SendMessageResponse {
@@ -139,6 +142,8 @@ export interface FileAttachment {
   file_type: string;  // MIME type
   file_size: number;
   upload_id?: string;  // Associated upload ID if uploaded
+  status: 'uploading' | 'processing' | 'ready' | 'error';  // Processing status
+  error_message?: string;  // Error message if status is 'error'
 }
 
 export interface UploadFileResponse {

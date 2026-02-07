@@ -82,13 +82,19 @@ class ChatAPI {
       maintain_context: true,            // Enable conversation persistence to backend
       stream: false,                     // Non-streaming mode
       response_mode: request.response_mode || 'chat',
-      web_search_enabled: request.web_search_enabled || false
+      web_search_enabled: request.web_search_enabled || false,
+      model: request.model || 'gpt-5.2'  // LLM model (validated by backend)
     };
 
     // Only include session_id if we have one (for follow-up queries)
     // First query: backend will create and return session_id
     if (request.session_id) {
       ragRequest.session_id = request.session_id;
+    }
+
+    // Include query_depth if user selected Thinking or Research mode
+    if (request.query_depth) {
+      ragRequest.query_depth = request.query_depth;
     }
 
     // Include conversation-specific upload IDs for temporary doc isolation
@@ -175,13 +181,19 @@ class ChatAPI {
       maintain_context: true,            // Enable conversation persistence to backend
       stream: true,                      // Enable streaming
       response_mode: request.response_mode || 'chat',
-      web_search_enabled: request.web_search_enabled || false
+      web_search_enabled: request.web_search_enabled || false,
+      model: request.model || 'gpt-5.2'  // LLM model (validated by backend)
     };
 
     // Only include session_id if we have one (for follow-up queries)
     // First query: backend will create and return session_id
     if (request.session_id) {
       ragRequest.session_id = request.session_id;
+    }
+
+    // Include query_depth if user selected Thinking or Research mode
+    if (request.query_depth) {
+      ragRequest.query_depth = request.query_depth;
     }
 
     // Include conversation-specific upload IDs for temporary doc isolation
@@ -192,6 +204,7 @@ class ChatAPI {
     console.log('🌊 === STREAMING CHAT REQUEST (RAG Format) ===');
     console.log('Response mode:', ragRequest.response_mode);
     console.log('Web search enabled:', ragRequest.web_search_enabled);
+    console.log('Model:', ragRequest.model);
     console.log('URL:', url, '(proxied to Lambda Function URL)');
     console.log('API Key:', apiKey.substring(0, 15) + '...');
     console.log('Request Body:', JSON.stringify(ragRequest, null, 2));

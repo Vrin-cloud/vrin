@@ -16,7 +16,7 @@ import {
   BarChart3,
   Menu,
   Shield,
-  MessageSquare
+  MessageSquare,
 } from 'lucide-react'
 import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
 import { Badge } from '@/components/ui/badge'

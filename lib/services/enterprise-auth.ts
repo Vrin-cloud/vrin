@@ -1,11 +1,12 @@
 import { DeploymentMode, SSOConfig, EnterpriseConfiguration, EnterpriseUser, EnterpriseApiKey } from '@/types/enterprise'
+import { API_CONFIG } from '@/config/api'
 
 export class EnterpriseAuthService {
   private baseUrl: string
   private authToken: string | null = null
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_ENTERPRISE_API_URL || 'https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod'
+    this.baseUrl = API_CONFIG.ENTERPRISE_BASE_URL
     
     // Try to get token from localStorage on client side
     if (typeof window !== 'undefined') {
@@ -276,7 +277,7 @@ export class EnterpriseAuthService {
     error?: string
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/auth/me`, {
+      const response = await fetch(`${this.baseUrl}/enterprise/auth/me`, {
         method: 'GET',
         headers: this.getAuthHeaders()
       })
@@ -408,19 +409,23 @@ export class EnterpriseAuthService {
   // Utility methods for checking permissions
   hasPermission(permission: string): boolean {
     const user = this.getStoredUser()
-    return user?.permissions?.includes(permission) || user?.role === 'admin' || false
+    const isOwnerOrAdmin = ['org_owner', 'owner', 'org_admin', 'admin'].includes(user?.role || '')
+    return user?.permissions?.includes('*') || user?.permissions?.includes(permission) || isOwnerOrAdmin || false
   }
 
   canManageUsers(): boolean {
-    return this.hasPermission('manage_users') || this.getStoredUser()?.role === 'admin'
+    const role = this.getStoredUser()?.role || ''
+    return this.hasPermission('manage_users') || ['org_owner', 'owner', 'org_admin', 'admin'].includes(role)
   }
 
   canManageDeployments(): boolean {
-    return this.hasPermission('manage_deployments') || 
-           ['admin', 'developer'].includes(this.getStoredUser()?.role || '')
+    const role = this.getStoredUser()?.role || ''
+    return this.hasPermission('manage_deployments') ||
+           ['org_owner', 'owner', 'org_admin', 'admin', 'developer'].includes(role)
   }
 
   canViewBilling(): boolean {
-    return this.hasPermission('view_billing') || this.getStoredUser()?.role === 'admin'
+    const role = this.getStoredUser()?.role || ''
+    return this.hasPermission('view_billing') || ['org_owner', 'owner', 'org_admin', 'admin'].includes(role)
   }
 }

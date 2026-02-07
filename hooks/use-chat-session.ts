@@ -3,7 +3,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { chatAPI } from '@/lib/services/chat-api';
-import type { ChatMessage, ChatSession, ResponseMode, FileAttachment } from '@/types/chat';
+import type { ChatMessage, ChatSession, ResponseMode, QueryDepth, FileAttachment } from '@/types/chat';
 
 interface UseChatSessionReturn {
   session: ChatSession | null;
@@ -12,7 +12,7 @@ interface UseChatSessionReturn {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
-  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean, attachments?: FileAttachment[], conversationUploadIds?: string[]) => Promise<void>;
+  sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean, attachments?: FileAttachment[], conversationUploadIds?: string[], model?: string, queryDepth?: QueryDepth | null) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
   endSession: () => Promise<void>;
@@ -103,7 +103,9 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     enableStreaming: boolean = true,
     webSearchEnabled: boolean = false,
     attachments?: FileAttachment[],
-    conversationUploadIds?: string[]
+    conversationUploadIds?: string[],
+    model: string = 'gpt-4o-mini',
+    queryDepth?: QueryDepth | null
   ) => {
     console.log('=== sendMessage called ===');
     console.log('API Key:', apiKey ? apiKey.substring(0, 10) + '...' : 'MISSING');
@@ -113,6 +115,8 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     console.log('Web search enabled:', webSearchEnabled);
     console.log('Attachments:', attachments?.length || 0);
     console.log('Conversation upload IDs:', conversationUploadIds?.length || 0);
+    console.log('Model:', model);
+    console.log('Query depth:', queryDepth || 'default');
 
     if (!apiKey) {
       const error = 'API key is required';
@@ -147,8 +151,10 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         session_id: session?.session_id,
         include_sources: true,
         response_mode: mode,
+        query_depth: queryDepth || undefined,  // Optional: 'thinking' or 'research'
         web_search_enabled: webSearchEnabled,
-        conversation_upload_ids: conversationUploadIds  // For temporary doc isolation
+        conversation_upload_ids: conversationUploadIds,  // For temporary doc isolation
+        model  // LLM model to use
       };
 
       // STREAMING MODE

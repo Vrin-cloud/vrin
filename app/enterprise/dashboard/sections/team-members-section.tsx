@@ -64,12 +64,15 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
 
   // Invite form state
   const [showInviteForm, setShowInviteForm] = useState(false)
+  const [inviteMode, setInviteMode] = useState<'single' | 'bulk'>('single')
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState('member')
+  const [bulkEmails, setBulkEmails] = useState('')
+  const [inviteRole, setInviteRole] = useState('team_member')
   const [inviteClearance, setInviteClearance] = useState('standard')
   const [inviteDepartment, setInviteDepartment] = useState('')
   const [inviteMessage, setInviteMessage] = useState('')
   const [sendingInvite, setSendingInvite] = useState(false)
+  const [bulkResults, setBulkResults] = useState<{ succeeded: number; failed: number; results: any[] } | null>(null)
 
   useEffect(() => {
     if (organizationId) {
@@ -235,6 +238,72 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
     }
   }
 
+  const handleBulkInvite = async () => {
+    // Parse emails from textarea (comma, newline, or semicolon separated)
+    const emails = bulkEmails
+      .split(/[,;\n]+/)
+      .map(e => e.trim().toLowerCase())
+      .filter(e => e && e.includes('@'))
+
+    if (emails.length === 0) {
+      toast.error('Please enter at least one valid email address')
+      return
+    }
+
+    if (emails.length > 50) {
+      toast.error('Maximum 50 emails per batch')
+      return
+    }
+
+    setSendingInvite(true)
+    setBulkResults(null)
+    try {
+      const authToken = localStorage.getItem('enterprise_token')
+      if (!authToken) {
+        toast.error('Authentication required')
+        return
+      }
+
+      const response = await fetch('/api/enterprise/users/invite/bulk', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          organization_id: organizationId,
+          emails,
+          role: inviteRole,
+          clearance_level: inviteClearance,
+          department: inviteDepartment || undefined
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setBulkResults(data)
+        toast.success(`${data.succeeded} invitation(s) sent successfully`)
+        if (data.failed === 0) {
+          setBulkEmails('')
+        }
+        loadInvitations()
+      } else {
+        toast.error(data.error || 'Failed to send bulk invitations')
+      }
+    } catch (error) {
+      console.error('Error sending bulk invitations:', error)
+      toast.error('Failed to send bulk invitations')
+    } finally {
+      setSendingInvite(false)
+    }
+  }
+
+  const parsedBulkEmails = bulkEmails
+    .split(/[,;\n]+/)
+    .map(e => e.trim().toLowerCase())
+    .filter(e => e && e.includes('@'))
+
   const handleResendInvitation = async (invitationId: string) => {
     try {
       const authToken = localStorage.getItem('enterprise_token')
@@ -323,99 +392,215 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
         >
           <Card className="border-gray-200 bg-gray-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-900">
-                <Mail className="w-5 h-5" />
-                Send Invitation
-              </CardTitle>
-              <CardDescription className="text-gray-600">
-                Invite a new team member to join your organization
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <Mail className="w-5 h-5" />
+                    Send Invitation
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Invite team members to join your organization
+                  </CardDescription>
+                </div>
+                <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                  <button
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                      inviteMode === 'single'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
+                    }`}
+                    onClick={() => { setInviteMode('single'); setBulkResults(null) }}
+                  >
+                    Single
+                  </button>
+                  <button
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                      inviteMode === 'bulk'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
+                    }`}
+                    onClick={() => { setInviteMode('bulk'); setBulkResults(null) }}
+                  >
+                    Bulk
+                  </button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="colleague@example.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
+              {inviteMode === 'single' ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="colleague@example.com"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role *</Label>
-                  <Select value={inviteRole} onValueChange={setInviteRole}>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="owner">Owner</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Role *</Label>
+                      <Select value={inviteRole} onValueChange={setInviteRole}>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="org_admin">Org Admin</SelectItem>
+                          <SelectItem value="knowledge_publisher">Knowledge Publisher</SelectItem>
+                          <SelectItem value="team_admin">Team Admin</SelectItem>
+                          <SelectItem value="team_lead">Team Lead</SelectItem>
+                          <SelectItem value="team_member">Team Member</SelectItem>
+                          <SelectItem value="team_guest">Guest</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="clearance">Clearance Level</Label>
-                  <Select value={inviteClearance} onValueChange={setInviteClearance}>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="executive">Executive</SelectItem>
-                      <SelectItem value="senior_director">Senior Director</SelectItem>
-                      <SelectItem value="management">Management</SelectItem>
-                      <SelectItem value="senior">Senior</SelectItem>
-                      <SelectItem value="standard">Standard</SelectItem>
-                      <SelectItem value="guest">Guest</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="clearance">Clearance Level</Label>
+                      <Select value={inviteClearance} onValueChange={setInviteClearance}>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="executive">Executive</SelectItem>
+                          <SelectItem value="management">Management</SelectItem>
+                          <SelectItem value="senior">Senior</SelectItem>
+                          <SelectItem value="standard">Standard</SelectItem>
+                          <SelectItem value="guest">Guest</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="department">Department (Optional)</Label>
-                  <Input
-                    id="department"
-                    type="text"
-                    placeholder="Engineering, Sales, Legal..."
-                    value={inviteDepartment}
-                    onChange={(e) => setInviteDepartment(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department (Optional)</Label>
+                      <Input
+                        id="department"
+                        type="text"
+                        placeholder="Engineering, Sales, Legal..."
+                        value={inviteDepartment}
+                        onChange={(e) => setInviteDepartment(e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Personal Message (Optional)</Label>
-                <Textarea
-                  id="message"
-                  placeholder="Add a personal message to the invitation..."
-                  value={inviteMessage}
-                  onChange={(e) => setInviteMessage(e.target.value)}
-                  className="bg-white"
-                  rows={3}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Personal Message (Optional)</Label>
+                    <Textarea
+                      id="message"
+                      placeholder="Add a personal message to the invitation..."
+                      value={inviteMessage}
+                      onChange={(e) => setInviteMessage(e.target.value)}
+                      className="bg-white"
+                      rows={3}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="bulk-emails">Email Addresses *</Label>
+                    <Textarea
+                      id="bulk-emails"
+                      placeholder="Enter email addresses separated by commas, semicolons, or new lines:&#10;&#10;alice@example.com&#10;bob@example.com&#10;charlie@example.com"
+                      value={bulkEmails}
+                      onChange={(e) => { setBulkEmails(e.target.value); setBulkResults(null) }}
+                      className="bg-white font-mono text-sm"
+                      rows={6}
+                    />
+                    {parsedBulkEmails.length > 0 && (
+                      <p className="text-sm text-gray-500">
+                        {parsedBulkEmails.length} email{parsedBulkEmails.length !== 1 ? 's' : ''} detected
+                        {parsedBulkEmails.length > 50 && (
+                          <span className="text-red-500 ml-1">(max 50 per batch)</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="bulk-role">Role for all *</Label>
+                      <Select value={inviteRole} onValueChange={setInviteRole}>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="org_admin">Org Admin</SelectItem>
+                          <SelectItem value="knowledge_publisher">Knowledge Publisher</SelectItem>
+                          <SelectItem value="team_admin">Team Admin</SelectItem>
+                          <SelectItem value="team_lead">Team Lead</SelectItem>
+                          <SelectItem value="team_member">Team Member</SelectItem>
+                          <SelectItem value="team_guest">Guest</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bulk-clearance">Clearance Level</Label>
+                      <Select value={inviteClearance} onValueChange={setInviteClearance}>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="executive">Executive</SelectItem>
+                          <SelectItem value="management">Management</SelectItem>
+                          <SelectItem value="senior">Senior</SelectItem>
+                          <SelectItem value="standard">Standard</SelectItem>
+                          <SelectItem value="guest">Guest</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bulk-department">Department (Optional)</Label>
+                      <Input
+                        id="bulk-department"
+                        type="text"
+                        placeholder="Engineering, Sales..."
+                        value={inviteDepartment}
+                        onChange={(e) => setInviteDepartment(e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {bulkResults && (
+                    <div className={`p-4 rounded-lg border ${bulkResults.failed > 0 ? 'border-yellow-200 bg-yellow-50' : 'border-green-200 bg-green-50'}`}>
+                      <p className="font-medium text-sm">
+                        {bulkResults.succeeded} sent, {bulkResults.failed} failed
+                      </p>
+                      {bulkResults.results.filter((r: any) => !r.success).length > 0 && (
+                        <ul className="mt-2 text-sm space-y-1">
+                          {bulkResults.results.filter((r: any) => !r.success).map((r: any, i: number) => (
+                            <li key={i} className="text-red-600">{r.email}: {r.error}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
 
               <div className="flex items-center justify-between pt-4">
                 <p className="text-sm text-blue-700">
-                  Invitation will expire in 14 days
+                  Invitation{inviteMode === 'bulk' ? 's' : ''} will expire in 14 days
                 </p>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => setShowInviteForm(false)}
+                    onClick={() => { setShowInviteForm(false); setBulkResults(null) }}
                     disabled={sendingInvite}
                   >
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleSendInvite}
-                    disabled={sendingInvite}
+                    onClick={inviteMode === 'single' ? handleSendInvite : handleBulkInvite}
+                    disabled={sendingInvite || (inviteMode === 'bulk' && parsedBulkEmails.length === 0)}
                     className="bg-gray-900 hover:bg-gray-800"
                   >
                     {sendingInvite ? (
@@ -426,7 +611,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Send Invitation
+                        {inviteMode === 'single' ? 'Send Invitation' : `Send ${parsedBulkEmails.length} Invitation${parsedBulkEmails.length !== 1 ? 's' : ''}`}
                       </>
                     )}
                   </Button>
