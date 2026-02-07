@@ -1,22 +1,16 @@
 'use client';
 
 import { useStytchMemberSession } from '@stytch/nextjs/b2b';
+import { StytchB2BProvider } from '@stytch/nextjs/b2b';
 import { B2BIdentityProvider } from '@stytch/nextjs/b2b';
-import { useEffect } from 'react';
+import { createStytchB2BUIClient } from '@stytch/nextjs/b2b/ui';
+import { useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 
 /**
- * OAuth Authorization page for MCP Connected Apps (ChatGPT, Claude Web, etc.).
- *
- * Flow:
- *   1. User arrives here from ChatGPT redirect (not logged in)
- *   2. We redirect to /auth with return_to pointing back here (preserving OAuth params)
- *   3. User logs in via Stytch
- *   4. Redirected back here with active session
- *   5. B2BIdentityProvider shows consent screen
- *   6. User approves → redirected back to ChatGPT with auth code
+ * Inner component that uses Stytch hooks (must be inside StytchB2BProvider).
  */
-export default function OAuthAuthorizeContent() {
+function OAuthAuthorizeInner() {
   const { session, isInitialized } = useStytchMemberSession();
 
   useEffect(() => {
@@ -62,5 +56,54 @@ export default function OAuthAuthorizeContent() {
         <B2BIdentityProvider />
       </div>
     </div>
+  );
+}
+
+/**
+ * OAuth Authorization page for MCP Connected Apps (ChatGPT, Claude Web, etc.).
+ *
+ * Wraps in its own StytchB2BProvider to guarantee the Stytch context is
+ * available. This is necessary because the root StytchProvider may not
+ * wrap children when the client hasn't initialized yet.
+ *
+ * Flow:
+ *   1. User arrives here from ChatGPT redirect (not logged in)
+ *   2. We redirect to /auth with return_to pointing back here (preserving OAuth params)
+ *   3. User logs in via Stytch
+ *   4. Redirected back here with active session
+ *   5. B2BIdentityProvider shows consent screen
+ *   6. User approves → redirected back to ChatGPT with auth code
+ */
+export default function OAuthAuthorizeContent() {
+  const stytchClient = useMemo(() => {
+    const publicToken = process.env.NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN;
+    if (!publicToken || publicToken.includes('REPLACE_WITH')) {
+      return null;
+    }
+    return createStytchB2BUIClient(publicToken, {
+      cookieOptions: {
+        opaqueTokenCookieName: 'stytch_session',
+        jwtCookieName: 'stytch_session_jwt',
+        path: '/',
+        availableToSubdomains: false,
+        domain: '',
+      },
+    });
+  }, []);
+
+  if (!stytchClient) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-8">
+        <div className="text-center">
+          <p className="text-gray-600">Authentication not configured.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <StytchB2BProvider stytch={stytchClient}>
+      <OAuthAuthorizeInner />
+    </StytchB2BProvider>
   );
 }
