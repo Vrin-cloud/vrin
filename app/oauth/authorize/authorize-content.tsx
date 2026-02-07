@@ -44,6 +44,22 @@ class OAuthErrorBoundary extends React.Component<
  *   - Completing the OAuth flow and redirecting back to the client
  */
 export default function OAuthAuthorizeContent() {
+  const token = process.env.NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN;
+  console.log('[OAuth] NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN available:', !!token, token ? `${token.substring(0, 20)}...` : 'MISSING');
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto p-6 text-center">
+          <h1 className="text-2xl font-bold text-gray-900">VRiN</h1>
+          <p className="text-sm text-red-500 mt-4">
+            Stytch public token not found in build. Please redeploy.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <OAuthErrorBoundary>
