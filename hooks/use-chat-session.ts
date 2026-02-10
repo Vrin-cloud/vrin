@@ -15,6 +15,7 @@ interface UseChatSessionReturn {
   sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean, attachments?: FileAttachment[], conversationUploadIds?: string[], model?: string, queryDepth?: QueryDepth | null) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
+  resetChat: () => void;
   endSession: () => Promise<void>;
   clearError: () => void;
   loadMessages: (sessionId: string, messages: ChatMessage[]) => void;
@@ -552,6 +553,14 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     }
   }, [session, apiKey]);
 
+  const resetChat = useCallback(() => {
+    console.log('🔄 Resetting chat — clearing state without creating a session');
+    setSession(null);
+    setMessages([]);
+    setError(null);
+    localStorage.removeItem('vrin_chat_session_id');
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -585,6 +594,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     sendMessage,
     cancelStreaming,
     startNewSession,
+    resetChat,
     endSession,
     clearError,
     loadMessages

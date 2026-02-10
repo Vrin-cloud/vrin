@@ -200,6 +200,7 @@ export default function ChatPage() {
     sendMessage,
     cancelStreaming,
     startNewSession,
+    resetChat,
     endSession,
     clearError,
     loadMessages
@@ -477,13 +478,12 @@ export default function ChatPage() {
     }
   }
 
-  const handleNewChat = async () => {
+  const handleNewChat = () => {
     setActiveConversationId(null)
     setConversationUploadIds([])  // Clear upload tracking for new conversation
     setPendingAttachments([])  // Clear pending attachments
-    await startNewSession()
-    // Refresh conversations after creating new session
-    setTimeout(() => refreshConversations(), 1000)
+    // Just reset UI state — session is auto-created on first message send
+    resetChat()
   }
 
   const handleLoadConversation = async (sessionId: string) => {
