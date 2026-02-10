@@ -25,8 +25,6 @@ export default function AuthContent() {
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [showPasswordText, setShowPasswordText] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +93,7 @@ export default function AuthContent() {
         const res = await fetch('/api/auth/stytch/password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, first_name: firstName, last_name: lastName }),
+          body: JSON.stringify({ email, password }),
         });
 
         const data = await res.json();
@@ -425,22 +423,6 @@ export default function AuthContent() {
               {/* Password + Name fields (shown when password mode is active) */}
               {showPasswordField && (
                 <>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="First name"
-                      className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Last name"
-                      className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
-                    />
-                  </div>
                   <div className="relative">
                     <input
                       type={showPasswordText ? 'text' : 'password'}
