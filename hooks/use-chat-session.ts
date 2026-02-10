@@ -133,6 +133,31 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     setIsLoading(true);
     setError(null);
 
+    // Auto-create a session if none exists (user typed directly without clicking New Chat)
+    let activeSession = session;
+    if (!activeSession?.session_id) {
+      try {
+        console.log('🆕 No active session — auto-creating before first message');
+        const response = await chatAPI.startConversation(apiKey);
+        const newSession: ChatSession = {
+          session_id: response.session_id,
+          conversation_turn: 0,
+          created_at: Date.now(),
+          last_activity: Date.now(),
+          messages: []
+        };
+        setSession(newSession);
+        localStorage.setItem('vrin_chat_session_id', response.session_id);
+        activeSession = newSession;
+        console.log('✅ Auto-created session:', response.session_id);
+      } catch (err: any) {
+        console.error('Failed to auto-create session:', err);
+        setError('Failed to start conversation. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+    }
+
     // Add user message immediately (with attachments if provided)
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -148,7 +173,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     try {
       const requestPayload = {
         message,
-        session_id: session?.session_id,
+        session_id: activeSession?.session_id,
         include_sources: true,
         response_mode: mode,
         query_depth: queryDepth || undefined,  // Optional: 'thinking' or 'research'
@@ -176,12 +201,10 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         let finalExpertAnalysis: any = null;
         let reasoningSummary: string | undefined = undefined;  // NEW: Store LLM reasoning summary
 
-        // Use existing session_id if available, otherwise backend will create one
-        if (session?.session_id) {
-          finalSessionId = session.session_id;
-          console.log('📌 Using existing session ID:', finalSessionId);
-        } else {
-          console.log('🆕 First query - backend will create and return session ID');
+        // Use the active session (always available now — auto-created above if needed)
+        if (activeSession?.session_id) {
+          finalSessionId = activeSession.session_id;
+          console.log('📌 Using session ID:', finalSessionId);
         }
 
         try {
@@ -311,7 +334,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
 
                 // Update session if new one was created
                 if (finalSessionId) {
-                  if (!session || finalSessionId !== session.session_id) {
+                  if (!activeSession || finalSessionId !== activeSession.session_id) {
                     console.log('Creating new session from stream:', finalSessionId);
                     const newSession: ChatSession = {
                       session_id: finalSessionId,
@@ -328,7 +351,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                       ...prev,
                       conversation_turn: finalTurn || prev.conversation_turn,
                       last_activity: Date.now()
-                    } : null);
+                    } : prev);
                   }
                 }
 
@@ -421,7 +444,7 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         });
 
         // Update session if new one was created OR update turn count
-        if (!session || response.session_id !== session.session_id) {
+        if (!activeSession || response.session_id !== activeSession.session_id) {
           console.log('Creating new session:', response.session_id);
           const newSession: ChatSession = {
             session_id: response.session_id,
