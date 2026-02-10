@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Loader2, AlertCircle, Mail, ArrowRight } from 'lucide-react';
+import { Loader2, AlertCircle, Mail, ArrowRight, Lock, Eye, EyeOff } from 'lucide-react';
 import { useStytchB2BClient, useStytchMemberSession } from '@stytch/nextjs/b2b';
 import vrinIcon from '@/app/icon.svg';
 
@@ -25,7 +25,10 @@ export default function AuthContent() {
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showPasswordField, setShowPasswordField] = useState(false);
+  const [showPasswordText, setShowPasswordText] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -72,37 +75,94 @@ export default function AuthContent() {
     }
   }, [isInitialized, session, router, returnTo]);
 
-  // Handle email magic link
+  // Handle email submission — magic link or password based on mode
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stytch || !email) return;
+    if (!email) return;
 
     setIsLoading(true);
     setError('');
 
-    try {
-      if (showPasswordField && password) {
-        // Password authentication
-        await stytch.passwords.authenticate({
-          organization_id: '', // Discovery flow doesn't need this
-          email_address: email,
-          password: password,
-          session_duration_minutes: 60,
+    if (showPasswordField) {
+      // Password-based authentication via server-side API route
+      if (!password) {
+        setError('Please enter your password.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/stytch/password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, first_name: firstName, last_name: lastName }),
         });
-        router.replace(returnTo || '/dashboard');
-      } else {
-        // Send magic link — return_to is persisted in localStorage above
+
+        const data = await res.json();
+
+        if (!data.success) {
+          setError(data.error || 'Authentication failed. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Sync with VRIN backend to get API key
+        const syncRes = await fetch('/api/auth/stytch/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            member_id: data.member_id,
+            email: data.email,
+            name: data.name,
+            organization_id: data.organization_id,
+          }),
+        });
+
+        const syncData = await syncRes.json();
+
+        if (syncData.success) {
+          localStorage.setItem('vrin_api_key', syncData.api_key);
+          localStorage.setItem('vrin_user', JSON.stringify({
+            user_id: syncData.user_id,
+            email: syncData.email,
+            name: syncData.name,
+          }));
+          localStorage.setItem('vrin_stytch_auth', JSON.stringify({
+            member_id: data.member_id,
+            user_id: syncData.user_id,
+            api_key: syncData.api_key,
+            email: syncData.email,
+            name: syncData.name,
+          }));
+
+          const destination = returnTo || '/dashboard';
+          localStorage.removeItem('oauth_return_to');
+          router.replace(destination);
+        } else {
+          setError('Failed to complete sign-in. Please try again.');
+        }
+      } catch (err: any) {
+        console.error('[Auth] Password auth error:', err);
+        setError('Something went wrong. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // Magic link flow
+      if (!stytch) return;
+
+      try {
         await stytch.magicLinks.email.discovery.send({
           email_address: email,
           discovery_redirect_url: discoveryRedirectURL,
         });
         setMagicLinkSent(true);
+      } catch (err: any) {
+        console.error('[Auth] Error:', err);
+        setError(err.message || 'Something went wrong. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: any) {
-      console.error('[Auth] Error:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -362,47 +422,77 @@ export default function AuthContent() {
                 />
               </div>
 
-              {/* Password Input (conditional) */}
+              {/* Password + Name fields (shown when password mode is active) */}
               {showPasswordField && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                >
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
-                  />
-                </motion.div>
+                <>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
+                      className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                    />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last name"
+                      className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showPasswordText ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      required
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordText(!showPasswordText)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPasswordText ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </>
               )}
 
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading || !email || !stytch}
+                disabled={isLoading || !email || (!showPasswordField && !stytch)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
-                    {showPasswordField ? 'Sign in' : 'Continue with email'}
-                    <ArrowRight className="w-4 h-4" />
+                    {showPasswordField ? 'Sign in with password' : 'Continue with email'}
+                    {showPasswordField ? <Lock className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                   </>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Toggle password option */}
-          <button
-            onClick={() => setShowPasswordField(!showPasswordField)}
-            className="w-full mt-4 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            {showPasswordField ? 'Use magic link instead' : 'Use a password instead'}
-          </button>
+          {/* Toggle between magic link and password */}
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasswordField(!showPasswordField);
+                setPassword('');
+                setError('');
+              }}
+              className="text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+            >
+              {showPasswordField ? 'Use magic link instead' : 'Use a password instead'}
+            </button>
+          </div>
 
           {/* Footer */}
           <div className="mt-8 text-center">

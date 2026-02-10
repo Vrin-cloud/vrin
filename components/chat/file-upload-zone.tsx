@@ -24,7 +24,7 @@ const ACCEPTED_FILE_TYPES = [
   'image/jpeg'
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export function FileUploadZone({
   uploads,
@@ -60,7 +60,7 @@ export function FileUploadZone({
       return false;
     }
     if (file.size > MAX_FILE_SIZE) {
-      alert(`File size exceeds 10MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      alert(`File size exceeds 50MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
       return false;
     }
     return true;
@@ -201,7 +201,7 @@ export function FileUploadZone({
                 or click to select files
               </p>
               <p className="text-xs text-gray-400">
-                Supported: PDF, DOCX, TXT, MD, PNG, JPG (Max 10MB)
+                Supported: PDF, DOCX, TXT, MD, PNG, JPG (Max 50MB)
               </p>
             </div>
           </div>
