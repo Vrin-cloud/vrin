@@ -199,14 +199,14 @@ vrin.get_knowledge_graph()           # Get full knowledge graph data
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Install</h3>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <code className="text-green-400 font-mono">pip install vrin</code>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <code className="text-gray-800 font-mono">pip install vrin</code>
             </div>
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Use</h3>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <pre className="text-green-400 font-mono text-sm">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <pre className="text-gray-800 font-mono text-sm">
 {`from vrin import VRIN
 
 vrin = VRIN(api_key="${user?.api_key || 'your_api_key'}")
@@ -266,16 +266,16 @@ result = vrin.insert("Your knowledge here")`}
                 )}
               </button>
             </div>
-            <div className="bg-gray-900 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2 bg-gray-800">
-                <span className="text-sm text-gray-300 font-medium">{example.language}</span>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
+                <span className="text-sm text-gray-600 font-medium">{example.language}</span>
                 <div className="flex space-x-1">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                 </div>
               </div>
-              <pre className="p-4 text-green-400 font-mono text-sm overflow-x-auto">
+              <pre className="p-4 text-gray-800 font-mono text-sm overflow-x-auto">
                 <code>{example.code}</code>
               </pre>
             </div>
@@ -325,8 +325,8 @@ result = vrin.insert("Your knowledge here")`}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Success Response</h3>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <pre className="text-green-400 font-mono text-sm overflow-x-auto">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <pre className="text-gray-800 font-mono text-sm overflow-x-auto">
 {`{
   "success": true,
   "message": "Processed 3 knowledge triples",
@@ -341,7 +341,7 @@ result = vrin.insert("Your knowledge here")`}
           
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Error Response</h3>
-            <div className="bg-gray-900 rounded-lg p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <pre className="text-red-400 font-mono text-sm overflow-x-auto">
 {`{
   "success": false,

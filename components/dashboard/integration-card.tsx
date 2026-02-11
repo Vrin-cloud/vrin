@@ -270,7 +270,7 @@ export function IntegrationCard({
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 px-4 border border-gray-900 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

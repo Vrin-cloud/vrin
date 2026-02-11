@@ -81,11 +81,10 @@ export function useKnowledgeGraph(apiKey?: string, options?: { limit?: number })
     queryKey: ['knowledge-graph-unified', apiKey, options?.limit], // Include limit in cache key
     queryFn: () => fetchKnowledgeGraph(apiKey!, options),
     enabled: !!apiKey, // Only run query if API key is provided
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute for real-time updates
-    refetchOnWindowFocus: true,
-    retry: 3, // Retry failed requests
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
+    staleTime: 5 * 60 * 1000, // 5 minutes — graph data rarely changes
+    refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
 }
 

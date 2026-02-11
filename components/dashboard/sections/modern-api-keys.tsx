@@ -401,20 +401,20 @@ export function ModernApiKeysSection() {
           <div className="space-y-4">
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Install VRIN SDK</h4>
-              <div className="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm">
+              <div className="bg-gray-50 text-gray-800 border border-gray-200 rounded-lg p-4 font-mono text-sm">
                 pip install vrin==0.3.4
               </div>
             </div>
             
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Initialize Client</h4>
-              <div className="bg-gray-900 text-white rounded-lg p-4 font-mono text-sm">
+              <div className="bg-gray-50 text-gray-800 border border-gray-200 rounded-lg p-4 font-mono text-sm">
                 <pre className="whitespace-pre text-sm">
                   <code>
                     <span className="text-gray-500"># Python</span>
-                    {'\n'}<span className="text-blue-400">from</span> <span className="text-yellow-400">vrin</span> <span className="text-blue-400">import</span> <span className="text-yellow-400">VRINClient</span>
+                    {'\n'}<span className="text-blue-600">from</span> <span className="text-amber-600">vrin</span> <span className="text-blue-600">import</span> <span className="text-amber-600">VRINClient</span>
                     {'\n'}
-                    {'\n'}<span className="text-yellow-400">client</span> <span className="text-white">=</span> <span className="text-yellow-400">VRINClient</span><span className="text-white">(</span><span className="text-green-400">api_key</span><span className="text-white">=</span><span className="text-red-400">&quot;your_api_key&quot;</span><span className="text-white">)</span>
+                    {'\n'}<span className="text-amber-600">client</span> <span className="text-gray-800">=</span> <span className="text-amber-600">VRINClient</span><span className="text-gray-800">(</span><span className="text-green-600">api_key</span><span className="text-gray-800">=</span><span className="text-red-600">&quot;your_api_key&quot;</span><span className="text-gray-800">)</span>
                   </code>
                 </pre>
               </div>

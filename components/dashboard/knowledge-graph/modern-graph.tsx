@@ -1,27 +1,59 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ZoomIn, 
-  ZoomOut, 
-  RotateCcw, 
-  Maximize2, 
-  Download, 
-  Move, 
-  Settings,
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Download,
   Search,
   Filter,
-  Layers,
-  Play,
-  Pause,
   RefreshCw,
   ChevronDown,
-  Eye,
-  EyeOff
+  Info,
+  Database
 } from 'lucide-react';
 import cytoscape from 'cytoscape';
 import type { Node, Edge } from '../../../types/knowledge-graph';
+
+// Type-to-color mapping for semantic coloring
+const TYPE_COLORS: Record<string, string> = {
+  'entity': '#3b82f6',
+  'concept': '#8b5cf6',
+  'person': '#ef4444',
+  'place': '#10b981',
+  'organization': '#f59e0b',
+  'event': '#ec4899',
+  'document': '#6366f1',
+  'topic': '#14b8a6'
+};
+
+const DEFAULT_COLOR = '#64748b';
+
+// Shape mapping by entity category
+function getNodeShape(type: string): string {
+  switch (type) {
+    case 'person':
+    case 'organization':
+      return 'ellipse';
+    case 'concept':
+    case 'topic':
+      return 'diamond';
+    case 'document':
+    case 'event':
+      return 'rectangle';
+    default:
+      return 'ellipse';
+  }
+}
+
+// Shape categories for the legend
+const SHAPE_CATEGORIES = [
+  { label: 'People / Orgs', shape: 'circle', types: ['person', 'organization'] },
+  { label: 'Concepts / Topics', shape: 'diamond', types: ['concept', 'topic'] },
+  { label: 'Documents / Events', shape: 'square', types: ['document', 'event'] },
+];
 
 interface ModernGraphProps {
   data?: {
@@ -43,12 +75,20 @@ interface ModernGraphProps {
 
 interface GraphSettings {
   layout: 'cose' | 'circle' | 'grid' | 'breadthfirst' | 'concentric';
-  showLabels: boolean;
   showEdgeLabels: boolean;
   physics: boolean;
   nodeSize: number;
   edgeWidth: number;
   colorScheme: 'default' | 'semantic' | 'confidence' | 'temporal';
+}
+
+interface TooltipState {
+  visible: boolean;
+  x: number;
+  y: number;
+  name: string;
+  type: string;
+  color: string;
 }
 
 export function ModernGraph({
@@ -61,117 +101,101 @@ export function ModernGraph({
 }: ModernGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const onNodeSelectRef = useRef(onNodeSelect);
+  const onEdgeSelectRef = useRef(onEdgeSelect);
+  onNodeSelectRef.current = onNodeSelect;
+  onEdgeSelectRef.current = onEdgeSelect;
   const [zoom, setZoom] = useState(1);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [showLegend, setShowLegend] = useState(true);
   const [filteredTypes, setFilteredTypes] = useState<string[]>([]);
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    visible: false, x: 0, y: 0, name: '', type: '', color: ''
+  });
   const [settings, setSettings] = useState<GraphSettings>({
     layout: 'cose',
-    showLabels: true,
-    showEdgeLabels: data?.edges && data.edges.length > 100 ? false : true, // Hide edge labels for large graphs
+    showEdgeLabels: false,
     physics: true,
-    nodeSize: data?.nodes && data.nodes.length > 500 ? 20 : 25, // Smaller nodes for large graphs
-    edgeWidth: data?.edges && data.edges.length > 500 ? 1 : 2, // Thinner edges for large graphs
+    nodeSize: data?.nodes && data.nodes.length > 500 ? 20 : 25,
+    edgeWidth: data?.edges && data.edges.length > 500 ? 1 : 2,
     colorScheme: 'semantic'
   });
 
-  console.log('📊 ModernGraph - received props:', {
-    hasData: !!data,
-    nodesCount: data?.nodes?.length || 0,
-    edgesCount: data?.edges?.length || 0,
-    selectedProject,
-    isLoading,
-    error,
-    statistics: data?.statistics
-  });
-  
-  // Log the actual error to help with debugging
   if (error) {
-    console.warn('⚠️ ModernGraph - Error received:', error);
+    console.warn('ModernGraph - Error received:', error);
   }
 
   // Get unique node types for filtering
   const nodeTypes = Array.from(new Set(data?.nodes?.map(node => node.type) || []));
 
-  // Convert data to Cytoscape format
+  // Stable identity for graph data — only changes when node/edge counts or IDs change
+  const dataFingerprint = useMemo(() => {
+    if (!data?.nodes || !data?.edges) return null;
+    return `${data.nodes.length}-${data.edges.length}-${data.nodes.map(n => n.id).join(',')}`;
+  }, [data]);
+
+  // Convert data to Cytoscape format with visual encoding
   const getCytoscapeData = useCallback(() => {
-    console.log('getCytoscapeData called with data:', data);
-    
     if (!data?.nodes || !data?.edges) {
-      console.log('No nodes or edges available:', { nodes: data?.nodes?.length, edges: data?.edges?.length });
       return { nodes: [], edges: [] };
     }
 
-    const nodes = data.nodes
-      .filter(node => {
-        // Handle different node name formats
-        const nodeName = node.name || node.id || '';
-        
-        // Apply search filter
-        if (searchQuery && !nodeName.toLowerCase().includes(searchQuery.toLowerCase())) {
-          return false;
+    // Compute node degree from edge data (backend connections field is often 0)
+    const degreeMap = new Map<string, number>();
+    for (const edge of data.edges) {
+      const src = String(edge.from);
+      const tgt = String(edge.to);
+      degreeMap.set(src, (degreeMap.get(src) || 0) + 1);
+      degreeMap.set(tgt, (degreeMap.get(tgt) || 0) + 1);
+    }
+    const maxDegree = Math.max(1, ...degreeMap.values());
+
+    const nodes = data.nodes.map(node => {
+      const nodeName = node.name || `Node-${node.id}`;
+      const nodeType = node.type || 'entity';
+      const degree = degreeMap.get(String(node.id)) || 0;
+      const confidence = node.confidence || 0.8;
+
+      // Size: scale by degree (30% to 200% of base size — big visual difference)
+      const ratio = Math.min(degree / maxDegree, 1);
+      const scaledSize = settings.nodeSize * (0.3 + 1.7 * ratio);
+
+      // Opacity: scale by confidence (0.4 to 1.0)
+      const nodeOpacity = 0.4 + 0.6 * confidence;
+
+      return {
+        data: {
+          id: String(node.id),
+          label: '', // No text inside nodes
+          fullName: nodeName,
+          type: nodeType,
+          confidence,
+          connections: degree,
+          scaledSize,
+          nodeOpacity,
+          nodeShape: getNodeShape(nodeType),
+          originalNode: node
         }
-        // Apply type filter
-        if (filteredTypes.length > 0 && !filteredTypes.includes(node.type || 'entity')) {
-          return false;
-        }
-        return true;
-      })
-      .map(node => {
-        // Handle different node name formats from backend
-        const nodeName = node.name || `Node-${node.id}`;
-        
-        // Log node data for debugging
-        console.log('Processing node:', { id: node.id, name: node.name, type: node.type });
-        
-        let displayLabel = nodeName;
-        if (!settings.showLabels) {
-          displayLabel = '';
-        } else if (nodeName.length > 15) {
-          const words = nodeName.split(' ');
-          if (words.length > 1 && words[0].length <= 10) {
-            displayLabel = words[0] + '...';
-          } else {
-            displayLabel = nodeName.substring(0, 10) + '...';
-          }
-        }
-        
-        return {
-          data: {
-            id: String(node.id), // Ensure ID is string
-            label: displayLabel,
-            fullName: nodeName,
-            type: node.type || 'entity',
-            confidence: node.confidence || 0.8,
-            connections: node.connections || 0,
-            originalNode: node
-          }
-        };
-      });
+      };
+    });
 
     const edges = data.edges
       .filter(edge => {
-        // Handle different edge format from backend
         const source = edge.from;
         const target = edge.to;
-        
-        // Only include edges where both nodes are visible
         const sourceVisible = nodes.some(n => n.data.id === String(source));
         const targetVisible = nodes.some(n => n.data.id === String(target));
         return sourceVisible && targetVisible;
       })
       .map(edge => {
-        // Handle different edge data formats from backend
         const source = edge.from;
         const target = edge.to;
         const label = edge.label || edge.type || 'related';
-        
+
         return {
           data: {
-            id: String(edge.id || `${source}-${target}-${label}`), // Generate ID if missing
+            id: String(edge.id || `${source}-${target}-${label}`),
             source: String(source),
             target: String(target),
             label: settings.showEdgeLabels ? label : '',
@@ -182,62 +206,39 @@ export function ModernGraph({
         };
       });
 
-    console.log('Converted cytoscape data:', { nodes: nodes.length, edges: edges.length });
-    console.log('Sample node:', nodes[0]);
-    console.log('Sample edge:', edges[0]);
-
     return { nodes, edges };
-  }, [data, searchQuery, filteredTypes, settings.showLabels, settings.showEdgeLabels]);
+  }, [data, settings.showEdgeLabels, settings.nodeSize]);
 
   // Get node color based on scheme
   const getNodeColor = useCallback((node: any) => {
     const nodeData = node.data();
-    
+
     switch (settings.colorScheme) {
       case 'semantic':
-        const typeColors: Record<string, string> = {
-          'entity': '#3b82f6',
-          'concept': '#8b5cf6',
-          'person': '#ef4444',
-          'place': '#10b981',
-          'organization': '#f59e0b',
-          'event': '#ec4899',
-          'document': '#6366f1',
-          'topic': '#14b8a6'
-        };
-        return typeColors[nodeData.type] || '#64748b';
-      
-      case 'confidence':
+        return TYPE_COLORS[nodeData.type] || DEFAULT_COLOR;
+
+      case 'confidence': {
         const confidence = nodeData.confidence || 0.5;
         if (confidence >= 0.8) return '#10b981';
         if (confidence >= 0.6) return '#f59e0b';
         return '#ef4444';
-      
+      }
+
       case 'temporal':
-        // Color based on recency (mock implementation)
         return '#3b82f6';
-      
+
       default:
         return '#3b82f6';
     }
   }, [settings.colorScheme]);
 
-  // Initialize Cytoscape
+  // Initialize Cytoscape — only rebuilds when the actual graph data changes
   useEffect(() => {
-    console.log('ModernGraph useEffect triggered');
-    
-    if (!containerRef.current) {
-      console.log('Container ref not available');
+    if (!containerRef.current || !dataFingerprint) {
       return;
     }
 
     if (!data?.nodes || data.nodes.length === 0) {
-      console.log('No nodes data available for graph rendering:', { 
-        hasData: !!data,
-        nodesCount: data?.nodes?.length,
-        edgesCount: data?.edges?.length,
-        statistics: data?.statistics
-      });
       return;
     }
 
@@ -251,7 +252,8 @@ export function ModernGraph({
       cyRef.current = null;
     }
 
-    // Create new Cytoscape instance
+    const isLargeGraph = data.nodes.length > 500;
+
     try {
       const cy = cytoscape({
         container: containerRef.current,
@@ -261,24 +263,14 @@ export function ModernGraph({
             selector: 'node',
             style: {
               'background-color': (ele: any) => getNodeColor(ele),
-              'label': 'data(label)',
-              'color': '#ffffff',
-              'text-valign': 'center',
-              'text-halign': 'center',
-              'font-size': `${Math.max(8, settings.nodeSize * 0.4)}px`,
-              'font-weight': 600,
-              'width': `${settings.nodeSize}px`,
-              'height': `${settings.nodeSize}px`,
+              'shape': 'data(nodeShape)' as any,
+              'width': 'data(scaledSize)' as any,
+              'height': 'data(scaledSize)' as any,
+              'opacity': 'data(nodeOpacity)' as any,
               'border-width': 2,
               'border-color': '#ffffff',
-              'text-wrap': 'wrap',
-              'text-max-width': `${settings.nodeSize * 2}px`,
-              'text-overflow-wrap': 'anywhere',
-              'text-outline-color': '#000000',
-              'text-outline-width': 1,
-              'text-outline-opacity': 0.3,
-              'transition-property': 'all',
-              'transition-duration': 200
+              'transition-property': 'border-color, border-width',
+              'transition-duration': 150
             }
           },
           {
@@ -308,8 +300,6 @@ export function ModernGraph({
             style: {
               'border-width': 4,
               'border-color': '#06b6d4',
-              'width': `${settings.nodeSize * 1.3}px`,
-              'height': `${settings.nodeSize * 1.3}px`,
               'z-index': 999
             }
           },
@@ -322,38 +312,27 @@ export function ModernGraph({
               'opacity': 1,
               'z-index': 999
             }
-          },
-          {
-            selector: 'node:hover',
-            style: {
-              'width': `${settings.nodeSize * 1.2}px`,
-              'height': `${settings.nodeSize * 1.2}px`,
-              'border-color': '#06b6d4',
-              'border-width': 3,
-              'transition-duration': 100
-            }
           }
         ],
         layout: {
           name: settings.layout,
-          animate: settings.physics,
-          animationDuration: data?.nodes && data.nodes.length > 500 ? 800 : 1500, // Faster for large graphs
-          nodeDimensionsIncludeLabels: true,
+          animate: true,
+          animationDuration: isLargeGraph ? 800 : 1500,
+          nodeDimensionsIncludeLabels: false,
           fit: true,
-          padding: data?.nodes && data.nodes.length > 500 ? 50 : 80, // Less padding for large graphs
-          // Optimize for large graphs
-          nodeRepulsion: data?.nodes && data.nodes.length > 500 ? 10000 : 20000, // Less repulsion for performance
-          nodeOverlap: 30, // Tighter packing for large graphs
-          idealEdgeLength: data?.nodes && data.nodes.length > 500 ? 100 : 200, // Shorter edges for large graphs
+          padding: isLargeGraph ? 50 : 80,
+          nodeRepulsion: isLargeGraph ? 10000 : 20000,
+          nodeOverlap: 30,
+          idealEdgeLength: isLargeGraph ? 100 : 200,
           edgeElasticity: 50,
           nestingFactor: 0.1,
           gravity: 60,
-          numIter: data?.nodes && data.nodes.length > 500 ? 800 : 1500, // Fewer iterations for large graphs
-          initialTemp: 200, // Lower initial temperature for performance
-          coolingFactor: 0.85, // Faster cooling for large graphs
+          numIter: isLargeGraph ? 800 : 1500,
+          initialTemp: 200,
+          coolingFactor: 0.85,
           minTemp: 1.0,
-          componentSpacing: data?.nodes && data.nodes.length > 500 ? 50 : 100, // Tighter spacing
-          randomize: true // Randomize initial positions
+          componentSpacing: isLargeGraph ? 50 : 100,
+          randomize: true
         },
         userZoomingEnabled: true,
         userPanningEnabled: true,
@@ -366,66 +345,114 @@ export function ModernGraph({
       });
 
       cyRef.current = cy;
-      console.log('Cytoscape instance created successfully');
 
-      // Event handlers
+      // Node tap — fire callback to parent
       cy.on('tap', 'node', (evt) => {
         const node = evt.target;
         const nodeData = node.data();
-        const originalNode = nodeData.originalNode;
-        setSelectedNode(originalNode);
-        setSelectedEdge(null);
-        onNodeSelect?.(originalNode);
+        onNodeSelectRef.current?.(nodeData.originalNode);
       });
 
+      // Edge tap — fire callback to parent
       cy.on('tap', 'edge', (evt) => {
         const edge = evt.target;
         const edgeData = edge.data();
-        const originalEdge = edgeData.originalEdge;
-        setSelectedEdge(originalEdge);
-        setSelectedNode(null);
-        onEdgeSelect?.(originalEdge);
+        onEdgeSelectRef.current?.(edgeData.originalEdge);
       });
 
-      cy.on('tap', (evt) => {
-        if (evt.target === cy) {
-          setSelectedNode(null);
-          setSelectedEdge(null);
-        }
+      // Tooltip on hover
+      cy.on('mouseover', 'node', (evt) => {
+        const node = evt.target;
+        const nodeData = node.data();
+        const renderedPos = node.renderedPosition();
+
+        setTooltip({
+          visible: true,
+          x: renderedPos.x,
+          y: renderedPos.y - (nodeData.scaledSize / 2) - 12,
+          name: nodeData.fullName,
+          type: nodeData.type,
+          color: TYPE_COLORS[nodeData.type] || DEFAULT_COLOR
+        });
+
+        // Highlight border
+        node.style('border-color', '#06b6d4');
+        node.style('border-width', 3);
+      });
+
+      cy.on('mouseout', 'node', (evt) => {
+        setTooltip(prev => ({ ...prev, visible: false }));
+        const node = evt.target;
+        node.style('border-color', '#ffffff');
+        node.style('border-width', 2);
       });
 
       cy.on('zoom', () => {
         setZoom(cy.zoom());
+        setTooltip(prev => ({ ...prev, visible: false }));
       });
 
-      // Fit to view after layout
+      cy.on('pan', () => {
+        setTooltip(prev => ({ ...prev, visible: false }));
+      });
+
+      // Fit to view after layout completes
       cy.on('layoutstop', () => {
         setTimeout(() => {
           cy.fit();
           cy.center();
-          console.log('Layout completed and graph fitted to view');
         }, 100);
       });
-
-      // Force a layout run after initialization
-      setTimeout(() => {
-        if (cy) {
-          const layout = cy.layout({
-            name: settings.layout,
-            animate: true,
-            animationDuration: 1500,
-            nodeRepulsion: 20000,
-            idealEdgeLength: 200,
-            randomize: true
-          });
-          layout.run();
-        }
-      }, 500);
 
     } catch (error) {
       console.error('Error creating Cytoscape instance:', error);
     }
-  }, [data, getCytoscapeData, getNodeColor, onNodeSelect, onEdgeSelect, settings]);
+
+    return () => {
+      if (cyRef.current) {
+        try {
+          cyRef.current.destroy();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        cyRef.current = null;
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataFingerprint]);
+
+  // Apply search/filter via Cytoscape visibility — no rebuild needed
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+
+    cy.nodes().forEach((node) => {
+      const nodeData = node.data();
+      const nodeName: string = nodeData.fullName || '';
+      const nodeType: string = nodeData.type || 'entity';
+
+      let visible = true;
+      if (searchQuery && !nodeName.toLowerCase().includes(searchQuery.toLowerCase())) {
+        visible = false;
+      }
+      if (filteredTypes.length > 0 && !filteredTypes.includes(nodeType)) {
+        visible = false;
+      }
+
+      node.style('display', visible ? 'element' : 'none');
+    });
+
+    // Hide edges where either endpoint is hidden
+    cy.edges().forEach((edge) => {
+      const src = edge.source();
+      const tgt = edge.target();
+      if (src.style('display') === 'none' || tgt.style('display') === 'none') {
+        edge.style('display', 'none');
+      } else {
+        edge.style('display', 'element');
+      }
+    });
+  }, [searchQuery, filteredTypes]);
 
   // Control functions
   const zoomIn = () => {
@@ -455,12 +482,11 @@ export function ModernGraph({
 
   const runLayout = () => {
     if (cyRef.current) {
-      console.log('Running manual layout with settings:', settings.layout);
       const layout = cyRef.current.layout({
         name: settings.layout,
         animate: true,
         animationDuration: 1500,
-        nodeDimensionsIncludeLabels: true,
+        nodeDimensionsIncludeLabels: false,
         fit: true,
         padding: 80,
         nodeRepulsion: 20000,
@@ -477,8 +503,7 @@ export function ModernGraph({
         randomize: true
       });
       layout.run();
-      
-      // Fit view after layout completes
+
       setTimeout(() => {
         if (cyRef.current) {
           cyRef.current.fit();
@@ -497,8 +522,7 @@ export function ModernGraph({
         maxHeight: 2000,
         bg: '#ffffff'
       });
-      
-      // Create download link
+
       const url = URL.createObjectURL(png64);
       const a = document.createElement('a');
       a.href = url;
@@ -511,8 +535,8 @@ export function ModernGraph({
   };
 
   const toggleTypeFilter = (type: string) => {
-    setFilteredTypes(prev => 
-      prev.includes(type) 
+    setFilteredTypes(prev =>
+      prev.includes(type)
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
@@ -537,7 +561,7 @@ export function ModernGraph({
       <div className="h-full flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-600 text-2xl">⚠</span>
+            <span className="text-red-600 text-2xl">!</span>
           </div>
           <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Graph</h3>
           <p className="text-red-600 max-w-md">{error}</p>
@@ -548,13 +572,11 @@ export function ModernGraph({
 
   // Empty state
   if (!data?.nodes || data.nodes.length === 0) {
-    // Check if this is due to a backend connection issue
-    // The error could be in the `error` prop or in the data.error field
     const backendError = (data as any)?.error || error;
-    const hasConnectionIssue = backendError?.includes('Neptune connection') || 
+    const hasConnectionIssue = backendError?.includes('Neptune connection') ||
                               backendError?.includes('connection unavailable') ||
                               backendError?.includes('Neptune connection unavailable');
-    
+
     return (
       <div className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl">
         <div className="text-center max-w-lg">
@@ -562,9 +584,9 @@ export function ModernGraph({
             hasConnectionIssue ? 'bg-yellow-100' : 'bg-blue-100'
           }`}>
             {hasConnectionIssue ? (
-              <span className="text-2xl">⚠️</span>
+              <span className="text-2xl">!</span>
             ) : (
-              <Move className="h-10 w-10 text-blue-600" />
+              <Database className="h-10 w-10 text-blue-600" />
             )}
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -573,7 +595,7 @@ export function ModernGraph({
           <p className="text-gray-600 mb-6 max-w-md">
             {hasConnectionIssue ? (
               <>
-                The knowledge graph database (Neptune) is currently unavailable. 
+                The knowledge graph database (Neptune) is currently unavailable.
                 This is usually a temporary connection issue that will resolve automatically.
                 <br /><br />
                 <span className="text-sm text-gray-500">
@@ -659,6 +681,10 @@ export function ModernGraph({
                             onChange={() => toggleTypeFilter(type)}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
+                          <div
+                            className="w-3 h-3 rounded-sm"
+                            style={{ backgroundColor: TYPE_COLORS[type] || DEFAULT_COLOR }}
+                          />
                           <span className="text-sm text-gray-700 capitalize">{type}</span>
                         </label>
                       ))}
@@ -681,7 +707,7 @@ export function ModernGraph({
           >
             <ZoomIn className="w-4 h-4 text-gray-600" />
           </motion.button>
-          
+
           <motion.button
             onClick={zoomOut}
             whileHover={{ scale: 1.1 }}
@@ -709,7 +735,7 @@ export function ModernGraph({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Run Layout"
+            title="Re-layout"
           >
             <RefreshCw className="w-4 h-4 text-gray-600" />
           </motion.button>
@@ -729,11 +755,37 @@ export function ModernGraph({
       </div>
 
       {/* Graph Canvas */}
-      <div 
+      <div
         ref={containerRef}
         className="w-full h-full bg-gradient-to-br from-gray-50 to-blue-50"
         style={{ minHeight: '600px' }}
       />
+
+      {/* Hover Tooltip */}
+      {tooltip.visible && (
+        <div
+          className="absolute z-30 pointer-events-none"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
+            <span className="font-semibold">{tooltip.name}</span>
+            <span
+              className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium capitalize"
+              style={{ backgroundColor: tooltip.color + '33', color: tooltip.color }}
+            >
+              {tooltip.type}
+            </span>
+          </div>
+          {/* Tooltip arrow */}
+          <div className="flex justify-center">
+            <div className="w-2 h-2 bg-gray-900 rotate-45 -mt-1"></div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Stats */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200 p-3 shadow-sm">
@@ -762,160 +814,91 @@ export function ModernGraph({
         </div>
       </div>
 
-      {/* Node/Edge Details Panel */}
-      <AnimatePresence>
-        {(selectedNode || selectedEdge) && (
-          <motion.div
-            initial={{ opacity: 0, x: 300 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 300 }}
-            className="absolute top-4 right-4 w-80 bg-white rounded-2xl border border-gray-200 shadow-xl p-6 z-30"
-          >
-            {selectedNode && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900 text-lg">Node Details</h3>
-                  <button
-                    onClick={() => setSelectedNode(null)}
-                    className="p-1 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Eye className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Name</label>
-                    <p className="font-semibold text-gray-900">{selectedNode.name}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Type</label>
-                    <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium capitalize">
-                      {selectedNode.type}
-                    </span>
-                  </div>
-                  
-                  {selectedNode.confidence && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Confidence</label>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${selectedNode.confidence * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">
-                          {Math.round(selectedNode.confidence * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {selectedNode.connections && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Connections</label>
-                      <p className="font-semibold text-gray-900">{selectedNode.connections}</p>
-                    </div>
-                  )}
-                  
-                  {selectedNode.description && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Description</label>
-                      <p className="text-gray-700 text-sm">{selectedNode.description}</p>
-                    </div>
-                  )}
-                  
-                  {selectedNode.metadata?.user_id && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">User ID</label>
-                      <p className="text-gray-700 text-sm font-mono">{selectedNode.metadata.user_id}</p>
-                    </div>
-                  )}
-                  
-                  {selectedNode.metadata?.timestamp && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Created</label>
-                      <p className="text-gray-700 text-sm">
-                        {new Date(selectedNode.metadata.timestamp).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+      {/* Legend Panel — bottom right */}
+      <div className="absolute bottom-4 right-4 z-20">
+        <motion.button
+          onClick={() => setShowLegend(!showLegend)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="mb-2 ml-auto flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 px-2.5 py-1.5 shadow-sm text-xs text-gray-600 hover:bg-white transition-colors"
+        >
+          <Info className="w-3.5 h-3.5" />
+          <span>Legend</span>
+          <ChevronDown className={`w-3 h-3 transition-transform ${showLegend ? 'rotate-180' : ''}`} />
+        </motion.button>
 
-            {selectedEdge && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900 text-lg">Edge Details</h3>
-                  <button
-                    onClick={() => setSelectedEdge(null)}
-                    className="p-1 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Eye className="w-4 h-4 text-gray-500" />
-                  </button>
+        <AnimatePresence>
+          {showLegend && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm p-4 min-w-52"
+            >
+              {/* Colors — entity types */}
+              <h5 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Color = Type</h5>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
+                {nodeTypes.map(type => (
+                  <div key={type} className="flex items-center gap-1.5">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: TYPE_COLORS[type] || DEFAULT_COLOR }}
+                    />
+                    <span className="text-[11px] text-gray-600 capitalize truncate">{type}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 my-2" />
+
+              {/* Shapes */}
+              <h5 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Shape = Category</h5>
+              <div className="space-y-1 mb-3">
+                {SHAPE_CATEGORIES.map(cat => (
+                  <div key={cat.label} className="flex items-center gap-2">
+                    {/* Inline SVG shape icon */}
+                    <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
+                      {cat.shape === 'circle' && (
+                        <circle cx="7" cy="7" r="5" fill="#94a3b8" />
+                      )}
+                      {cat.shape === 'diamond' && (
+                        <polygon points="7,1 13,7 7,13 1,7" fill="#94a3b8" />
+                      )}
+                      {cat.shape === 'square' && (
+                        <rect x="2" y="2" width="10" height="10" rx="1" fill="#94a3b8" />
+                      )}
+                    </svg>
+                    <span className="text-[11px] text-gray-600">{cat.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 my-2" />
+
+              {/* Size & Opacity */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                    <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
+                    <div className="w-3.5 h-3.5 bg-gray-400 rounded-full" />
+                  </div>
+                  <span className="text-[11px] text-gray-600">Larger = more connections</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Relationship</label>
-                    <p className="font-semibold text-gray-900">{selectedEdge.label}</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    <div className="w-2.5 h-2.5 bg-gray-400 rounded-full opacity-30" />
+                    <div className="w-2.5 h-2.5 bg-gray-400 rounded-full opacity-60" />
+                    <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
                   </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Connection</label>
-                    <p className="text-gray-700 text-sm">
-                      {selectedEdge.from} → {selectedEdge.to}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Type</label>
-                    <span className="inline-block px-2 py-1 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium capitalize">
-                      {selectedEdge.type}
-                    </span>
-                  </div>
-                  
-                  {selectedEdge.confidence && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Confidence</label>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${selectedEdge.confidence * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">
-                          {Math.round(selectedEdge.confidence * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {selectedEdge.metadata?.predicate && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Predicate</label>
-                      <p className="text-gray-700 text-sm font-mono">{selectedEdge.metadata.predicate}</p>
-                    </div>
-                  )}
-                  
-                  {selectedEdge.metadata?.timestamp && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Created</label>
-                      <p className="text-gray-700 text-sm">
-                        {new Date(selectedEdge.metadata.timestamp).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
+                  <span className="text-[11px] text-gray-600">Brighter = higher confidence</span>
                 </div>
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

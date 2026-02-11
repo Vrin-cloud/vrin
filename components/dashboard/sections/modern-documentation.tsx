@@ -60,34 +60,34 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
   };
 
   const CodeBlock = ({ example, id }: { example: CodeExample; id: string }) => (
-    <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
-      <div className="flex items-center justify-between bg-gray-800 px-4 py-2 border-b border-gray-700">
+    <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+      <div className="flex items-center justify-between bg-gray-100 px-4 py-2 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
           </div>
-          <span className="text-gray-400 text-sm font-medium">{example.title}</span>
+          <span className="text-gray-600 text-sm font-medium">{example.title}</span>
         </div>
         <motion.button
           onClick={() => copyToClipboard(example.code, id)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+          className="flex items-center gap-1 px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
         >
           {copiedCode === id ? (
-            <CheckCircle2 className="w-4 h-4 text-green-400" />
+            <CheckCircle2 className="w-4 h-4 text-green-600" />
           ) : (
-            <Copy className="w-4 h-4 text-gray-400" />
+            <Copy className="w-4 h-4 text-gray-500" />
           )}
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-500">
             {copiedCode === id ? 'Copied!' : 'Copy'}
           </span>
         </motion.button>
       </div>
       <pre className="p-4 overflow-x-auto">
-        <code className="text-sm text-gray-100 whitespace-pre">
+        <code className="text-sm text-gray-800 whitespace-pre">
           {example.code}
         </code>
       </pre>
@@ -141,42 +141,42 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
               </div>
             </div>
 
-            <div className="bg-gray-900 p-8 text-white shadow-sm">
+            <div className="bg-gray-50 p-8 text-gray-900 border border-gray-200 rounded-xl shadow-sm">
               <h3 className="text-xl font-semibold mb-4">Key Features</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Automatic fact deduplication</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Real-time knowledge insertion</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Advanced semantic search</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Multi-modal understanding</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>User-defined AI specialization</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Multi-hop reasoning chains</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Smart deduplication (40-60% savings)</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <span>Expert-level performance validation</span>
                   </div>
                 </div>

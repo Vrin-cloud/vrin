@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,14 +23,16 @@ import {
   Command,
   MessageSquare,
   Brain,
-  Loader2
+  Loader2,
+  Plug,
+  ArrowUpRight
 } from 'lucide-react';
 import { AuthService, VRINService } from '../../lib/services/vrin-service';
 import { ModernApiKeysSection } from '../../components/dashboard/sections/modern-api-keys';
 import { ModernGraph } from '../../components/dashboard/knowledge-graph/modern-graph';
-import { NodeDetailsDialog } from '../../components/dashboard/knowledge-graph/node-details-dialog';
 import { ModernDocumentationSection } from '../../components/dashboard/sections/modern-documentation';
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
+import { MCPSection } from '../../components/dashboard/sections/mcp-section';
 import { DataSourcesSection } from '../../components/dashboard/sections/data-sources-section';
 import { useAccountKnowledgeGraph } from '../../hooks/use-knowledge-graph';
 import type { Node, Edge, Triple, GraphStatistics } from '../../types/knowledge-graph';
@@ -53,10 +55,11 @@ interface GraphData {
 // Sidebar navigation items - defined outside component for use in search
 const sidebarItems = [
   { id: 'home', label: 'Home', icon: BarChart3, color: 'blue' },
-  { id: 'data-sources', label: 'Data Sources', icon: Globe, color: 'cyan', badge: 'NEW' },
+  { id: 'data-sources', label: 'Data Sources', icon: Globe, color: 'cyan' },
   { id: 'graph', label: 'Knowledge Graph', icon: Database, color: 'pink' },
   { id: 'ai-specialization', label: 'AI Specialization', icon: Sparkles, color: 'purple' },
   { id: 'api-keys', label: 'API Keys', icon: Key, color: 'indigo' },
+  { id: 'mcp', label: 'MCP', icon: Plug, color: 'emerald' },
   { id: 'api-docs', label: 'Documentation', icon: FileText, color: 'teal' },
 ];
 
@@ -69,9 +72,6 @@ export default function Dashboard() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
   const [showMenuSearch, setShowMenuSearch] = useState(false);
-  const [selectedGraphNode, setSelectedGraphNode] = useState<Node | null>(null);
-  const [selectedGraphEdge, setSelectedGraphEdge] = useState<Edge | null>(null);
-  const [showNodeDialog, setShowNodeDialog] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // NextAuth session for Google OAuth
@@ -164,7 +164,7 @@ export default function Dashboard() {
     // Check for URL query parameter to set active section
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    if (tab && ['home', 'data-sources', 'graph', 'ai-specialization', 'api-keys', 'api-docs'].includes(tab)) {
+    if (tab && ['home', 'data-sources', 'graph', 'ai-specialization', 'api-keys', 'mcp', 'api-docs'].includes(tab)) {
       setActiveSection(tab);
     }
   }, [session, sessionStatus]);
@@ -187,15 +187,10 @@ export default function Dashboard() {
   // Extract error from response data or hook error
   const actualGraphError = knowledgeGraphResponse?.error || graphError?.message || null;
   
-  console.log('📊 Dashboard - Knowledge graph state:', {
-    hasResponse: !!knowledgeGraphResponse,
-    hasData: !!graphData,
-    nodesCount: graphData?.nodes?.length || 0,
-    edgesCount: graphData?.edges?.length || 0,
-    hookError: graphError?.message,
-    responseError: knowledgeGraphResponse?.error,
-    actualError: actualGraphError
-  });
+  // Only log graph errors, not every render
+  if (actualGraphError) {
+    console.warn('Dashboard - Knowledge graph error:', actualGraphError);
+  }
 
   const handleLogout = async () => {
     // Clear localStorage
@@ -210,23 +205,13 @@ export default function Dashboard() {
     window.location.href = '/auth';
   };
 
-  const handleNodeSelect = (node: Node) => {
-    setSelectedGraphNode(node);
-    setSelectedGraphEdge(null);
-    setShowNodeDialog(true);
-  };
+  const handleNodeSelect = useCallback((_node: Node) => {
+    // Node selection handled inside ModernGraph (tooltip on hover)
+  }, []);
 
-  const handleEdgeSelect = (edge: Edge) => {
-    setSelectedGraphEdge(edge);
-    setSelectedGraphNode(null);
-    setShowNodeDialog(true);
-  };
-
-  const handleCloseNodeDialog = () => {
-    setShowNodeDialog(false);
-    setSelectedGraphNode(null);
-    setSelectedGraphEdge(null);
-  };
+  const handleEdgeSelect = useCallback((_edge: Edge) => {
+    // Edge selection handled inside ModernGraph
+  }, []);
 
   // Show loading state while checking authentication
   if (isCheckingAuth || sessionStatus === 'loading') {
@@ -352,14 +337,6 @@ export default function Dashboard() {
                 onNodeSelect={handleNodeSelect}
                 onEdgeSelect={handleEdgeSelect}
               />
-              
-              {/* Node Details Dialog */}
-              <NodeDetailsDialog
-                isOpen={showNodeDialog}
-                onClose={handleCloseNodeDialog}
-                selectedNode={selectedGraphNode}
-                selectedEdge={selectedGraphEdge}
-              />
             </div>
           </div>
         );
@@ -367,6 +344,8 @@ export default function Dashboard() {
         return <AISpecializationSection apiKey={apiKey} />;
       case 'api-keys':
         return <ModernApiKeysSection />;
+      case 'mcp':
+        return <MCPSection apiKey={apiKey} />;
       case 'api-docs':
         return (
           <div className="absolute inset-0 -m-6 z-50">
@@ -497,20 +476,16 @@ export default function Dashboard() {
           <div className="flex-1 p-4 space-y-2 overflow-y-auto">
             {/* Chat Page Link - Minimal Design */}
             <Link href="/chat">
-              <button className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left bg-gray-900 text-white hover:bg-gray-800">
+              <button className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left border border-gray-900 text-gray-900 hover:bg-gray-50">
                 <MessageSquare className="w-4 h-4" />
                 {isSidebarOpen && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex-1"
+                    className="flex-1 flex items-center justify-between"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Chat with VRIN</span>
-                      <span className="px-1.5 py-0.5 bg-white/20 text-xs font-medium rounded">
-                        NEW
-                      </span>
-                    </div>
+                    <span className="font-medium">Chat with VRIN</span>
+                    <ArrowUpRight className="w-4 h-4 text-gray-400" />
                   </motion.div>
                 )}
               </button>
@@ -529,25 +504,18 @@ export default function Dashboard() {
                   }}
                   className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left ${
                     isActive
-                      ? 'bg-gray-100 text-gray-900'
+                      ? 'text-blue-600 font-semibold'
                       : 'hover:bg-gray-50 text-gray-700'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : ''}`} />
                   {isSidebarOpen && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="flex-1"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{item.label}</span>
-                        {item.badge && (
-                          <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
+                      <span className="font-medium">{item.label}</span>
                     </motion.div>
                   )}
                 </button>
@@ -659,11 +627,6 @@ export default function Dashboard() {
                             >
                               <Icon className="w-4 h-4 text-gray-500" />
                               <span className="text-sm text-gray-700">{item.label}</span>
-                              {item.badge && (
-                                <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded ml-auto">
-                                  {item.badge}
-                                </span>
-                              )}
                             </button>
                           );
                         })}
@@ -791,7 +754,7 @@ function HomeSection({ user, onNavigate }: { user: User; onNavigate: (section: s
             >
               <div className="flex items-start gap-4">
                 {/* Step Number */}
-                <div className="flex-shrink-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="flex-shrink-0 w-8 h-8 border border-gray-900 text-gray-900 rounded-full flex items-center justify-center text-sm font-medium">
                   {item.step}
                 </div>
 
@@ -819,7 +782,7 @@ function HomeSection({ user, onNavigate }: { user: User; onNavigate: (section: s
                     {/* Action Button */}
                     {item.isLink ? (
                       <Link href={item.href || '#'}>
-                        <button className="flex-shrink-0 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+                        <button className="flex-shrink-0 px-4 py-2 border border-gray-900 text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
                           {item.action}
                           <ArrowRight className="w-4 h-4" />
                         </button>
@@ -827,7 +790,7 @@ function HomeSection({ user, onNavigate }: { user: User; onNavigate: (section: s
                     ) : (
                       <button
                         onClick={() => onNavigate(item.section)}
-                        className="flex-shrink-0 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                        className="flex-shrink-0 px-4 py-2 border border-gray-900 text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
                       >
                         {item.action}
                         <ArrowRight className="w-4 h-4" />

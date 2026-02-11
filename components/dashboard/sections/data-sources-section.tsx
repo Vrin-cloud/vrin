@@ -451,7 +451,7 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="w-full mt-4 px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 px-4 py-3 border border-gray-900 text-gray-900 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>
