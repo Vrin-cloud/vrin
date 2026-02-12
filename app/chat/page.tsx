@@ -453,7 +453,7 @@ export default function ChatPage() {
     console.log('With attachments:', pendingAttachments.length)
     const message = inputMessage
     const attachmentsToSend = [...pendingAttachments]  // Copy attachments
-    const wasNewConversation = !session?.session_id
+    const wasNewConversation = !session?.session_id || messages.length === 0
     setInputMessage('')
     setPendingAttachments([])  // Clear attachments
     // Reset textarea height after sending

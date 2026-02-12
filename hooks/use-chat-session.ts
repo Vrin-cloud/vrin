@@ -134,6 +134,19 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     setIsLoading(true);
     setError(null);
 
+    // Add user message immediately (with attachments if provided)
+    // This must happen BEFORE session creation so the user sees their message right away
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: message,
+      timestamp: Date.now(),
+      attachments: attachments && attachments.length > 0 ? attachments : undefined
+    };
+
+    console.log('Adding user message to UI', attachments?.length ? `with ${attachments.length} attachment(s)` : '');
+    setMessages(prev => [...prev, userMessage]);
+
     // Auto-create a session if none exists (user typed directly without clicking New Chat)
     let activeSession = session;
     if (!activeSession?.session_id) {
@@ -155,21 +168,11 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         console.error('Failed to auto-create session:', err);
         setError('Failed to start conversation. Please try again.');
         setIsLoading(false);
+        // Remove user message on session creation failure
+        setMessages(prev => prev.filter(m => m.id !== userMessage.id));
         return;
       }
     }
-
-    // Add user message immediately (with attachments if provided)
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: message,
-      timestamp: Date.now(),
-      attachments: attachments && attachments.length > 0 ? attachments : undefined
-    };
-
-    console.log('Adding user message to UI', attachments?.length ? `with ${attachments.length} attachment(s)` : '');
-    setMessages(prev => [...prev, userMessage]);
 
     try {
       const requestPayload = {
