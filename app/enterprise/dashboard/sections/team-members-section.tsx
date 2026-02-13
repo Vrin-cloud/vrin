@@ -24,6 +24,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'react-hot-toast'
 
+// Stytch Admin Portal for member management (invites, roles, deactivation)
+// Falls back to custom UI if Admin Portal components are not available
+let AdminPortalMemberManagement: React.ComponentType | null = null
+try {
+  const adminPortal = require('@stytch/nextjs/b2b/adminPortal')
+  AdminPortalMemberManagement = adminPortal.AdminPortalMemberManagement
+} catch {
+  // Will use custom invite UI as fallback
+}
+
 interface TeamMembersSectionProps {
   user: any
 }
@@ -361,6 +371,10 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
 
   const pendingInvitations = invitations.filter(inv => inv.status === 'pending')
 
+  const [managementView, setManagementView] = useState<'stytch' | 'custom'>(
+    AdminPortalMemberManagement ? 'stytch' : 'custom'
+  )
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -374,15 +388,59 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
               Manage your organization&apos;s team members and invitations
             </p>
           </div>
-          <Button
-            onClick={() => setShowInviteForm(!showInviteForm)}
-            className="bg-gray-900 hover:bg-gray-800"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Invite Member
-          </Button>
+          <div className="flex items-center space-x-3">
+            {AdminPortalMemberManagement && (
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    managementView === 'stytch' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                  onClick={() => setManagementView('stytch')}
+                >
+                  Admin Portal
+                </button>
+                <button
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    managementView === 'custom' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                  onClick={() => setManagementView('custom')}
+                >
+                  Custom View
+                </button>
+              </div>
+            )}
+            <Button
+              onClick={() => { setManagementView('custom'); setShowInviteForm(!showInviteForm); }}
+              className="bg-gray-900 hover:bg-gray-800"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Invite Member
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Stytch Admin Portal Member Management */}
+      {managementView === 'stytch' && AdminPortalMemberManagement && (
+        <Card className="border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-indigo-600" />
+              Member Management
+              <Badge variant="secondary" className="ml-2">Stytch Admin Portal</Badge>
+            </CardTitle>
+            <CardDescription>
+              Invite members, assign roles, and manage access. Stytch handles email delivery and account creation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="min-h-[400px]">
+            <AdminPortalMemberManagement />
+          </CardContent>
+        </Card>
+      )}
+
+      {managementView === 'custom' && (<>
+      {/* Original custom UI below */}
 
       {/* Invite Form */}
       {showInviteForm && (
@@ -910,6 +968,7 @@ export default function TeamMembersSection({ user }: TeamMembersSectionProps) {
           </CardContent>
         </Card>
       )}
+      </>)}
     </div>
   )
 }

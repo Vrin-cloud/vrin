@@ -18,7 +18,7 @@ import {
   Shield,
   MessageSquare,
 } from 'lucide-react'
-import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
+import { useEnterpriseStytchAuth } from '@/hooks/use-enterprise-stytch-auth'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import vrinIcon from '@/app/icon.svg'
@@ -38,10 +38,14 @@ const navigationItems = [
   { id: 'api-keys', label: 'API Keys', icon: Key },
   { id: 'infrastructure', label: 'Infrastructure', icon: Database },
   { id: 'configurations', label: 'Configurations', icon: Settings },
+  { id: 'sso-settings', label: 'SSO & Security', icon: Shield },
 ]
 
+// Lazy-loaded SSO settings section
+const SSOSettingsSection = React.lazy(() => import('./sections/sso-settings-section'))
+
 function DashboardContent() {
-  const { user, isAuthenticated, loading } = useEnterpriseAuth()
+  const { user, isAuthenticated, loading, logout } = useEnterpriseStytchAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -94,6 +98,12 @@ function DashboardContent() {
         return <InfrastructureConfigurationPage />
       case 'configurations':
         return <ConfigurationsPage />
+      case 'sso-settings':
+        return (
+          <React.Suspense fallback={<div className="flex items-center space-x-3"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div><span>Loading...</span></div>}>
+            <SSOSettingsSection />
+          </React.Suspense>
+        )
       default:
         return <OverviewSection user={user} />
     }
@@ -232,10 +242,7 @@ function DashboardContent() {
               <Button
                 variant="ghost"
                 className="w-full mt-3 text-sm"
-                onClick={() => {
-                  localStorage.removeItem('enterprise_token')
-                  window.location.href = '/enterprise/auth/login'
-                }}
+                onClick={() => logout()}
               >
                 Sign Out
               </Button>

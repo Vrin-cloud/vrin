@@ -4,12 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
  * Stytch User Sync API Route
  *
  * This endpoint syncs Stytch authenticated users with VRIN's user database.
- * It enables lazy migration: existing users (matched by email) are linked
- * to their Stytch identity, while new users are created with a free plan.
+ * It handles both individual and enterprise users:
+ *
+ * - Individual: Lazy migration — existing users linked to Stytch, new users get free plan
+ * - Enterprise: If Stytch org maps to VRIN enterprise org, creates/links enterprise user
  *
  * POST /api/auth/stytch/sync
  * Body: { email, name, member_id, organization_id }
- * Returns: { success, user_id, api_key, email, name, is_new_user, migrated }
+ * Returns: { success, user_id, api_key, email, name, is_new_user, migrated, is_enterprise?, organization_id?, role? }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -55,6 +57,7 @@ export async function POST(request: NextRequest) {
       user_id: data.user_id,
       is_new_user: data.is_new_user,
       migrated: data.migrated,
+      is_enterprise: data.is_enterprise || false,
     });
 
     return NextResponse.json(data);

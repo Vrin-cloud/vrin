@@ -1,50 +1,42 @@
 'use client';
 
 /**
- * Enterprise Registration Page - Modern Design with Google OAuth
+ * Enterprise Registration Page — Stytch B2B
  *
- * Features:
- * - Organization and user registration
- * - Google OAuth integration
- * - Form validation with real-time feedback
- * - Password strength indicator
- * - Modern glassmorphism design
+ * Matches the individual user auth page design (split-panel layout).
+ *
+ * Two-step registration:
+ *   1. Organization info (name, domain, industry, size)
+ *   2. Admin account (name, email, password)
+ *
+ * Calls the Stytch-backed /enterprise/auth/register endpoint which:
+ *   - Creates a Stytch Organization
+ *   - Creates a Stytch Member with password
+ *   - Creates VRIN DynamoDB records with Stytch links
+ *   - Returns session tokens for immediate login
  */
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
+import { useStytchB2BClient } from '@stytch/nextjs/b2b';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Database,
+  Loader2,
   Building2,
-  Mail,
-  Lock,
-  User,
+  ArrowRight,
+  ArrowLeft,
   Eye,
   EyeOff,
-  AlertCircle,
   CheckCircle2,
-  Loader2,
-  Shield,
 } from 'lucide-react';
+import vrinIcon from '@/app/icon.svg';
+import { API_CONFIG } from '@/config/api';
 
 export default function EnterpriseRegisterPage() {
   const router = useRouter();
+  const stytch = useStytchB2BClient();
 
   // Form state
   const [step, setStep] = useState<'organization' | 'user'>('organization');
@@ -62,11 +54,15 @@ export default function EnterpriseRegisterPage() {
 
   // UI state
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Password strength calculation
+  const discoveryRedirectURL = typeof window !== 'undefined'
+    ? `${window.location.origin}/enterprise/auth/authenticate`
+    : '/enterprise/auth/authenticate';
+
+  // Password strength
   const calculatePasswordStrength = (pwd: string): number => {
     let strength = 0;
     if (pwd.length >= 8) strength += 25;
@@ -79,48 +75,32 @@ export default function EnterpriseRegisterPage() {
 
   const passwordStrength = calculatePasswordStrength(password);
 
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength < 40) return 'bg-red-500';
-    if (passwordStrength < 70) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
-
   const getPasswordStrengthText = () => {
     if (passwordStrength < 40) return 'Weak';
     if (passwordStrength < 70) return 'Medium';
     return 'Strong';
   };
 
-  // Validate email
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength < 40) return 'bg-red-500';
+    if (passwordStrength < 70) return 'bg-yellow-500';
+    return 'bg-green-500';
   };
 
-  // Handle Google OAuth registration
+  // Handle Google OAuth registration via Stytch discovery
   const handleGoogleRegister = async () => {
-    setGoogleLoading(true);
-    setError(null);
+    if (!stytch) return;
+
+    setIsGoogleLoading(true);
+    setError('');
 
     try {
-      const response = await fetch('https://gp7g651udc.execute-api.us-east-1.amazonaws.com/Prod/enterprise/auth/google/authorize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type: 'register' }),
+      await stytch.oauth.google.discovery.start({
+        discovery_redirect_url: discoveryRedirectURL,
       });
-
-      const data = await response.json();
-
-      if (data.success && data.authorization_url) {
-        window.location.href = data.authorization_url;
-      } else {
-        setError('Google sign-up is temporarily unavailable');
-        setGoogleLoading(false);
-      }
-    } catch (err) {
-      setError('Failed to initialize Google sign-up');
-      setGoogleLoading(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start Google sign-up.');
+      setIsGoogleLoading(false);
     }
   };
 
@@ -159,7 +139,7 @@ export default function EnterpriseRegisterPage() {
       setError('Email is required');
       return false;
     }
-    if (!isValidEmail(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email address');
       return false;
     }
@@ -182,410 +162,347 @@ export default function EnterpriseRegisterPage() {
     return true;
   };
 
-  // Handle organization step submission
   const handleOrganizationNext = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
+    setError('');
     if (validateOrganizationStep()) {
       setStep('user');
     }
   };
 
-  // Handle final registration submission
+  // Handle final registration
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
+    setError('');
     if (!validateUserStep()) return;
 
     setLoading(true);
 
-    console.log('🚀 Registration starting - using updated endpoint');
-    console.log('📍 Organization endpoint:', 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/organization');
-
     try {
-      // Step 1: Create organization
-      console.log('📝 Creating organization:', organizationName);
-      const orgResponse = await fetch('https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/organization', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: organizationName,
-          domain: organizationDomain,
-          contact_email: email,
-          industry: industry,
-          size: companySize,
-        }),
-      });
+      const response = await fetch(
+        `${API_CONFIG.ENTERPRISE_BASE_URL}/enterprise/auth/register`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organizationName,
+            organizationDomain,
+            contactEmail: email,
+            firstName,
+            lastName,
+            password,
+            industry,
+            organizationSize: companySize,
+          }),
+        }
+      );
 
-      const orgData = await orgResponse.json();
+      const data = await response.json();
 
-      if (!orgResponse.ok || !orgData.success) {
-        setError(orgData.error || 'Failed to create organization');
-        setLoading(false);
-        return;
+      if (response.ok && data.success) {
+        if (data.session_token) {
+          document.cookie = `stytch_session=${data.session_token}; path=/; max-age=${24 * 60 * 60}; samesite=lax`;
+        }
+        if (data.session_jwt) {
+          document.cookie = `stytch_session_jwt=${data.session_jwt}; path=/; max-age=${24 * 60 * 60}; samesite=lax`;
+        }
+        if (data.user) {
+          localStorage.setItem('enterprise_user', JSON.stringify(data.user));
+        }
+        if (data.session_jwt) {
+          localStorage.setItem('enterprise_token', data.session_jwt);
+        }
+
+        setSuccess(true);
+        setTimeout(() => {
+          window.location.href = '/enterprise/dashboard';
+        }, 1500);
+      } else {
+        setError(data.error || 'Registration failed');
       }
-
-      const organizationId = orgData.organization_id;
-
-      // Step 2: Create user
-      const userResponse = await fetch('https://6xjf0e7djg.execute-api.us-east-1.amazonaws.com/dev/enterprise/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          organization_id: organizationId,
-          email: email,
-          first_name: firstName,
-          last_name: lastName,
-          password: password,
-          role: 'org_owner', // First user is organization owner
-        }),
-      });
-
-      const userData = await userResponse.json();
-
-      if (!userResponse.ok || !userData.success) {
-        setError(userData.error || 'Failed to create user account');
-        setLoading(false);
-        return;
-      }
-
-      // Success!
-      setSuccess(true);
-
-      // Redirect to login
-      setTimeout(() => {
-        router.push('/enterprise/auth/login?registered=true');
-      }, 2000);
-    } catch (err: any) {
+    } catch {
       setError('Network error. Please try again.');
-      console.error('Registration error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-20"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 dark:bg-indigo-600 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-20"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo and Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Database className="w-8 h-8 text-white" />
+  // Success screen
+  if (success) {
+    return (
+      <div className="min-h-screen bg-white flex">
+        {/* Left Panel */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gray-50 items-center justify-center p-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-center"
+          >
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Image src={vrinIcon} alt="VRiN Icon" width={56} height={56} unoptimized />
+              <Image src="/og-image.png" alt="VRiN" width={160} height={53} priority />
             </div>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Create Your Enterprise Account
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {step === 'organization'
-              ? 'Tell us about your organization'
-              : 'Set up your admin account'
-            }
-          </p>
-        </motion.div>
-
-        {/* Progress Indicator */}
-        <div className="mb-6 flex items-center justify-center space-x-4">
-          <div className="flex items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              step === 'organization'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-green-600 text-white'
-            }`}>
-              {step === 'user' ? <CheckCircle2 className="w-5 h-5" /> : '1'}
-            </div>
-            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Organization</span>
-          </div>
-          <div className="w-16 h-0.5 bg-gray-300 dark:bg-gray-600" />
-          <div className="flex items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              step === 'user'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
-            }`}>
-              2
-            </div>
-            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Account</span>
-          </div>
+            <p className="text-gray-600 text-lg">Enterprise Knowledge Platform</p>
+          </motion.div>
         </div>
 
-        {/* Registration Card */}
+        {/* Right Panel */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-md text-center"
+          >
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Account created!</h1>
+            <p className="text-gray-600 mb-6">
+              Your enterprise organization has been set up successfully.
+            </p>
+            <p className="text-sm text-gray-500">
+              Redirecting to dashboard...
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white flex">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gray-50 items-center justify-center p-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center"
         >
-          <Card className="p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700 shadow-2xl">
-            {/* Success Message */}
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start text-green-700 dark:text-green-400"
-              >
-                <CheckCircle2 className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium">Account created successfully!</p>
-                  <p className="text-sm mt-1">Redirecting to login...</p>
-                </div>
-              </motion.div>
-            )}
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Image src={vrinIcon} alt="VRiN Icon" width={56} height={56} unoptimized />
+            <Image src="/og-image.png" alt="VRiN" width={160} height={53} priority />
+          </div>
+          <p className="text-gray-600 text-lg">Enterprise Knowledge Platform</p>
+        </motion.div>
+      </div>
 
-            {/* Error Message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center text-red-700 dark:text-red-400"
-              >
-                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
-                <span>{error}</span>
-              </motion.div>
-            )}
+      {/* Right Panel - Registration Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Image src={vrinIcon} alt="VRiN" width={48} height={48} unoptimized />
+              <Image src="/og-image.png" alt="VRiN" width={120} height={40} priority />
+            </div>
+            <p className="text-gray-600">Enterprise Knowledge Platform</p>
+          </div>
 
-            {step === 'organization' && (
-              <>
-                {/* Google Sign Up Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full mb-6 h-12 text-gray-700 dark:text-gray-300 border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  onClick={handleGoogleRegister}
-                  disabled={googleLoading || loading}
-                >
-                  {googleLoading ? (
-                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                  ) : (
-                    <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Building2 className="w-5 h-5 text-gray-400" />
+              <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Enterprise</span>
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
+            <p className="text-gray-600 mt-2">
+              {step === 'organization'
+                ? 'Tell us about your organization'
+                : 'Set up your admin account'
+              }
+            </p>
+          </div>
+
+          {/* Step Indicator */}
+          <div className="mb-8 flex items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                step === 'organization'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-green-600 text-white'
+              }`}>
+                {step === 'user' ? <CheckCircle2 className="w-4 h-4" /> : '1'}
+              </div>
+              <span className="text-sm text-gray-600">Organization</span>
+            </div>
+            <div className="w-12 h-px bg-gray-300" />
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                step === 'user'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-200 text-gray-500'
+              }`}>
+                2
+              </div>
+              <span className="text-sm text-gray-600">Account</span>
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {step === 'organization' && (
+            <>
+              {/* Google Sign Up */}
+              <button
+                onClick={handleGoogleRegister}
+                disabled={isGoogleLoading || !stytch}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+              >
+                {isGoogleLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
-                  )}
-                  Continue with Google
-                </Button>
+                    <span className="font-medium text-gray-700">Continue with Google</span>
+                  </>
+                )}
+              </button>
 
-                {/* Divider */}
-                <div className="relative my-6">
-                  <Separator />
-                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 px-4 text-sm text-gray-500 dark:text-gray-400">
-                    Or register with email
-                  </span>
+              {/* Divider */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
                 </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">or register with email</span>
+                </div>
+              </div>
 
-                {/* Organization Form */}
-                <form onSubmit={handleOrganizationNext} className="space-y-5">
-                  <div>
-                    <Label htmlFor="orgName" className="text-gray-700 dark:text-gray-300 font-medium">
-                      Organization Name
-                    </Label>
-                    <div className="relative mt-2">
-                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        id="orgName"
-                        type="text"
-                        placeholder="Acme Corporation"
-                        value={organizationName}
-                        onChange={(e) => setOrganizationName(e.target.value)}
-                        className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                        disabled={loading || googleLoading}
-                      />
-                    </div>
-                  </div>
+              {/* Organization Form */}
+              <form onSubmit={handleOrganizationNext}>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                    placeholder="Organization name"
+                    required
+                    disabled={loading || isGoogleLoading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                  />
 
-                  <div>
-                    <Label htmlFor="orgDomain" className="text-gray-700 dark:text-gray-300 font-medium">
-                      Organization Domain
-                    </Label>
-                    <div className="relative mt-2">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        id="orgDomain"
-                        type="text"
-                        placeholder="acme.com"
-                        value={organizationDomain}
-                        onChange={(e) => setOrganizationDomain(e.target.value)}
-                        className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                        disabled={loading || googleLoading}
-                      />
-                    </div>
-                  </div>
+                  <input
+                    type="text"
+                    value={organizationDomain}
+                    onChange={(e) => setOrganizationDomain(e.target.value)}
+                    placeholder="Company domain (e.g. acme.com)"
+                    required
+                    disabled={loading || isGoogleLoading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                  />
 
-                  <div>
-                    <Label htmlFor="industry" className="text-gray-700 dark:text-gray-300 font-medium">
-                      Industry
-                    </Label>
-                    <Select value={industry} onValueChange={setIndustry} disabled={loading || googleLoading}>
-                      <SelectTrigger className="mt-2 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
-                        <SelectValue placeholder="Select your industry" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="technology">Technology</SelectItem>
-                        <SelectItem value="finance">Finance</SelectItem>
-                        <SelectItem value="healthcare">Healthcare</SelectItem>
-                        <SelectItem value="retail">Retail</SelectItem>
-                        <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                        <SelectItem value="education">Education</SelectItem>
-                        <SelectItem value="government">Government</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <select
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    required
+                    disabled={loading || isGoogleLoading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 disabled:opacity-50 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
+                    style={!industry ? { color: '#9ca3af' } : {}}
+                  >
+                    <option value="" disabled>Select your industry</option>
+                    <option value="technology">Technology</option>
+                    <option value="finance">Finance</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="retail">Retail</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="education">Education</option>
+                    <option value="government">Government</option>
+                    <option value="other">Other</option>
+                  </select>
 
-                  <div>
-                    <Label htmlFor="companySize" className="text-gray-700 dark:text-gray-300 font-medium">
-                      Company Size
-                    </Label>
-                    <Select value={companySize} onValueChange={setCompanySize} disabled={loading || googleLoading}>
-                      <SelectTrigger className="mt-2 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
-                        <SelectValue placeholder="Select company size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="startup">1-10 employees</SelectItem>
-                        <SelectItem value="sme">11-100 employees</SelectItem>
-                        <SelectItem value="enterprise">101-1000 employees</SelectItem>
-                        <SelectItem value="large">1000+ employees</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <select
+                    value={companySize}
+                    onChange={(e) => setCompanySize(e.target.value)}
+                    required
+                    disabled={loading || isGoogleLoading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 disabled:opacity-50 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
+                    style={!companySize ? { color: '#9ca3af' } : {}}
+                  >
+                    <option value="" disabled>Select company size</option>
+                    <option value="startup">1-10 employees</option>
+                    <option value="sme">11-100 employees</option>
+                    <option value="enterprise">101-1000 employees</option>
+                    <option value="large">1000+ employees</option>
+                  </select>
 
-                  <Button
+                  <button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg"
-                    disabled={loading || googleLoading}
+                    disabled={loading || isGoogleLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     Continue
-                  </Button>
-                </form>
-              </>
-            )}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
 
-            {step === 'user' && (
-              <form onSubmit={handleRegister} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName" className="text-gray-700 dark:text-gray-300 font-medium">
-                      First Name
-                    </Label>
-                    <div className="relative mt-2">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        id="firstName"
-                        type="text"
-                        placeholder="John"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="lastName" className="text-gray-700 dark:text-gray-300 font-medium">
-                      Last Name
-                    </Label>
-                    <Input
-                      id="lastName"
-                      type="text"
-                      placeholder="Doe"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="mt-2 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                      disabled={loading}
-                    />
-                  </div>
+          {step === 'user' && (
+            <form onSubmit={handleRegister}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    required
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                  />
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name"
+                    required
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                  />
                 </div>
 
-                <div>
-                  <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 font-medium">
-                    Email Address
-                  </Label>
-                  <div className="relative mt-2">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@acme.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                      disabled={loading}
-                    />
-                  </div>
-                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Work email (e.g. john@acme.com)"
+                  required
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                />
 
                 <div>
-                  <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
-                    Password
-                  </Label>
-                  <div className="relative mt-2">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                      id="password"
+                  <div className="relative">
+                    <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a strong password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                      placeholder="Create a password"
+                      required
                       disabled={loading}
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -594,7 +511,7 @@ export default function EnterpriseRegisterPage() {
                   {password && (
                     <div className="mt-2">
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-600 dark:text-gray-400">Password strength:</span>
+                        <span className="text-gray-500">Password strength</span>
                         <span className={`font-medium ${
                           passwordStrength < 40 ? 'text-red-600' :
                           passwordStrength < 70 ? 'text-yellow-600' :
@@ -603,120 +520,90 @@ export default function EnterpriseRegisterPage() {
                           {getPasswordStrengthText()}
                         </span>
                       </div>
-                      <Progress value={passwordStrength} className="h-2" />
+                      <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${getPasswordStrengthColor()}`}
+                          style={{ width: `${passwordStrength}%` }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300 font-medium">
-                    Confirm Password
-                  </Label>
-                  <div className="relative mt-2">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Re-enter your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                      disabled={loading}
-                    />
-                  </div>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    required
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                  />
                   {confirmPassword && password !== confirmPassword && (
                     <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
                   )}
                 </div>
 
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="terms"
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
                     checked={agreeToTerms}
-                    onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
-                    className="mt-1"
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
                   />
-                  <Label
-                    htmlFor="terms"
-                    className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer leading-relaxed"
-                  >
+                  <span className="text-sm text-gray-500 leading-relaxed">
                     I agree to the{' '}
-                    <Link href="/terms" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-                      Terms of Service
-                    </Link>
+                    <a href="/terms" className="text-gray-700 hover:text-gray-900 underline">Terms of Service</a>
                     {' '}and{' '}
-                    <Link href="/privacy" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </Label>
-                </div>
+                    <a href="/privacy" className="text-gray-700 hover:text-gray-900 underline">Privacy Policy</a>
+                  </span>
+                </label>
 
-                <div className="flex space-x-3">
-                  <Button
+                <div className="flex gap-3">
+                  <button
                     type="button"
-                    variant="outline"
-                    className="flex-1 h-12"
-                    onClick={() => setStep('organization')}
+                    onClick={() => { setStep('organization'); setError(''); }}
                     disabled={loading}
+                    className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-gray-700"
                   >
+                    <ArrowLeft className="w-4 h-4" />
                     Back
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="submit"
-                    className="flex-1 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg"
                     disabled={loading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Creating...
-                      </>
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      'Create Account'
+                      'Create account'
                     )}
-                  </Button>
+                  </button>
                 </div>
-              </form>
-            )}
+              </div>
+            </form>
+          )}
 
-            {/* Sign In Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{' '}
-                <Link
-                  href="/enterprise/auth/login"
-                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold"
-                >
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </Card>
-        </motion.div>
+          {/* Sign In Link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Already have an enterprise account?{' '}
+              <Link href="/enterprise/auth/login" className="text-gray-700 hover:text-gray-900 font-semibold underline underline-offset-2">
+                Sign in
+              </Link>
+            </p>
+          </div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 text-center"
-        >
-          <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-            <Link href="/enterprise" className="hover:text-gray-900 dark:hover:text-gray-200">
-              Home
-            </Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-gray-200">
-              Privacy
-            </Link>
-            <span>•</span>
-            <Link href="/terms" className="hover:text-gray-900 dark:hover:text-gray-200">
-              Terms
-            </Link>
-            <span>•</span>
-            <Link href="/help" className="hover:text-gray-900 dark:hover:text-gray-200">
-              Help
-            </Link>
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500">
+              By continuing, you agree to our{' '}
+              <a href="/terms" className="text-gray-700 hover:text-gray-900 underline">Terms of Service</a>
+              {' '}and{' '}
+              <a href="/privacy" className="text-gray-700 hover:text-gray-900 underline">Privacy Policy</a>
+            </p>
           </div>
         </motion.div>
       </div>
