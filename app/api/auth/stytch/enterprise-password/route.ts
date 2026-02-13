@@ -31,9 +31,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call VRIN backend which handles Stytch auth + org discovery
+    // Call VRIN auth handler which handles Stytch auth + org discovery
+    // Note: AUTH_BASE_URL (gp7g651udc) has the Stytch-backed login.
+    // ENTERPRISE_BASE_URL (6xjf0e7djg) has the deprecated legacy login.
     const backendResponse = await fetch(
-      `${API_CONFIG.ENTERPRISE_BASE_URL}/enterprise/auth/login`,
+      `${API_CONFIG.AUTH_BASE_URL}/enterprise/auth/login`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
