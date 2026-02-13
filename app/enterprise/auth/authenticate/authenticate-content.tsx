@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, Suspense, useRef } from 'react';
+import React, { useEffect, useState, Suspense, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { useStytchB2BClient, useStytchMemberSession } from '@stytch/nextjs/b2b';
 
 /**
@@ -11,18 +11,41 @@ import { useStytchB2BClient, useStytchMemberSession } from '@stytch/nextjs/b2b';
  * Handles two flows:
  *
  * 1. REGISTRATION (Google OAuth from /enterprise/auth/register):
- *    - sessionStorage has `enterprise_register_org_info` (saved before OAuth redirect)
+ *    - sessionStorage has `enterprise_register_org_info`
  *    - Authenticate token → get intermediate session
+ *    - Validate email domain matches org domain (warn if mismatch)
  *    - Create Stytch org via discovery.organizations.create()
- *    - Call backend to create VRIN DynamoDB records (auth_method: google_oauth)
- *    - Store enterprise_user in localStorage → redirect to dashboard
+ *    - Call backend to create VRIN DynamoDB records
+ *    - Redirect to dashboard
  *
  * 2. LOGIN (Google OAuth or magic link from /enterprise/auth/login):
  *    - No org info in sessionStorage
- *    - Authenticate token → get intermediate session + discovered orgs
- *    - Exchange session for the enterprise org
- *    - Store enterprise_user in localStorage → redirect to dashboard
+ *    - Authenticate token → discover orgs → exchange session
+ *    - Redirect to dashboard
  */
+
+/** Check if email domain is compatible with the org domain */
+function domainsMatch(emailDomain: string, orgDomain: string): boolean {
+  const e = emailDomain.toLowerCase();
+  const o = orgDomain.toLowerCase();
+  if (e === o) return true;
+  // Subdomain: email@sub.acme.com matches acme.com
+  if (e.endsWith(`.${o}`)) return true;
+  // Reverse subdomain: email@acme.com matches sub.acme.com
+  if (o.endsWith(`.${e}`)) return true;
+  return false;
+}
+
+type Status = 'loading' | 'domain_mismatch' | 'success' | 'error';
+
+interface DomainMismatchInfo {
+  emailAddress: string;
+  emailDomain: string;
+  orgDomain: string;
+  orgInfo: any;
+  fullName: string;
+  intermediateToken: string;
+}
 
 function EnterpriseAuthenticateInner() {
   const router = useRouter();
@@ -30,16 +53,107 @@ function EnterpriseAuthenticateInner() {
   const stytch = useStytchB2BClient();
   const { session, isInitialized } = useStytchMemberSession();
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<Status>('loading');
   const [statusMessage, setStatusMessage] = useState('Authenticating...');
   const [errorMessage, setErrorMessage] = useState('');
+  const [mismatchInfo, setMismatchInfo] = useState<DomainMismatchInfo | null>(null);
 
   const authAttemptedRef = useRef(false);
+
+  /** Shared function: create org + VRIN records after domain is confirmed */
+  const completeRegistration = useCallback(async (
+    orgInfo: any,
+    emailAddress: string,
+    fullName: string,
+  ) => {
+    if (!stytch) return;
+
+    setStatus('loading');
+    setStatusMessage('Creating your organization...');
+
+    try {
+      const orgSlug = orgInfo.organizationDomain
+        .split('.')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-');
+
+      const createOrgResponse = await stytch.discovery.organizations.create({
+        organization_name: orgInfo.organizationName,
+        organization_slug: orgSlug,
+        session_duration_minutes: 60,
+      });
+
+      const member = (createOrgResponse as any).member;
+      const organization = (createOrgResponse as any).organization;
+
+      if (!member || !organization) {
+        setErrorMessage('Failed to create organization. Please try again.');
+        setStatus('error');
+        return;
+      }
+
+      console.log('[Enterprise Auth] Stytch org created:', organization.organization_id);
+      setStatusMessage('Setting up your account...');
+
+      const nameParts = (member.name || fullName || '').split(' ');
+      const firstName = nameParts[0] || emailAddress.split('@')[0];
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      const registerResponse = await fetch(
+        '/api/auth/stytch/enterprise-register',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auth_method: 'google_oauth',
+            organizationName: orgInfo.organizationName,
+            organizationDomain: orgInfo.organizationDomain,
+            industry: orgInfo.industry,
+            organizationSize: orgInfo.companySize,
+            contactEmail: member.email_address || emailAddress,
+            firstName,
+            lastName,
+            stytch_organization_id: organization.organization_id,
+            stytch_member_id: member.member_id,
+          }),
+        }
+      );
+
+      const registerData = await registerResponse.json();
+
+      if (registerResponse.ok && registerData.success) {
+        localStorage.setItem('enterprise_user', JSON.stringify(registerData.user));
+        if (registerData.session_jwt) {
+          localStorage.setItem('enterprise_token', registerData.session_jwt);
+        }
+      } else {
+        console.error('[Enterprise Auth] Backend register failed:', registerData.error);
+        localStorage.setItem('enterprise_user', JSON.stringify({
+          email: member.email_address || emailAddress,
+          firstName,
+          lastName,
+          role: 'org_owner',
+          stytch_organization_id: organization.organization_id,
+          stytch_member_id: member.member_id,
+        }));
+      }
+
+      setStatus('success');
+      setStatusMessage('Organization created!');
+      setTimeout(() => {
+        window.location.href = '/enterprise/dashboard';
+      }, 1000);
+
+    } catch (err: any) {
+      console.error('[Enterprise Auth] Registration error:', err);
+      setErrorMessage(err.message || 'Failed to create organization. Please try again.');
+      setStatus('error');
+    }
+  }, [stytch]);
 
   useEffect(() => {
     if (!stytch || !isInitialized) return;
 
-    // Already authenticated — redirect
     if (session) {
       const enterpriseUser = localStorage.getItem('enterprise_user');
       if (enterpriseUser) {
@@ -82,7 +196,6 @@ function EnterpriseAuthenticateInner() {
             discovery_oauth_token: token,
           });
         } else {
-          // Unknown type — try OAuth first, fallback to magic link
           try {
             response = await stytch.oauth.discovery.authenticate({
               discovery_oauth_token: token,
@@ -110,94 +223,36 @@ function EnterpriseAuthenticateInner() {
 
         if (orgInfoRaw) {
           // ═══════════════════════════════════════════
-          // REGISTRATION FLOW — create new enterprise org
+          // REGISTRATION FLOW
           // ═══════════════════════════════════════════
           const orgInfo = JSON.parse(orgInfoRaw);
           sessionStorage.removeItem('enterprise_register_org_info');
 
-          console.log('[Enterprise Auth] Registration flow — creating org:', orgInfo.organizationName);
-          setStatusMessage('Creating your organization...');
+          // Validate email domain matches org domain
+          const emailDomain = emailAddress.split('@')[1] || '';
+          const orgDomain = orgInfo.organizationDomain || '';
 
-          const orgSlug = orgInfo.organizationDomain
-            .split('.')[0]
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '-');
-
-          // Create Stytch Organization via discovery
-          const createOrgResponse = await stytch.discovery.organizations.create({
-            organization_name: orgInfo.organizationName,
-            organization_slug: orgSlug,
-            session_duration_minutes: 60,
-          });
-
-          const member = (createOrgResponse as any).member;
-          const organization = (createOrgResponse as any).organization;
-
-          if (!member || !organization) {
-            setErrorMessage('Failed to create organization. Please try again.');
-            setStatus('error');
+          if (orgDomain && emailDomain && !domainsMatch(emailDomain, orgDomain)) {
+            // Domain mismatch — ask user to confirm
+            console.log('[Enterprise Auth] Domain mismatch:', emailDomain, 'vs', orgDomain);
+            setMismatchInfo({
+              emailAddress,
+              emailDomain,
+              orgDomain,
+              orgInfo,
+              fullName,
+              intermediateToken,
+            });
+            setStatus('domain_mismatch');
             return;
           }
 
-          console.log('[Enterprise Auth] Stytch org created:', organization.organization_id);
-          setStatusMessage('Setting up your account...');
-
-          // Parse name from Google profile
-          const nameParts = (member.name || fullName || '').split(' ');
-          const firstName = nameParts[0] || emailAddress.split('@')[0];
-          const lastName = nameParts.slice(1).join(' ') || '';
-
-          // Call backend to create VRIN DynamoDB records (via same-origin proxy)
-          const registerResponse = await fetch(
-            '/api/auth/stytch/enterprise-register',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                auth_method: 'google_oauth',
-                organizationName: orgInfo.organizationName,
-                organizationDomain: orgInfo.organizationDomain,
-                industry: orgInfo.industry,
-                organizationSize: orgInfo.companySize,
-                contactEmail: member.email_address || emailAddress,
-                firstName,
-                lastName,
-                stytch_organization_id: organization.organization_id,
-                stytch_member_id: member.member_id,
-              }),
-            }
-          );
-
-          const registerData = await registerResponse.json();
-
-          if (registerResponse.ok && registerData.success) {
-            // Store enterprise user data
-            localStorage.setItem('enterprise_user', JSON.stringify(registerData.user));
-            if (registerData.session_jwt) {
-              localStorage.setItem('enterprise_token', registerData.session_jwt);
-            }
-          } else {
-            // Backend failed but Stytch org is created — store minimal data so user can still proceed
-            console.error('[Enterprise Auth] Backend register failed:', registerData.error);
-            localStorage.setItem('enterprise_user', JSON.stringify({
-              email: member.email_address || emailAddress,
-              firstName,
-              lastName,
-              role: 'org_owner',
-              stytch_organization_id: organization.organization_id,
-              stytch_member_id: member.member_id,
-            }));
-          }
-
-          setStatus('success');
-          setStatusMessage('Organization created!');
-          setTimeout(() => {
-            window.location.href = '/enterprise/dashboard';
-          }, 1000);
+          // Domains match — proceed
+          await completeRegistration(orgInfo, emailAddress, fullName);
 
         } else {
           // ═══════════════════════════════════════════
-          // LOGIN FLOW — join existing enterprise org
+          // LOGIN FLOW
           // ═══════════════════════════════════════════
           console.log('[Enterprise Auth] Login flow — discovered', discoveredOrgs.length, 'org(s)');
 
@@ -212,13 +267,12 @@ function EnterpriseAuthenticateInner() {
 
           setStatusMessage('Signing you in...');
 
-          // Auto-select first org (most users belong to one enterprise org)
           const selectedOrg = discoveredOrgs[0];
           const orgId = selectedOrg.organization?.organization_id;
 
           const exchangeResponse = await stytch.discovery.intermediateSessions.exchange({
             organization_id: orgId,
-            session_duration_minutes: 1440,
+            session_duration_minutes: 60,
           });
 
           const member = (exchangeResponse as any).member;
@@ -230,7 +284,6 @@ function EnterpriseAuthenticateInner() {
             return;
           }
 
-          // Store enterprise user data
           const nameParts = (member.name || fullName || '').split(' ');
           localStorage.setItem('enterprise_user', JSON.stringify({
             email: member.email_address || emailAddress,
@@ -257,11 +310,13 @@ function EnterpriseAuthenticateInner() {
     };
 
     authenticate();
-  }, [stytch, isInitialized, session, searchParams, router]);
+  }, [stytch, isInitialized, session, searchParams, router, completeRegistration]);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-8">
       <div className="max-w-md w-full text-center">
+
+        {/* Loading */}
         {status === 'loading' && (
           <div>
             <Loader2 className="w-12 h-12 animate-spin text-gray-400 mx-auto mb-4" />
@@ -272,6 +327,61 @@ function EnterpriseAuthenticateInner() {
           </div>
         )}
 
+        {/* Domain Mismatch */}
+        {status === 'domain_mismatch' && mismatchInfo && (
+          <div>
+            <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">
+              Domain mismatch
+            </h1>
+            <p className="text-gray-600 mb-2">
+              Your Google account <span className="font-medium text-gray-900">{mismatchInfo.emailAddress}</span> uses
+              a different domain than the organization you&apos;re registering.
+            </p>
+            <div className="my-4 p-3 bg-gray-50 rounded-lg text-sm">
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-500">Organization domain:</span>
+                <span className="font-medium text-gray-900">{mismatchInfo.orgDomain}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Google account domain:</span>
+                <span className="font-medium text-gray-900">{mismatchInfo.emailDomain}</span>
+              </div>
+            </div>
+            <div className="space-y-3 mt-6">
+              <button
+                onClick={() => {
+                  // Use the email domain as the org domain
+                  const updatedOrgInfo = {
+                    ...mismatchInfo.orgInfo,
+                    organizationDomain: mismatchInfo.emailDomain,
+                  };
+                  completeRegistration(updatedOrgInfo, mismatchInfo.emailAddress, mismatchInfo.fullName);
+                }}
+                className="w-full py-3 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium transition-colors"
+              >
+                Use {mismatchInfo.emailDomain} as domain
+              </button>
+              <button
+                onClick={() => {
+                  // Keep the original domain and proceed
+                  completeRegistration(mismatchInfo.orgInfo, mismatchInfo.emailAddress, mismatchInfo.fullName);
+                }}
+                className="w-full py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+              >
+                Keep {mismatchInfo.orgDomain} and continue
+              </button>
+              <button
+                onClick={() => router.push('/enterprise/auth/register')}
+                className="w-full py-3 px-4 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Go back to registration
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Success */}
         {status === 'success' && (
           <div>
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
@@ -282,6 +392,7 @@ function EnterpriseAuthenticateInner() {
           </div>
         )}
 
+        {/* Error */}
         {status === 'error' && (
           <div>
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -310,7 +421,6 @@ function EnterpriseAuthenticateInner() {
   );
 }
 
-// Wrap in Suspense for useSearchParams
 export default function EnterpriseAuthenticateContent() {
   return (
     <Suspense
