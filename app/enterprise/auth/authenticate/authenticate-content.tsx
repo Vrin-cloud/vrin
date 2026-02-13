@@ -128,7 +128,7 @@ function EnterpriseAuthenticateInner() {
           const createOrgResponse = await stytch.discovery.organizations.create({
             organization_name: orgInfo.organizationName,
             organization_slug: orgSlug,
-            session_duration_minutes: 1440, // 24 hours
+            session_duration_minutes: 60,
           });
 
           const member = (createOrgResponse as any).member;
