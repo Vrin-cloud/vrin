@@ -7,13 +7,19 @@
  *
  * Two-step registration:
  *   1. Organization info (name, domain, industry, size)
- *   2. Admin account (name, email, password)
+ *   2. Admin account — choose Google OAuth OR email/password
  *
- * Calls the Stytch-backed /enterprise/auth/register endpoint which:
- *   - Creates a Stytch Organization
- *   - Creates a Stytch Member with password
- *   - Creates VRIN DynamoDB records with Stytch links
- *   - Returns session tokens for immediate login
+ * Google OAuth flow:
+ *   - Saves org info to sessionStorage
+ *   - Starts Stytch discovery OAuth
+ *   - Redirects to /enterprise/auth/authenticate which:
+ *     a. Creates Stytch org from discovery intermediate session
+ *     b. Calls backend to create VRIN DynamoDB records
+ *     c. Redirects to dashboard
+ *
+ * Password flow:
+ *   - Calls backend /enterprise/auth/register directly
+ *   - Backend creates Stytch org + member + VRIN records
  */
 
 import { useState } from 'react';
@@ -87,12 +93,20 @@ export default function EnterpriseRegisterPage() {
     return 'bg-green-500';
   };
 
-  // Handle Google OAuth registration via Stytch discovery
+  // Handle Google OAuth — save org info to sessionStorage, then start discovery
   const handleGoogleRegister = async () => {
     if (!stytch) return;
 
     setIsGoogleLoading(true);
     setError('');
+
+    // Save org info so the authenticate page can use it after OAuth callback
+    sessionStorage.setItem('enterprise_register_org_info', JSON.stringify({
+      organizationName,
+      organizationDomain,
+      industry,
+      companySize,
+    }));
 
     try {
       await stytch.oauth.google.discovery.start({
@@ -170,7 +184,7 @@ export default function EnterpriseRegisterPage() {
     }
   };
 
-  // Handle final registration
+  // Handle password registration
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -231,7 +245,6 @@ export default function EnterpriseRegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-white flex">
-        {/* Left Panel */}
         <div className="hidden lg:flex lg:w-1/2 bg-gray-50 items-center justify-center p-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -246,8 +259,6 @@ export default function EnterpriseRegisterPage() {
             <p className="text-gray-600 text-lg">Enterprise Knowledge Platform</p>
           </motion.div>
         </div>
-
-        {/* Right Panel */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -261,9 +272,7 @@ export default function EnterpriseRegisterPage() {
             <p className="text-gray-600 mb-6">
               Your enterprise organization has been set up successfully.
             </p>
-            <p className="text-sm text-gray-500">
-              Redirecting to dashboard...
-            </p>
+            <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
           </motion.div>
         </div>
       </div>
@@ -351,7 +360,73 @@ export default function EnterpriseRegisterPage() {
             </div>
           )}
 
+          {/* ── Step 1: Organization Info ── */}
           {step === 'organization' && (
+            <form onSubmit={handleOrganizationNext}>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                  placeholder="Organization name"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                />
+
+                <input
+                  type="text"
+                  value={organizationDomain}
+                  onChange={(e) => setOrganizationDomain(e.target.value)}
+                  placeholder="Company domain (e.g. acme.com)"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                />
+
+                <select
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
+                  style={!industry ? { color: '#9ca3af' } : {}}
+                >
+                  <option value="" disabled>Select your industry</option>
+                  <option value="technology">Technology</option>
+                  <option value="finance">Finance</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="retail">Retail</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="education">Education</option>
+                  <option value="government">Government</option>
+                  <option value="other">Other</option>
+                </select>
+
+                <select
+                  value={companySize}
+                  onChange={(e) => setCompanySize(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
+                  style={!companySize ? { color: '#9ca3af' } : {}}
+                >
+                  <option value="" disabled>Select company size</option>
+                  <option value="startup">1-10 employees</option>
+                  <option value="sme">11-100 employees</option>
+                  <option value="enterprise">101-1000 employees</option>
+                  <option value="large">1000+ employees</option>
+                </select>
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                >
+                  Continue
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* ── Step 2: Admin Account (Google OAuth OR Password) ── */}
+          {step === 'user' && (
             <>
               {/* Google Sign Up */}
               <button
@@ -380,210 +455,152 @@ export default function EnterpriseRegisterPage() {
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">or register with email</span>
+                  <span className="px-4 bg-white text-gray-500">or create with password</span>
                 </div>
               </div>
 
-              {/* Organization Form */}
-              <form onSubmit={handleOrganizationNext}>
+              {/* Password Form */}
+              <form onSubmit={handleRegister}>
                 <div className="space-y-4">
-                  <input
-                    type="text"
-                    value={organizationName}
-                    onChange={(e) => setOrganizationName(e.target.value)}
-                    placeholder="Organization name"
-                    required
-                    disabled={loading || isGoogleLoading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
-                  />
-
-                  <input
-                    type="text"
-                    value={organizationDomain}
-                    onChange={(e) => setOrganizationDomain(e.target.value)}
-                    placeholder="Company domain (e.g. acme.com)"
-                    required
-                    disabled={loading || isGoogleLoading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
-                  />
-
-                  <select
-                    value={industry}
-                    onChange={(e) => setIndustry(e.target.value)}
-                    required
-                    disabled={loading || isGoogleLoading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 disabled:opacity-50 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
-                    style={!industry ? { color: '#9ca3af' } : {}}
-                  >
-                    <option value="" disabled>Select your industry</option>
-                    <option value="technology">Technology</option>
-                    <option value="finance">Finance</option>
-                    <option value="healthcare">Healthcare</option>
-                    <option value="retail">Retail</option>
-                    <option value="manufacturing">Manufacturing</option>
-                    <option value="education">Education</option>
-                    <option value="government">Government</option>
-                    <option value="other">Other</option>
-                  </select>
-
-                  <select
-                    value={companySize}
-                    onChange={(e) => setCompanySize(e.target.value)}
-                    required
-                    disabled={loading || isGoogleLoading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all text-gray-900 disabled:opacity-50 appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_16px_center] bg-no-repeat"
-                    style={!companySize ? { color: '#9ca3af' } : {}}
-                  >
-                    <option value="" disabled>Select company size</option>
-                    <option value="startup">1-10 employees</option>
-                    <option value="sme">11-100 employees</option>
-                    <option value="enterprise">101-1000 employees</option>
-                    <option value="large">1000+ employees</option>
-                  </select>
-
-                  <button
-                    type="submit"
-                    disabled={loading || isGoogleLoading}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-
-          {step === 'user' && (
-            <form onSubmit={handleRegister}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="First name"
-                    required
-                    disabled={loading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
-                  />
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Last name"
-                    required
-                    disabled={loading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
-                  />
-                </div>
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Work email (e.g. john@acme.com)"
-                  required
-                  disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
-                />
-
-                <div>
-                  <div className="relative">
+                  <div className="grid grid-cols-2 gap-3">
                     <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create a password"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
                       required
                       disabled={loading}
-                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last name"
+                      required
+                      disabled={loading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                    />
                   </div>
 
-                  {password && (
-                    <div className="mt-2">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Password strength</span>
-                        <span className={`font-medium ${
-                          passwordStrength < 40 ? 'text-red-600' :
-                          passwordStrength < 70 ? 'text-yellow-600' :
-                          'text-green-600'
-                        }`}>
-                          {getPasswordStrengthText()}
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${getPasswordStrengthColor()}`}
-                          style={{ width: `${passwordStrength}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
                   <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Work email (e.g. john@acme.com)"
                     required
                     disabled={loading}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
                   />
-                  {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
-                  )}
-                </div>
 
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={agreeToTerms}
-                    onChange={(e) => setAgreeToTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
-                  />
-                  <span className="text-sm text-gray-500 leading-relaxed">
-                    I agree to the{' '}
-                    <a href="/terms" className="text-gray-700 hover:text-gray-900 underline">Terms of Service</a>
-                    {' '}and{' '}
-                    <a href="/privacy" className="text-gray-700 hover:text-gray-900 underline">Privacy Policy</a>
-                  </span>
-                </label>
+                  <div>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Create a password"
+                        required
+                        disabled={loading}
+                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
 
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => { setStep('organization'); setError(''); }}
-                    disabled={loading}
-                    className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-gray-700"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      'Create account'
+                    {password && (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500">Password strength</span>
+                          <span className={`font-medium ${
+                            passwordStrength < 40 ? 'text-red-600' :
+                            passwordStrength < 70 ? 'text-yellow-600' :
+                            'text-green-600'
+                          }`}>
+                            {getPasswordStrengthText()}
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${getPasswordStrengthColor()}`}
+                            style={{ width: `${passwordStrength}%` }}
+                          />
+                        </div>
+                      </div>
                     )}
-                  </button>
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm password"
+                      required
+                      disabled={loading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all placeholder:text-gray-400 disabled:opacity-50"
+                    />
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreeToTerms}
+                      onChange={(e) => setAgreeToTerms(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                    />
+                    <span className="text-sm text-gray-500 leading-relaxed">
+                      I agree to the{' '}
+                      <a href="/terms" className="text-gray-700 hover:text-gray-900 underline">Terms of Service</a>
+                      {' '}and{' '}
+                      <a href="/privacy" className="text-gray-700 hover:text-gray-900 underline">Privacy Policy</a>
+                    </span>
+                  </label>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => { setStep('organization'); setError(''); }}
+                      disabled={loading}
+                      className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-gray-700"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        'Create account'
+                      )}
+                    </button>
+                  </div>
                 </div>
+              </form>
+
+              {/* Back link (for Google users who don't want password) */}
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => { setStep('organization'); setError(''); }}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                >
+                  Back to organization details
+                </button>
               </div>
-            </form>
+            </>
           )}
 
           {/* Sign In Link */}
