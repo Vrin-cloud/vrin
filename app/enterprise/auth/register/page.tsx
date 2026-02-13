@@ -38,7 +38,6 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import vrinIcon from '@/app/icon.svg';
-import { API_CONFIG } from '@/config/api';
 
 export default function EnterpriseRegisterPage() {
   const router = useRouter();
@@ -194,7 +193,7 @@ export default function EnterpriseRegisterPage() {
 
     try {
       const response = await fetch(
-        `${API_CONFIG.ENTERPRISE_BASE_URL}/enterprise/auth/register`,
+        '/api/auth/stytch/enterprise-register',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

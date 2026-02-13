@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useStytchB2BClient, useStytchMemberSession } from '@stytch/nextjs/b2b';
-import { API_CONFIG } from '@/config/api';
 
 /**
  * Enterprise Stytch Authentication Callback
@@ -148,9 +147,9 @@ function EnterpriseAuthenticateInner() {
           const firstName = nameParts[0] || emailAddress.split('@')[0];
           const lastName = nameParts.slice(1).join(' ') || '';
 
-          // Call backend to create VRIN DynamoDB records
+          // Call backend to create VRIN DynamoDB records (via same-origin proxy)
           const registerResponse = await fetch(
-            `${API_CONFIG.ENTERPRISE_BASE_URL}/enterprise/auth/register`,
+            '/api/auth/stytch/enterprise-register',
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
