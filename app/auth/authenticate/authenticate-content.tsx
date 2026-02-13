@@ -178,6 +178,7 @@ function AuthenticateContentInner() {
 
         let member: any;
         let organization: any;
+        let isEnterprise = false;
 
         if (discoveredOrgs.length === 0) {
           // No organizations - create a personal workspace
@@ -196,13 +197,19 @@ function AuthenticateContentInner() {
           member = (createOrgResponse as any).member;
           organization = (createOrgResponse as any).organization;
         } else {
-          // Has existing organizations - auto-select the first one (personal workspace)
-          console.log('[Stytch] Found', discoveredOrgs.length, 'organization(s), auto-selecting first');
+          // Has existing organizations — prefer enterprise org over personal workspace
+          console.log('[Stytch] Found', discoveredOrgs.length, 'organization(s)');
 
-          const selectedOrg = discoveredOrgs[0];
+          // Enterprise orgs don't have slugs ending in "-workspace"
+          const enterpriseOrg = discoveredOrgs.find(
+            (o: any) => !o.organization?.organization_slug?.endsWith('-workspace')
+          );
+          const selectedOrg = enterpriseOrg || discoveredOrgs[0];
           const orgId = selectedOrg.organization?.organization_id;
+          const orgSlug = selectedOrg.organization?.organization_slug || '';
+          isEnterprise = !orgSlug.endsWith('-workspace');
 
-          console.log('[Stytch] Auto-selecting organization:', orgId);
+          console.log('[Stytch] Auto-selecting organization:', orgId, isEnterprise ? '(enterprise)' : '(personal)');
 
           const exchangeResponse = await stytch.discovery.intermediateSessions.exchange({
             organization_id: orgId,
@@ -214,13 +221,34 @@ function AuthenticateContentInner() {
           organization = (exchangeResponse as any).organization;
         }
 
-        // Sync with VRIN backend
-        if (member) {
-          const synced = await syncAndStoreCredentials(member, organization, fullName);
-          if (synced) {
-            redirectTo(returnTo || '/dashboard');
-            return;
-          }
+        if (!member) {
+          setErrorMessage('Failed to complete sign-in. Please try again.');
+          setStatus('error');
+          return;
+        }
+
+        // Enterprise org — store enterprise data and redirect to enterprise dashboard
+        if (isEnterprise) {
+          console.log('[Stytch] Enterprise user detected, redirecting to enterprise dashboard');
+          const nameParts = (member.name || fullName || '').split(' ');
+          localStorage.setItem('enterprise_user', JSON.stringify({
+            email: member.email_address || email,
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
+            role: member.roles?.[0] || 'team_member',
+            organizationId: organization?.organization_id,
+            stytch_organization_id: organization?.organization_id,
+            stytch_member_id: member.member_id,
+          }));
+          redirectTo('/enterprise/dashboard');
+          return;
+        }
+
+        // Personal workspace — sync with VRIN backend
+        const synced = await syncAndStoreCredentials(member, organization, fullName);
+        if (synced) {
+          redirectTo(returnTo || '/dashboard');
+          return;
         }
 
         // If we get here, something went wrong
