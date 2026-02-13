@@ -59,12 +59,14 @@ function InfrastructureConfigurationContent() {
     azureCognitiveSearchApiKey: '',
     azureStorageAccount: '',
     
-    // AWS Configuration - Minimal Required  
+    // AWS Configuration - Minimal Required
     awsNeptuneEndpoint: '',
+    awsNeptunePort: '8182',
     awsOpenSearchEndpoint: '',
+    awsS3Bucket: '',
     awsRegion: 'us-east-1',
-    awsAccessKeyId: '',
-    awsSecretAccessKey: '',
+    awsRoleArn: '',
+    awsExternalId: '',
     
     // Google Cloud Configuration - Minimal Required
     gcpProjectId: '',
@@ -120,10 +122,12 @@ function InfrastructureConfigurationContent() {
                 
                 // AWS fields
                 awsNeptuneEndpoint: configToEdit.infrastructure?.database?.endpoint || '',
+                awsNeptunePort: String(configToEdit.infrastructure?.database?.port || '8182'),
                 awsOpenSearchEndpoint: configToEdit.infrastructure?.vector_store?.endpoint || '',
-                awsRegion: configToEdit.aws?.region || 'us-east-1',
-                awsAccessKeyId: configToEdit.aws?.access_key_id || '',
-                awsSecretAccessKey: configToEdit.aws?.secret_access_key || '',
+                awsS3Bucket: configToEdit.infrastructure?.storage?.bucket || '',
+                awsRegion: configToEdit.infrastructure?.iam?.region || configToEdit.infrastructure?.database?.region || 'us-east-1',
+                awsRoleArn: configToEdit.infrastructure?.iam?.role_arn || '',
+                awsExternalId: configToEdit.infrastructure?.iam?.external_id || '',
                 
                 // GCP fields
                 gcpProjectId: configToEdit.gcp?.project_id || '',
@@ -158,10 +162,12 @@ function InfrastructureConfigurationContent() {
         
         // AWS fields
         awsNeptuneEndpoint: '',
+        awsNeptunePort: '8182',
         awsOpenSearchEndpoint: '',
+        awsS3Bucket: '',
         awsRegion: 'us-east-1',
-        awsAccessKeyId: '',
-        awsSecretAccessKey: '',
+        awsRoleArn: '',
+        awsExternalId: '',
         
         // GCP fields
         gcpProjectId: '',
@@ -224,6 +230,8 @@ function InfrastructureConfigurationContent() {
             database: {
               type: 'neptune',
               endpoint: formData.awsNeptuneEndpoint,
+              port: parseInt(formData.awsNeptunePort) || 8182,
+              region: formData.awsRegion,
               ssl: true
             },
             vector_store: {
@@ -232,12 +240,17 @@ function InfrastructureConfigurationContent() {
             },
             llm: {
               provider: 'bedrock',
+              bedrock_region: formData.awsRegion
+            },
+            storage: {
+              type: 's3',
+              bucket: formData.awsS3Bucket,
               region: formData.awsRegion
             },
-            aws: {
-              region: formData.awsRegion,
-              access_key_id: formData.awsAccessKeyId,
-              secret_access_key: formData.awsSecretAccessKey
+            iam: {
+              role_arn: formData.awsRoleArn,
+              external_id: formData.awsExternalId,
+              region: formData.awsRegion
             }
           }
           break
@@ -386,12 +399,8 @@ function InfrastructureConfigurationContent() {
               apiKeyLocation: 'vrin_managed'
             })
           } else if (selectedProvider === 'aws') {
-            result = await EnterpriseValidationService.testLLMConnection({
-              provider: 'bedrock',
-              model: 'claude-3',
-              endpoint: '',
-              apiKeyLocation: 'aws_credentials'
-            })
+            // AI services are managed by VRIN for AWS deployments
+            result = { success: true, status: 'healthy' as const, message: 'AI services are managed by VRIN — no configuration needed.' }
           } else {
             throw new Error('GCP LLM testing not implemented yet')
           }
@@ -735,23 +744,26 @@ function InfrastructureConfigurationContent() {
                 <Alert className="border-orange-200 bg-orange-50">
                   <Info className="w-4 h-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
-                    <strong>What you&apos;ll need:</strong> Neptune cluster endpoint, OpenSearch domain endpoint, 
-                    and AWS access credentials with appropriate permissions.
+                    <strong>What you&apos;ll need:</strong> Neptune cluster endpoint, OpenSearch domain endpoint,
+                    S3 bucket name, and an IAM cross-account role ARN. Follow the{' '}
+                    <a href="/docs/enterprise-aws-setup" className="underline font-medium">AWS Deployment Guide</a>{' '}
+                    for setup instructions.
                   </AlertDescription>
                 </Alert>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {/* Database */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <Database className="w-5 h-5" />
                         Amazon Neptune
                       </CardTitle>
-                      <CardDescription>Graph database service</CardDescription>
+                      <CardDescription>Graph database for knowledge storage</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <div>
-                        <Label htmlFor="awsNeptune">Neptune Cluster Endpoint *</Label>
+                        <Label htmlFor="awsNeptune">Cluster Endpoint *</Label>
                         <Input
                           id="awsNeptune"
                           value={formData.awsNeptuneEndpoint}
@@ -759,21 +771,45 @@ function InfrastructureConfigurationContent() {
                           placeholder="your-cluster.cluster-xyz.us-east-1.neptune.amazonaws.com"
                           className="mt-1"
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Find this in AWS Console → Neptune → Clusters → Cluster endpoint
+                        </p>
                       </div>
+                      <div>
+                        <Label htmlFor="awsNeptunePort">Port</Label>
+                        <Input
+                          id="awsNeptunePort"
+                          value={formData.awsNeptunePort}
+                          onChange={(e) => updateField('awsNeptunePort', e.target.value)}
+                          placeholder="8182"
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Default: 8182</p>
+                      </div>
+
+                      <EndpointHealthIndicator
+                        type="database"
+                        endpoint={formData.awsNeptuneEndpoint}
+                        status={endpointHealth.database.status}
+                        lastChecked={endpointHealth.database.lastChecked}
+                        error={endpointHealth.database.error}
+                        onTest={() => handleTestConnection('database')}
+                      />
                     </CardContent>
                   </Card>
 
+                  {/* Vector Store */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <Search className="w-5 h-5" />
                         Amazon OpenSearch
                       </CardTitle>
-                      <CardDescription>Search and analytics service</CardDescription>
+                      <CardDescription>Vector search for AI embeddings</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <div>
-                        <Label htmlFor="awsOpenSearch">OpenSearch Domain Endpoint *</Label>
+                        <Label htmlFor="awsOpenSearch">Domain Endpoint *</Label>
                         <Input
                           id="awsOpenSearch"
                           value={formData.awsOpenSearchEndpoint}
@@ -781,52 +817,129 @@ function InfrastructureConfigurationContent() {
                           placeholder="https://search-your-domain.us-east-1.es.amazonaws.com"
                           className="mt-1"
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Find this in AWS Console → OpenSearch → Domains → Domain endpoint
+                        </p>
+                      </div>
+
+                      <EndpointHealthIndicator
+                        type="vector-store"
+                        endpoint={formData.awsOpenSearchEndpoint}
+                        status={endpointHealth.vectorStore.status}
+                        lastChecked={endpointHealth.vectorStore.lastChecked}
+                        error={endpointHealth.vectorStore.error}
+                        onTest={() => handleTestConnection('vector-store')}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* S3 Storage */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <HardDrive className="w-5 h-5" />
+                        Amazon S3
+                      </CardTitle>
+                      <CardDescription>File storage for documents</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div>
+                        <Label htmlFor="awsS3Bucket">S3 Bucket Name *</Label>
+                        <Input
+                          id="awsS3Bucket"
+                          value={formData.awsS3Bucket}
+                          onChange={(e) => updateField('awsS3Bucket', e.target.value)}
+                          placeholder="your-org-vrin-data"
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Just the bucket name, not the full ARN or URL
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="lg:col-span-2">
+                  {/* AI Services - Provided by VRIN */}
+                  <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-lg">
-                        <Key className="w-5 h-5" />
-                        AWS Credentials
+                        <Brain className="w-5 h-5" />
+                        AI Services
                       </CardTitle>
-                      <CardDescription>Access credentials for AWS services</CardDescription>
+                      <CardDescription>Provided by VRIN</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="awsRegion">AWS Region *</Label>
-                        <Select value={formData.awsRegion} onValueChange={(value) => updateField('awsRegion', value)}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
-                            <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
-                            <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    <CardContent>
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-gray-700" />
+                          <span className="font-medium text-gray-900">Automatically Configured</span>
+                        </div>
+                        <p className="text-sm text-gray-700">
+                          VRIN provides all AI and embedding services. No additional setup required on your side.
+                        </p>
+                        <div className="mt-3 text-xs text-gray-600">
+                          <div>• Embedding models (Cohere, OpenAI)</div>
+                          <div>• Language models (Claude, GPT-4o)</div>
+                          <div>• No Bedrock or AI credentials needed</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* IAM Cross-Account Role */}
+                  <Card className="xl:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Shield className="w-5 h-5" />
+                        IAM Cross-Account Access
+                      </CardTitle>
+                      <CardDescription>
+                        VRIN accesses your resources via an IAM role in your account — no long-lived credentials stored
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="awsRegion">AWS Region *</Label>
+                          <Select value={formData.awsRegion} onValueChange={(value) => updateField('awsRegion', value)}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                              <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                              <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
+                              <SelectItem value="eu-central-1">Europe (Frankfurt)</SelectItem>
+                              <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="awsRoleArn">IAM Role ARN *</Label>
+                          <Input
+                            id="awsRoleArn"
+                            value={formData.awsRoleArn}
+                            onChange={(e) => updateField('awsRoleArn', e.target.value)}
+                            placeholder="arn:aws:iam::123456789012:role/VRINDataAccessRole"
+                            className="mt-1 font-mono text-sm"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            The IAM role VRIN will assume to access your resources
+                          </p>
+                        </div>
                       </div>
                       <div>
-                        <Label htmlFor="awsAccessKey">Access Key ID *</Label>
+                        <Label htmlFor="awsExternalId">External ID *</Label>
                         <Input
-                          id="awsAccessKey"
-                          value={formData.awsAccessKeyId}
-                          onChange={(e) => updateField('awsAccessKeyId', e.target.value)}
-                          placeholder="AKIA..."
-                          className="mt-1"
+                          id="awsExternalId"
+                          value={formData.awsExternalId}
+                          onChange={(e) => updateField('awsExternalId', e.target.value)}
+                          placeholder="Provided by VRIN or enter your own UUID"
+                          className="mt-1 font-mono text-sm"
                         />
-                      </div>
-                      <div>
-                        <Label htmlFor="awsSecretKey">Secret Access Key *</Label>
-                        <Input
-                          id="awsSecretKey"
-                          type="password"
-                          value={formData.awsSecretAccessKey}
-                          onChange={(e) => updateField('awsSecretAccessKey', e.target.value)}
-                          placeholder="Your secret key"
-                          className="mt-1"
-                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Add this to the role&apos;s trust policy as a Condition. Prevents confused deputy attacks.
+                        </p>
                       </div>
                     </CardContent>
                   </Card>

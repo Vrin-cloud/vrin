@@ -25,7 +25,9 @@ import {
   Activity,
   Calendar,
   Download,
-  MessageSquare
+  MessageSquare,
+  Settings,
+  Database
 } from 'lucide-react'
 import { useEnterpriseAuth } from '@/hooks/use-enterprise-auth'
 import { useApiKeys } from '@/hooks/useEnterprise'
@@ -33,6 +35,7 @@ import { setEnterpriseApiKey } from '@/lib/services/enterprise-chat-api'
 import { toast } from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 interface ApiKeyData {
   id: string
@@ -54,13 +57,48 @@ export default function ApiKeysPage() {
   const organizationId = (user as any)?.organizationId || (user as any)?.organization_id
   const { apiKeys, loading, createApiKey, revokeApiKey } = useApiKeys(organizationId)
 
-  // Debug: Log organization ID
-  console.log('🏢 Organization ID:', organizationId, 'from user:', user)
+  const [hasActiveConfig, setHasActiveConfig] = useState<boolean | null>(null)
+  const [configLoading, setConfigLoading] = useState(true)
 
-  // Debug: Log API keys when they change
+  // Check if an active infrastructure configuration exists
   useEffect(() => {
-    console.log('📋 API keys updated:', apiKeys)
-  }, [apiKeys])
+    const checkConfiguration = async () => {
+      if (!organizationId) {
+        setConfigLoading(false)
+        return
+      }
+
+      try {
+        const authToken = localStorage.getItem('enterprise_token')
+        if (!authToken) {
+          setConfigLoading(false)
+          return
+        }
+
+        const response = await fetch('/api/enterprise/configurations', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const data = await response.json()
+
+        if (data.success && data.configurations) {
+          const active = data.configurations.some((c: any) => c.status === 'active')
+          setHasActiveConfig(active)
+        } else {
+          setHasActiveConfig(false)
+        }
+      } catch {
+        setHasActiveConfig(false)
+      } finally {
+        setConfigLoading(false)
+      }
+    }
+
+    checkConfiguration()
+  }, [organizationId])
 
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [selectedApiKey, setSelectedApiKey] = useState<string | null>(null)
@@ -91,8 +129,6 @@ export default function ApiKeysPage() {
       return
     }
 
-    console.log('🔑 Creating API key with data:', formData)
-
     try {
       // Get user_id from the authenticated user (handle both camelCase and snake_case)
       const userId = (user as any)?.user_id || (user as any)?.userId
@@ -110,9 +146,7 @@ export default function ApiKeysPage() {
         user_id: userId
       }
 
-      console.log('🚀 Calling createApiKey with:', keyData)
       const result = await createApiKey(keyData)
-      console.log('📡 API key creation result:', result)
       
       if (result.success) {
         // Show the generated API key to the user
@@ -130,7 +164,6 @@ export default function ApiKeysPage() {
         // Automatically set this API key for enterprise chat use
         if (result.api_key) {
           setEnterpriseApiKey(result.api_key)
-          console.log('[API Keys] New API key automatically set for Enterprise Chat')
         }
 
         // Show success message for the new API key being added to the list
@@ -201,12 +234,50 @@ export default function ApiKeysPage() {
     }
   }
 
-  if (loading) {
+  if (loading || configLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="text-gray-600">Loading API keys...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Gate: require an active infrastructure configuration before allowing API key operations
+  if (!hasActiveConfig) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">API Key Management</h1>
+              <p className="text-gray-600 mt-1">
+                Generate and manage enterprise API keys for your infrastructure
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Database className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Infrastructure required</h3>
+              <p className="text-gray-600 text-center mb-6 max-w-md">
+                You need to configure and activate your cloud infrastructure before generating API keys.
+                API keys are tied to your infrastructure configuration for secure routing.
+              </p>
+              <Button asChild>
+                <Link href="/enterprise/dashboard?section=configurations">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Configure Infrastructure
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )

@@ -229,17 +229,26 @@ export default function ConfigurationsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Infrastructure Configurations</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Infrastructure Configuration</h1>
               <p className="text-gray-600 mt-1">
-                Manage your enterprise infrastructure configurations
+                Manage your enterprise cloud infrastructure
               </p>
             </div>
-            <Button asChild>
-              <Link href="/enterprise/infrastructure" className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Create Configuration
-              </Link>
-            </Button>
+            {configurations.length === 0 ? (
+              <Button asChild>
+                <Link href="/enterprise/infrastructure" className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Configure Infrastructure
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="outline" asChild>
+                <Link href={`/enterprise/infrastructure?config_id=${configurations[0]?.config_id}`} className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Edit Configuration
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -279,141 +288,121 @@ export default function ConfigurationsPage() {
           </Card>
         )}
 
-        {/* No Active Configuration Warning */}
-        {!activeConfiguration && configurations.length > 0 && (
-          <Alert className="border-gray-200 bg-gray-50">
-            <AlertDescription className="text-gray-800">
-              <strong>No active configuration found.</strong> You need to activate a configuration before you can generate API keys.
+        {error && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertDescription className="text-red-800">
+              {error}
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Configurations List */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">All Configurations</h2>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">
-                {configurations.length} total configurations
-              </Badge>
-            </div>
-          </div>
-
-          {error && (
-            <Alert className="border-red-200 bg-red-50">
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {configurations.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Settings className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No configurations saved yet</h3>
-                <p className="text-gray-600 text-center mb-4">
-                  Create your first infrastructure configuration to get started.
-                </p>
-                <Button asChild>
-                  <Link href="/enterprise/infrastructure">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Configuration
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {configurations.map((config) => (
-                <Card key={config.config_id} className={cn(
-                  "transition-colors",
-                  config.status === 'active' ? "ring-2 ring-green-200" : ""
-                )}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="text-2xl">{getCloudProviderIcon(config.cloud_provider)}</div>
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">
-                              {config.cloud_provider.toUpperCase()} - {config.deployment_mode.replace('_', ' ')}
-                            </h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge className={getStatusColor(config.status)}>
-                                {getStatusIcon(config.status)}
-                                <span className="ml-1 capitalize">{config.status}</span>
-                              </Badge>
-                            </div>
+        {configurations.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Settings className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No infrastructure configured yet</h3>
+              <p className="text-gray-600 text-center mb-4 max-w-md">
+                Connect VRIN to your cloud infrastructure to get started. You&apos;ll need your service endpoints
+                and an IAM cross-account role.
+              </p>
+              <Button asChild>
+                <Link href="/enterprise/infrastructure">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Configure Infrastructure
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {configurations.map((config) => (
+              <Card key={config.config_id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="text-2xl">{getCloudProviderIcon(config.cloud_provider)}</div>
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {config.cloud_provider.toUpperCase()} — {config.deployment_mode.replace('_', ' ')}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge className={getStatusColor(config.status)}>
+                              {getStatusIcon(config.status)}
+                              <span className="ml-1 capitalize">{config.status}</span>
+                            </Badge>
+                            {config.activated_at && (
+                              <span className="text-xs text-gray-500">
+                                Activated {formatDistanceToNow(new Date(config.activated_at * 1000), { addSuffix: true })}
+                              </span>
+                            )}
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Database className="w-4 h-4" />
-                            {config.infrastructure.database.type.replace('_', ' ').toUpperCase()}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Zap className="w-4 h-4" />
-                            {config.infrastructure.vector_store.type.replace('_', ' ').toUpperCase()}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4" />
-                            Created {formatDistanceToNow(new Date(config.created_at * 1000), { addSuffix: true })}
-                          </div>
-                        </div>
-
-                        <div className="text-sm text-gray-500">
-                          <p><strong>Database:</strong> {config.infrastructure.database.endpoint}</p>
-                          <p><strong>Vector Store:</strong> {config.infrastructure.vector_store.endpoint}</p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 ml-4">
-                        {config.status !== 'active' && (
-                          <Button
-                            onClick={() => activateConfiguration(config.config_id)}
-                            disabled={activating === config.config_id}
-                            className="bg-gray-900 hover:bg-gray-800"
-                          >
-                            {activating === config.config_id ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Activating...
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Activate
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/enterprise/infrastructure?config_id=${config.config_id}`}>
-                            Edit
-                          </Link>
-                        </Button>
-                        {config.status !== 'active' && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setShowDeleteConfirm(config.config_id)}
-                            className="text-red-600 hover:text-red-700 hover:border-red-300"
-                          >
-                            Delete
-                          </Button>
-                        )}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Database className="w-4 h-4" />
+                          {config.infrastructure?.database?.type?.replace('_', ' ').toUpperCase() || 'Database'}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Zap className="w-4 h-4" />
+                          {config.infrastructure?.vector_store?.type?.replace('_', ' ').toUpperCase() || 'Vector Store'}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          Created {formatDistanceToNow(new Date(config.created_at * 1000), { addSuffix: true })}
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-gray-500">
+                        <p><strong>Database:</strong> {config.infrastructure?.database?.endpoint || 'Not set'}</p>
+                        <p><strong>Vector Store:</strong> {config.infrastructure?.vector_store?.endpoint || 'Not set'}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+
+                    <div className="flex flex-col gap-2 ml-4">
+                      {config.status !== 'active' && (
+                        <Button
+                          onClick={() => activateConfiguration(config.config_id)}
+                          disabled={activating === config.config_id}
+                          className="bg-gray-900 hover:bg-gray-800"
+                        >
+                          {activating === config.config_id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Activating...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Activate
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/enterprise/infrastructure?config_id=${config.config_id}`}>
+                          Edit
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowDeleteConfirm(config.config_id)}
+                        className="text-red-600 hover:text-red-700 hover:border-red-300"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
