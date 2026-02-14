@@ -85,11 +85,20 @@ export function useEnterpriseStytchAuth(): UseEnterpriseStytchAuthReturn {
       }
 
       try {
+        // Get session JWT from Stytch SDK (used for API auth + enterprise_token)
+        const tokens = stytch?.session?.getTokens();
+        const sessionJwt = tokens?.session_jwt || null;
+
+        // Store enterprise_token for backward-compatible API calls
+        if (sessionJwt) {
+          localStorage.setItem('enterprise_token', sessionJwt);
+        }
+
         // Check localStorage cache first
         const stored = localStorage.getItem(ENTERPRISE_STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (parsed.member_id === member.member_id && parsed.id) {
+          if (parsed.member_id === member.member_id && parsed.id && parsed.organizationId) {
             setUser(parsed);
             // Also set legacy keys for backward compatibility
             localStorage.setItem('enterprise_user', JSON.stringify(parsed));
@@ -113,8 +122,7 @@ export function useEnterpriseStytchAuth(): UseEnterpriseStytchAuthReturn {
         const data = await response.json();
 
         if (data.success) {
-          // Also fetch enterprise user details from portal API
-          const sessionJwt = (session as any)?.stytch_session?.session_jwt;
+          // For enterprise users, fetch additional details from portal API
           let enterpriseDetails: any = null;
 
           if (data.is_enterprise && sessionJwt) {
