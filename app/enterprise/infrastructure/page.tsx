@@ -60,12 +60,13 @@ function InfrastructureConfigurationContent() {
     azureCognitiveSearchApiKey: '',
     azureStorageAccount: '',
     
-    // AWS Configuration - Minimal Required  
+    // AWS Configuration - Cross-Account IAM Role
     awsNeptuneEndpoint: '',
     awsOpenSearchEndpoint: '',
     awsRegion: 'us-east-1',
-    awsAccessKeyId: '',
-    awsSecretAccessKey: '',
+    awsIamRoleArn: '',
+    awsExternalId: '',
+    awsS3Bucket: '',
     
     // Google Cloud Configuration - Minimal Required
     gcpProjectId: '',
@@ -120,11 +121,12 @@ function InfrastructureConfigurationContent() {
                 azureStorageAccount: configToEdit.azure?.storage_account || '',
                 
                 // AWS fields
-                awsNeptuneEndpoint: configToEdit.infrastructure?.database?.endpoint || '',
-                awsOpenSearchEndpoint: configToEdit.infrastructure?.vector_store?.endpoint || '',
-                awsRegion: configToEdit.aws?.region || 'us-east-1',
-                awsAccessKeyId: configToEdit.aws?.access_key_id || '',
-                awsSecretAccessKey: configToEdit.aws?.secret_access_key || '',
+                awsNeptuneEndpoint: configToEdit.infrastructure?.database?.endpoint || configToEdit.database?.endpoint || '',
+                awsOpenSearchEndpoint: configToEdit.infrastructure?.vector_store?.endpoint || configToEdit.vector_store?.endpoint || '',
+                awsRegion: configToEdit.iam?.region || configToEdit.aws?.region || 'us-east-1',
+                awsIamRoleArn: configToEdit.iam?.role_arn || '',
+                awsExternalId: configToEdit.iam?.external_id || '',
+                awsS3Bucket: configToEdit.storage?.s3_bucket || '',
                 
                 // GCP fields
                 gcpProjectId: configToEdit.gcp?.project_id || '',
@@ -161,8 +163,9 @@ function InfrastructureConfigurationContent() {
         awsNeptuneEndpoint: '',
         awsOpenSearchEndpoint: '',
         awsRegion: 'us-east-1',
-        awsAccessKeyId: '',
-        awsSecretAccessKey: '',
+        awsIamRoleArn: '',
+        awsExternalId: '',
+        awsS3Bucket: '',
         
         // GCP fields
         gcpProjectId: '',
@@ -224,21 +227,27 @@ function InfrastructureConfigurationContent() {
             ...configData,
             database: {
               type: 'neptune',
+              provider: 'neptune',
               endpoint: formData.awsNeptuneEndpoint,
               ssl: true
             },
             vector_store: {
               type: 'opensearch',
+              provider: 'opensearch',
               endpoint: formData.awsOpenSearchEndpoint
             },
             llm: {
               provider: 'bedrock',
               region: formData.awsRegion
             },
-            aws: {
-              region: formData.awsRegion,
-              access_key_id: formData.awsAccessKeyId,
-              secret_access_key: formData.awsSecretAccessKey
+            iam: {
+              role_arn: formData.awsIamRoleArn,
+              external_id: formData.awsExternalId,
+              region: formData.awsRegion
+            },
+            storage: {
+              s3_bucket: formData.awsS3Bucket,
+              region: formData.awsRegion
             }
           }
           break
@@ -745,8 +754,9 @@ function InfrastructureConfigurationContent() {
                 <Alert className="border-orange-200 bg-orange-50">
                   <Info className="w-4 h-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
-                    <strong>What you&apos;ll need:</strong> Neptune cluster endpoint, OpenSearch domain endpoint, 
-                    and AWS access credentials with appropriate permissions.
+                    <strong>What you&apos;ll need:</strong> Neptune cluster endpoint, OpenSearch domain endpoint,
+                    an IAM Role ARN with cross-account trust, an External ID, and an S3 bucket name.
+                    Your data never leaves your AWS account.
                   </AlertDescription>
                 </Alert>
 
@@ -799,44 +809,77 @@ function InfrastructureConfigurationContent() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <Key className="w-5 h-5" />
-                        AWS Credentials
+                        Cross-Account IAM Access
                       </CardTitle>
-                      <CardDescription>Access credentials for AWS services</CardDescription>
+                      <CardDescription>
+                        VRIN accesses your AWS resources via an IAM Role in your account. No access keys needed.
+                      </CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="awsRegion">AWS Region *</Label>
-                        <Select value={formData.awsRegion} onValueChange={(value) => updateField('awsRegion', value)}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
-                            <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
-                            <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    <CardContent className="space-y-4">
+                      <Alert className="border-blue-200 bg-blue-50">
+                        <Info className="w-4 h-4 text-blue-600" />
+                        <AlertDescription className="text-blue-800 text-sm">
+                          Create an IAM Role in your AWS account that trusts VRIN&apos;s account (<code className="bg-blue-100 px-1 rounded">859271276727</code>).
+                          See the <a href="/docs/enterprise-aws-setup" className="underline font-medium">deployment guide</a> for setup instructions.
+                        </AlertDescription>
+                      </Alert>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="awsIamRoleArn">IAM Role ARN *</Label>
+                          <Input
+                            id="awsIamRoleArn"
+                            value={formData.awsIamRoleArn}
+                            onChange={(e) => updateField('awsIamRoleArn', e.target.value)}
+                            placeholder="arn:aws:iam::123456789012:role/VRINDataAccessRole"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            The role VRIN will assume to access your Neptune, OpenSearch, and S3
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="awsExternalId">External ID *</Label>
+                          <Input
+                            id="awsExternalId"
+                            value={formData.awsExternalId}
+                            onChange={(e) => updateField('awsExternalId', e.target.value)}
+                            placeholder="vrin-yourcompany-123456789012"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Prevents confused deputy attacks. Must match the role&apos;s trust policy.
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="awsAccessKey">Access Key ID *</Label>
-                        <Input
-                          id="awsAccessKey"
-                          value={formData.awsAccessKeyId}
-                          onChange={(e) => updateField('awsAccessKeyId', e.target.value)}
-                          placeholder="AKIA..."
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="awsSecretKey">Secret Access Key *</Label>
-                        <Input
-                          id="awsSecretKey"
-                          type="password"
-                          value={formData.awsSecretAccessKey}
-                          onChange={(e) => updateField('awsSecretAccessKey', e.target.value)}
-                          placeholder="Your secret key"
-                          className="mt-1"
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="awsRegion">AWS Region *</Label>
+                          <Select value={formData.awsRegion} onValueChange={(value) => updateField('awsRegion', value)}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                              <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                              <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
+                              <SelectItem value="eu-central-1">Europe (Frankfurt)</SelectItem>
+                              <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="awsS3Bucket">S3 Bucket Name *</Label>
+                          <Input
+                            id="awsS3Bucket"
+                            value={formData.awsS3Bucket}
+                            onChange={(e) => updateField('awsS3Bucket', e.target.value)}
+                            placeholder="your-company-vrin-data"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Where VRIN stores uploaded documents in your account
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

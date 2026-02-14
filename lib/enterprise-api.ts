@@ -174,11 +174,54 @@ export class EnterpriseAPIService {
   // Configuration Management
   static async saveConfiguration(configData: EnterpriseConfiguration) {
     const authHeaders = this.getAuthHeaders();
+
+    // Use the local proxy endpoint instead of direct API call
+    if (typeof window !== 'undefined') {
+      try {
+        const response = await fetch('/api/enterprise/configuration', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify(configData)
+        });
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('[Enterprise API] Error saving configuration via proxy:', error);
+        throw error;
+      }
+    }
+
+    // Fallback to original method for server-side calls
     return apiClient.post(ENTERPRISE_API.ENDPOINTS.CONFIGURATION, configData, authHeaders);
   }
 
   static async getConfiguration(organizationId: string) {
     const authHeaders = this.getAuthHeaders();
+
+    // Use the local proxy endpoint instead of direct API call
+    if (typeof window !== 'undefined') {
+      try {
+        const response = await fetch(`/api/enterprise/configuration?organization_id=${organizationId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          }
+        });
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('[Enterprise API] Error getting configuration via proxy:', error);
+        throw error;
+      }
+    }
+
+    // Fallback to original method for server-side calls
     return apiClient.get(ENTERPRISE_API.ENDPOINTS.CONFIGURATION, {
       organization_id: organizationId
     }, authHeaders);
@@ -201,6 +244,28 @@ export class EnterpriseAPIService {
   // Configuration Validation
   static async validateConfiguration(configData: any): Promise<ValidationResult> {
     const authHeaders = this.getAuthHeaders();
+
+    // Use the local proxy endpoint instead of direct API call
+    if (typeof window !== 'undefined') {
+      try {
+        const response = await fetch('/api/enterprise/validate-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify(configData)
+        });
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('[Enterprise API] Error validating configuration via proxy:', error);
+        throw error;
+      }
+    }
+
+    // Fallback to original method for server-side calls
     return apiClient.post(ENTERPRISE_API.ENDPOINTS.VALIDATE_CONFIG, configData, authHeaders);
   }
 }
