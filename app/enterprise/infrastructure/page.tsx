@@ -286,50 +286,20 @@ function InfrastructureConfigurationContent() {
         return
       }
 
-      // Save configuration
+      // Save configuration (backend handles create vs update — 1 config per org)
       const result = await saveEnterpriseConfiguration(configData)
-      
+
       setSavedSuccessfully(true)
-      
-      // Check if this is edit mode vs create mode
-      if (editConfigId) {
-        toast.success('✅ Configuration updated successfully! Your infrastructure settings have been saved.', {
-          duration: 3000
-        })
-        
-        // For edits, redirect faster since workflow is simpler
-        setTimeout(() => {
-          toast.success('Returning to your dashboard...')
-        }, 1500)
-        
-        setTimeout(() => {
-          window.location.href = '/enterprise/dashboard'
-        }, 2500)
+
+      if (result.updated) {
+        toast.success('Configuration updated successfully!', { duration: 3000 })
       } else {
-        // For new configurations
-        if (result.auto_activated) {
-          toast.success('🎉 Configuration created and activated! Your infrastructure is ready. You can now generate API keys!', {
-            duration: 4000
-          })
-          
-          setTimeout(() => {
-            toast.success('🚀 Taking you to your dashboard to create your first API key...')
-          }, 2500)
-        } else {
-          toast.success('✅ Configuration created successfully! Next: Activate it from "Manage Configurations" to enable API key generation.', {
-            duration: 4000
-          })
-          
-          setTimeout(() => {
-            toast.success('Redirecting to your dashboard...')
-          }, 2500)
-        }
-        
-        // Longer delay for new configurations to let users read the success messages
-        setTimeout(() => {
-          window.location.href = '/enterprise/dashboard'
-        }, result.auto_activated ? 4000 : 3500)
+        toast.success('Configuration saved and activated!', { duration: 3000 })
       }
+
+      setTimeout(() => {
+        window.location.href = '/enterprise/dashboard'
+      }, 2000)
       
     } catch (error: any) {
       console.error('Save configuration error:', error)

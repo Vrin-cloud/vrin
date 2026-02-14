@@ -4,12 +4,10 @@ const ENTERPRISE_API_BASE = 'https://6xjf0e7djg.execute-api.us-east-1.amazonaws.
 
 export async function GET(request: NextRequest) {
   try {
-    // Get headers
     const authHeader = request.headers.get('Authorization')
-    
-    console.log('🔑 Auth header received:', authHeader ? 'Bearer token present' : 'No auth header')
-    console.log('📋 Listing all configurations')
-    
+    const { searchParams } = new URL(request.url)
+    const organizationId = searchParams.get('organization_id')
+
     if (!authHeader) {
       return NextResponse.json(
         { error: 'Authorization header is required' },
@@ -17,9 +15,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Forward the request to the actual enterprise API
-    console.log('🚀 Forwarding configurations list to:', `${ENTERPRISE_API_BASE}/enterprise/configurations`)
-    const response = await fetch(`${ENTERPRISE_API_BASE}/enterprise/configurations`, {
+    // Forward the request to the actual enterprise API with query params
+    const url = organizationId
+      ? `${ENTERPRISE_API_BASE}/enterprise/configurations?organization_id=${organizationId}`
+      : `${ENTERPRISE_API_BASE}/enterprise/configurations`
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -27,16 +28,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('📡 Backend configurations response status:', response.status)
     const data = await response.json()
-    console.log('📡 Backend configurations response data:', data)
 
-    // Return the response with proper CORS headers
     return NextResponse.json(data, {
       status: response.status,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       }
     })
@@ -55,7 +53,7 @@ export async function OPTIONS(request: NextRequest) {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400',
     },

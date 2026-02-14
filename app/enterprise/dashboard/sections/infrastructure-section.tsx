@@ -95,7 +95,7 @@ function InfrastructureConfigurationContent() {
         if (!authToken) return
 
         // Fetch all configurations and find the one to edit
-        const response = await fetch('/api/enterprise/configurations', {
+        const response = await fetch(`/api/enterprise/configurations?organization_id=${organizationId}`, {
           headers: {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
@@ -146,38 +146,41 @@ function InfrastructureConfigurationContent() {
     loadConfigurationForEdit()
   }, [editConfigId, organizationId, user?.organizationName])
 
-  // Populate form with existing configuration
+  // Populate form with existing configuration (from useConfiguration hook)
   useEffect(() => {
-    if (enterpriseConfiguration) {
+    if (enterpriseConfiguration && !editConfigId) {
+      const config = enterpriseConfiguration as any
+      const provider = config.cloud_provider || config.provider || 'azure'
+
       setFormData(prev => ({
         ...prev,
-        organizationName: enterpriseConfiguration.organizationName || '',
-        cloudProvider: enterpriseConfiguration.provider || 'azure',
-        
+        organizationName: config.organization_name || config.organizationName || '',
+        cloudProvider: provider,
+
         // Azure fields
-        azureCosmosDbEndpoint: enterpriseConfiguration.infrastructure?.database?.endpoint || '',
-        azureCognitiveSearchEndpoint: enterpriseConfiguration.infrastructure?.vectorStore?.endpoint || '',
-        azureCognitiveSearchApiKey: enterpriseConfiguration.infrastructure?.vectorStore?.auth || '',
-        azureStorageAccount: '',
-        
+        azureCosmosDbEndpoint: config.infrastructure?.database?.endpoint || '',
+        azureCognitiveSearchEndpoint: config.infrastructure?.vector_store?.endpoint || '',
+        azureCognitiveSearchApiKey: config.infrastructure?.vector_store?.auth || '',
+        azureStorageAccount: config.azure?.storage_account || '',
+
         // AWS fields
-        awsNeptuneEndpoint: '',
-        awsNeptunePort: '8182',
-        awsOpenSearchEndpoint: '',
-        awsS3Bucket: '',
-        awsRegion: 'us-east-1',
-        awsRoleArn: '',
-        awsExternalId: '',
-        
+        awsNeptuneEndpoint: config.infrastructure?.database?.endpoint || '',
+        awsNeptunePort: String(config.infrastructure?.database?.port || '8182'),
+        awsOpenSearchEndpoint: config.infrastructure?.vector_store?.endpoint || '',
+        awsS3Bucket: config.infrastructure?.storage?.bucket || config.infrastructure?.storage?.s3_bucket || '',
+        awsRegion: config.infrastructure?.iam?.region || config.infrastructure?.database?.region || 'us-east-1',
+        awsRoleArn: config.infrastructure?.iam?.role_arn || '',
+        awsExternalId: config.infrastructure?.iam?.external_id || '',
+
         // GCP fields
-        gcpProjectId: '',
-        gcpVertexAiLocation: 'us-central1',
-        gcpServiceAccountKey: ''
+        gcpProjectId: config.gcp?.project_id || '',
+        gcpVertexAiLocation: config.gcp?.location || 'us-central1',
+        gcpServiceAccountKey: config.gcp?.service_account_key || ''
       }))
-      
-      setSelectedProvider(enterpriseConfiguration.provider || 'azure')
+
+      setSelectedProvider(provider)
     }
-  }, [enterpriseConfiguration])
+  }, [enterpriseConfiguration, editConfigId])
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({
@@ -289,49 +292,15 @@ function InfrastructureConfigurationContent() {
         return
       }
 
-      // Save configuration
+      // Save configuration (backend handles create vs update automatically — 1 config per org)
       const result = await saveEnterpriseConfiguration(configData)
-      
+
       setSavedSuccessfully(true)
-      
-      // Check if this is edit mode vs create mode
-      if (editConfigId) {
-        toast.success('✅ Configuration updated successfully! Your infrastructure settings have been saved.', {
-          duration: 3000
-        })
-        
-        // For edits, redirect faster since workflow is simpler
-        setTimeout(() => {
-          toast.success('Returning to your dashboard...')
-        }, 1500)
-        
-        setTimeout(() => {
-          window.location.href = '/enterprise/dashboard'
-        }, 2500)
+
+      if (result.updated) {
+        toast.success('Configuration updated successfully!', { duration: 3000 })
       } else {
-        // For new configurations
-        if (result.auto_activated) {
-          toast.success('🎉 Configuration created and activated! Your infrastructure is ready. You can now generate API keys!', {
-            duration: 4000
-          })
-          
-          setTimeout(() => {
-            toast.success('🚀 Taking you to your dashboard to create your first API key...')
-          }, 2500)
-        } else {
-          toast.success('✅ Configuration created successfully! Next: Activate it from "Manage Configurations" to enable API key generation.', {
-            duration: 4000
-          })
-          
-          setTimeout(() => {
-            toast.success('Redirecting to your dashboard...')
-          }, 2500)
-        }
-        
-        // Longer delay for new configurations to let users read the success messages
-        setTimeout(() => {
-          window.location.href = '/enterprise/dashboard'
-        }, result.auto_activated ? 4000 : 3500)
+        toast.success('Configuration saved and activated! You can now generate API keys.', { duration: 4000 })
       }
       
     } catch (error: any) {
@@ -460,13 +429,10 @@ function InfrastructureConfigurationContent() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {editConfigId ? 'Edit Infrastructure Configuration' : 'Infrastructure Setup'}
+                Infrastructure Configuration
               </h1>
               <p className="text-gray-600 mt-1">
-                {editConfigId
-                  ? 'Update your cloud infrastructure configuration'
-                  : 'Connect VRIN to your cloud infrastructure in 3 simple steps'
-                }
+                Connect VRIN to your cloud infrastructure
               </p>
             </div>
             <Button 
@@ -482,7 +448,7 @@ function InfrastructureConfigurationContent() {
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  {editConfigId ? 'Update Configuration' : 'Save Configuration'}
+                  Save Configuration
                 </>
               )}
             </Button>

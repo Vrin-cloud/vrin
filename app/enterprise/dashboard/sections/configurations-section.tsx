@@ -72,7 +72,7 @@ export default function ConfigurationsPage() {
         throw new Error('Not authenticated')
       }
 
-      const response = await fetch('/api/enterprise/configurations', {
+      const response = await fetch(`/api/enterprise/configurations?organization_id=${organizationId}`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json'
