@@ -109,7 +109,6 @@ export default function ApiKeysPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    deploymentMode: 'vpc_isolated',
     permissions: ['read', 'write'],
     expiresIn: '90' // days
   })
@@ -140,7 +139,7 @@ export default function ApiKeysPage() {
       const keyData = {
         name: formData.name,
         description: formData.description,
-        deployment_mode: formData.deploymentMode,
+        deployment_mode: 'hybrid_explicit',
         permissions: formData.permissions,
         expires_in_days: parseInt(formData.expiresIn),
         user_id: userId
@@ -156,7 +155,6 @@ export default function ApiKeysPage() {
         setFormData({
           name: '',
           description: '',
-          deploymentMode: 'vpc_isolated',
           permissions: ['read', 'write'],
           expiresIn: '90'
         })
@@ -219,20 +217,6 @@ export default function ApiKeysPage() {
     }
   }
 
-  const getDeploymentModeLabel = (mode: string) => {
-    switch (mode) {
-      case 'vpc_isolated':
-        return 'VPC Isolated'
-      case 'air_gapped':
-        return 'Air-Gapped'
-      case 'hybrid_explicit':
-        return 'Hybrid Explicit'
-      case 'unknown':
-        return 'Unknown Mode'
-      default:
-        return mode || 'Unknown'
-    }
-  }
 
   if (loading || configLoading) {
     return (
@@ -329,26 +313,9 @@ export default function ApiKeysPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="deploymentMode">Deployment Mode *</Label>
-                  <Select 
-                    value={formData.deploymentMode} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, deploymentMode: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="vpc_isolated">VPC Isolated</SelectItem>
-                      <SelectItem value="air_gapped">Air-Gapped</SelectItem>
-                      <SelectItem value="hybrid_explicit">Hybrid Explicit</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="expiresIn">Expires In (Days)</Label>
-                  <Select 
-                    value={formData.expiresIn} 
+                  <Label htmlFor="expiresIn">Expires In</Label>
+                  <Select
+                    value={formData.expiresIn}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, expiresIn: value }))}
                   >
                     <SelectTrigger>
@@ -438,9 +405,6 @@ export default function ApiKeysPage() {
                           <Badge className={getStatusColor(apiKey.status || 'unknown')}>
                             {apiKey.status || 'unknown'}
                           </Badge>
-                          <Badge variant="outline">
-                            {getDeploymentModeLabel(apiKey.deployment_mode || 'unknown')}
-                          </Badge>
                         </div>
 
                         {apiKey.description && (
@@ -468,13 +432,7 @@ export default function ApiKeysPage() {
                                   return `${keyPrefix}...••••••••••••••••••••••••••••••••••••••••`;
                                 }
                                 
-                                // Fallback: show a generic masked key based on deployment mode
-                                const deploymentPrefix = apiKey.deployment_mode === 'vpc_isolated' ? 'vrin_ent_vpc_' 
-                                  : apiKey.deployment_mode === 'air_gapped' ? 'vrin_ent_airgap_' 
-                                  : apiKey.deployment_mode === 'hybrid_explicit' ? 'vrin_ent_hybrid_' 
-                                  : 'vrin_ent_';
-                                
-                                return `${deploymentPrefix}••••••••••••••••••••••••••••••••••••••••`;
+                                return `vrin_ent_••••••••••••••••••••••••••••••••••••••••`;
                               })()}
                             </span>
                             {/* Only show toggle if we have the actual key value */}
@@ -581,35 +539,30 @@ export default function ApiKeysPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
-              Enterprise API Key Information
+              How Enterprise API Keys Work
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium mb-3">Key Formats by Deployment Mode:</h4>
+                <h4 className="font-medium mb-3">Key Format</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">vrin_ent_vpc_*</code>
-                    <span className="text-gray-600">VPC Isolated</span>
+                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">vrin_ent_*</code>
+                    <span className="text-gray-600">Enterprise API key prefix</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">vrin_ent_airgap_*</code>
-                    <span className="text-gray-600">Air-Gapped</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">vrin_ent_hybrid_*</code>
-                    <span className="text-gray-600">Hybrid Explicit</span>
-                  </div>
+                  <p className="text-gray-500 mt-2">
+                    The <code className="text-xs bg-gray-100 px-1 rounded">vrin_ent_</code> prefix routes requests through your configured cloud infrastructure via cross-account IAM access.
+                  </p>
                 </div>
               </div>
-              
+
               <div>
-                <h4 className="font-medium mb-3">Security Features:</h4>
+                <h4 className="font-medium mb-3">Security</h4>
                 <ul className="space-y-1 text-sm text-gray-600">
                   <li>• Keys are tied to your infrastructure configuration</li>
-                  <li>• Automatic routing to your private cloud resources</li>
-                  <li>• Built-in audit logging and compliance tracking</li>
+                  <li>• Data stays in your cloud account at all times</li>
+                  <li>• Cross-account access via IAM role assumption</li>
                   <li>• Configurable expiration and revocation</li>
                 </ul>
               </div>
