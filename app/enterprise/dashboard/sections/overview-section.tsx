@@ -203,7 +203,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          onClick={() => handleNavigate('infrastructure')}
+          onClick={() => handleNavigate('configurations')}
           className="cursor-pointer group"
         >
           <div className="flex items-center gap-4 mb-3">
@@ -271,7 +271,7 @@ export default function OverviewSection({ user }: OverviewSectionProps) {
 
           {/* Infrastructure */}
           <div
-            onClick={() => handleNavigate('infrastructure')}
+            onClick={() => handleNavigate('configurations')}
             className="group cursor-pointer flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
           >
             <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-800 transition-colors">

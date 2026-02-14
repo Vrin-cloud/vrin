@@ -27,7 +27,6 @@ import vrinIcon from '@/app/icon.svg'
 import OverviewSection from './sections/overview-section'
 import TeamMembersSection from './sections/team-members-section'
 import ApiKeysPage from './sections/api-keys-section'
-import InfrastructureConfigurationPage from './sections/infrastructure-section'
 import ConfigurationsPage from './sections/configurations-section'
 
 // Sidebar navigation items
@@ -36,8 +35,7 @@ const navigationItems = [
   { id: 'chat', label: 'Chat', icon: MessageSquare, highlight: true, isLink: true, href: '/enterprise/chat' },
   { id: 'team-members', label: 'Team Members', icon: Users },
   { id: 'api-keys', label: 'API Keys', icon: Key },
-  { id: 'infrastructure', label: 'Infrastructure', icon: Database },
-  { id: 'configurations', label: 'Configurations', icon: Settings },
+  { id: 'configurations', label: 'Configuration', icon: Database },
   { id: 'sso-settings', label: 'SSO & Security', icon: Shield },
 ]
 
@@ -94,8 +92,6 @@ function DashboardContent() {
         return <TeamMembersSection user={user} />
       case 'api-keys':
         return <ApiKeysPage />
-      case 'infrastructure':
-        return <InfrastructureConfigurationPage />
       case 'configurations':
         return <ConfigurationsPage />
       case 'sso-settings':
