@@ -129,8 +129,8 @@ export default function ApiKeysPage() {
     }
 
     try {
-      // Get user_id from the authenticated user (handle both camelCase and snake_case)
-      const userId = (user as any)?.user_id || (user as any)?.userId
+      // Get user_id from the authenticated user (Stytch stores it as 'id', legacy as 'user_id'/'userId')
+      const userId = (user as any)?.id || (user as any)?.user_id || (user as any)?.userId
       if (!userId) {
         toast.error('User ID not found. Please log in again.')
         return
