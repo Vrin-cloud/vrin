@@ -109,9 +109,30 @@ export async function POST(request: NextRequest) {
         }
 
         // Password not set or needs reset — migrate the provided password and retry
-        if (errorType === 'password_not_set' || errorType === 'member_reset_password') {
+        // Password needs reset or not set — send reset email
+        if (errorType === 'member_reset_password') {
           try {
-            console.log('[Password Auth] Password needs migration for:', email);
+            console.log('[Password Auth] Triggering password reset email for:', email);
+            await stytch.passwords.email.resetStart({
+              organization_id: existingOrgId!,
+              email_address: email,
+            });
+            return NextResponse.json(
+              { success: false, error: 'Your password needs to be reset. We\'ve sent a reset link to your email.' },
+              { status: 403 }
+            );
+          } catch (resetErr: any) {
+            console.error('[Password Auth] Password reset email failed:', resetErr?.error_type || resetErr?.message);
+            return NextResponse.json(
+              { success: false, error: 'Password reset required but we couldn\'t send the reset email. Please try Google or magic link sign-in.' },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Password not set — migrate the provided password
+        if (errorType === 'password_not_set') {
+          try {
             const hash = await bcrypt.hash(password, 10);
             await stytch.passwords.migrate({
               email_address: email,
@@ -120,7 +141,6 @@ export async function POST(request: NextRequest) {
               hash_type: 'bcrypt',
               name: fullName || undefined,
             });
-            // Re-authenticate with the migrated password
             const retryAuth = await stytch.passwords.authenticate({
               organization_id: existingOrgId!,
               email_address: email,
@@ -129,12 +149,9 @@ export async function POST(request: NextRequest) {
             });
             return buildSuccessResponse(retryAuth, fullName, false);
           } catch (migrateErr: any) {
-            console.error('[Password Auth] Password migration failed:', JSON.stringify({
-              error_type: migrateErr.error_type, status_code: migrateErr.status_code,
-              message: migrateErr.error_message || migrateErr.message,
-            }));
+            console.error('[Password Auth] Password migration failed:', migrateErr?.error_type || migrateErr?.message);
             return NextResponse.json(
-              { success: false, error: `Password reset failed: ${migrateErr.error_type || migrateErr.message || 'unknown'}` },
+              { success: false, error: 'Unable to set password. Please try Google or magic link sign-in.' },
               { status: 400 }
             );
           }
