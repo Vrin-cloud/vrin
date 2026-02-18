@@ -42,58 +42,74 @@ export async function POST(request: NextRequest) {
     const fullName = [first_name, last_name].filter(Boolean).join(' ');
     const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') + '-workspace';
 
-    // Step 1: Try to authenticate directly (login attempt)
+    // Step 1: Try to find existing org by slug, then authenticate
+    let existingOrgId: string | null = null;
     try {
-      const authResponse = await stytch.passwords.authenticate({
-        organization_id: orgSlug,
-        email_address: email,
-        password: password,
-        session_duration_minutes: 60,
+      const searchResult = await stytch.organizations.search({
+        query: {
+          operands: [{ filter_name: 'organization_slugs', filter_value: [orgSlug] }],
+          operator: 'AND',
+        },
       });
-
-      // Login succeeded
-      return buildSuccessResponse(authResponse, fullName, false);
-    } catch (authErr: any) {
-      const errorType = authErr.error_type || '';
-
-      // Wrong password — return error immediately, don't try signup
-      if (authErr.status_code === 401 || errorType === 'unauthorized_credentials') {
-        return NextResponse.json(
-          { success: false, error: 'Incorrect password. Please try again.' },
-          { status: 401 }
-        );
+      if (searchResult.organizations.length > 0) {
+        existingOrgId = searchResult.organizations[0].organization_id;
+        console.log('[Password Auth] Found org by slug:', orgSlug, '→', existingOrgId);
       }
+    } catch (searchErr: any) {
+      console.error('[Password Auth] Org search failed:', searchErr?.message);
+    }
 
-      // Password not set for this member — they signed up via Google/magic link
-      if (errorType === 'password_not_set') {
-        return NextResponse.json(
-          { success: false, error: 'No password set for this account. Please sign in with Google or magic link.' },
-          { status: 400 }
-        );
+    if (existingOrgId) {
+      try {
+        const authResponse = await stytch.passwords.authenticate({
+          organization_id: existingOrgId,
+          email_address: email,
+          password: password,
+          session_duration_minutes: 60,
+        });
+
+        // Login succeeded
+        return buildSuccessResponse(authResponse, fullName, false);
+      } catch (authErr: any) {
+        const errorType = authErr.error_type || '';
+
+        // Wrong password — return error immediately, don't try signup
+        if (authErr.status_code === 401 || errorType === 'unauthorized_credentials') {
+          return NextResponse.json(
+            { success: false, error: 'Incorrect password. Please try again.' },
+            { status: 401 }
+          );
+        }
+
+        // Password not set for this member — they signed up via Google/magic link
+        if (errorType === 'password_not_set') {
+          return NextResponse.json(
+            { success: false, error: 'No password set for this account. Please sign in with Google or magic link.' },
+            { status: 400 }
+          );
+        }
+
+        // Member not found in this org — fall through to signup
+        const isNotFound = errorType.includes('not_found') ||
+          errorType.includes('no_password') ||
+          authErr.status_code === 404;
+
+        if (!isNotFound) {
+          console.error('[Password Auth] Unexpected auth error:', JSON.stringify({
+            error_type: errorType,
+            status_code: authErr.status_code,
+            message: authErr.error_message || authErr.message,
+          }));
+          return NextResponse.json(
+            { success: false, error: 'Authentication failed. Please try again.' },
+            { status: 500 }
+          );
+        }
+
+        console.log('[Password Auth] Member not found in existing org, proceeding to signup for:', email);
       }
-
-      // Org or member not found — proceed to signup
-      const isNotFound = errorType.includes('not_found') ||
-        errorType.includes('no_password') ||
-        authErr.status_code === 404;
-
-      if (!isNotFound) {
-        console.error('[Password Auth] Unexpected auth error:', JSON.stringify({
-          error_type: errorType,
-          status_code: authErr.status_code,
-          message: authErr.error_message || authErr.message,
-        }));
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Authentication failed. Please try again.',
-            debug: { error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message },
-          },
-          { status: 500 }
-        );
-      }
-
-      console.log('[Password Auth] Account not found, proceeding to signup for:', email);
+    } else {
+      console.log('[Password Auth] No existing org found for slug:', orgSlug, '— proceeding to signup for:', email);
     }
 
     // Step 2: Signup — create org + member with password
