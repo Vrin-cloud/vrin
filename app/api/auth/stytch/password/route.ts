@@ -29,7 +29,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const stytch = getStytchServerClient();
+    let stytch;
+    try {
+      stytch = getStytchServerClient();
+    } catch (initErr: any) {
+      console.error('[Password Auth] Stytch client init failed:', initErr?.message);
+      return NextResponse.json(
+        { success: false, error: 'Authentication service unavailable. Please try again later.' },
+        { status: 503 }
+      );
+    }
     const fullName = [first_name, last_name].filter(Boolean).join(' ');
     const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') + '-workspace';
 
@@ -129,9 +138,12 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: any) {
-    console.error('[Password Auth] Unexpected error:', error);
+    console.error('[Password Auth] Unexpected error:', error?.message || error);
+    const debugInfo = process.env.NODE_ENV === 'production'
+      ? { hint: error?.message?.includes('STYTCH') ? 'Stytch env vars may be missing' : undefined }
+      : { detail: error?.message };
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', ...debugInfo },
       { status: 500 }
     );
   }
