@@ -129,9 +129,12 @@ export async function POST(request: NextRequest) {
             });
             return buildSuccessResponse(retryAuth, fullName, false);
           } catch (migrateErr: any) {
-            console.error('[Password Auth] Password migration failed:', migrateErr?.message);
+            console.error('[Password Auth] Password migration failed:', JSON.stringify({
+              error_type: migrateErr.error_type, status_code: migrateErr.status_code,
+              message: migrateErr.error_message || migrateErr.message,
+            }));
             return NextResponse.json(
-              { success: false, error: 'Unable to set password. Please try signing in with Google or magic link.' },
+              { success: false, error: `Password reset failed: ${migrateErr.error_type || migrateErr.message || 'unknown'}` },
               { status: 400 }
             );
           }
