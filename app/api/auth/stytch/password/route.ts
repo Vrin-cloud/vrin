@@ -108,23 +108,53 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Password not set or needs reset — migrate the provided password and retry
-        // Password needs reset or not set — send reset email
+        // Password flagged for reset — delete member, recreate with migrated password
         if (errorType === 'member_reset_password') {
           try {
-            console.log('[Password Auth] Triggering password reset email for:', email);
-            await stytch.passwords.email.resetStart({
+            console.log('[Password Auth] Password reset required, recreating member for:', email);
+
+            // Find the member to get their member_id
+            const searchMembers = await stytch.organizations.members.search({
+              organization_ids: [existingOrgId!],
+              query: {
+                operands: [{ filter_name: 'member_emails', filter_value: [email] }],
+                operator: 'AND',
+              },
+            });
+
+            if (searchMembers.members.length > 0) {
+              const memberId = searchMembers.members[0].member_id;
+              // Delete the member with the stale password
+              await stytch.organizations.members.delete({
+                organization_id: existingOrgId!,
+                member_id: memberId,
+              });
+              console.log('[Password Auth] Deleted stale member:', memberId);
+            }
+
+            // Recreate member with the provided password via migrate
+            const hash = await bcrypt.hash(password, 10);
+            await stytch.passwords.migrate({
+              email_address: email,
+              organization_id: existingOrgId!,
+              hash: hash,
+              hash_type: 'bcrypt',
+              name: fullName || undefined,
+            });
+            console.log('[Password Auth] Recreated member with password:', email);
+
+            // Authenticate
+            const retryAuth = await stytch.passwords.authenticate({
               organization_id: existingOrgId!,
               email_address: email,
+              password: password,
+              session_duration_minutes: 60,
             });
-            return NextResponse.json(
-              { success: false, error: 'Your password needs to be reset. We\'ve sent a reset link to your email.' },
-              { status: 403 }
-            );
+            return buildSuccessResponse(retryAuth, fullName, false);
           } catch (resetErr: any) {
-            console.error('[Password Auth] Password reset email failed:', resetErr?.error_type || resetErr?.message);
+            console.error('[Password Auth] Password reset flow failed:', resetErr?.error_type || resetErr?.message);
             return NextResponse.json(
-              { success: false, error: 'Password reset required but we couldn\'t send the reset email. Please try Google or magic link sign-in.' },
+              { success: false, error: `Password reset failed: ${resetErr?.error_type || resetErr?.message || 'unknown'}` },
               { status: 400 }
             );
           }
