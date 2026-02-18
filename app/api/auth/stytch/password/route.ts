@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
             error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message,
           }));
           return NextResponse.json(
-            { success: false, error: 'Authentication failed. Please try again.' },
+            { success: false, error: `Authentication failed: ${errorType || 'unknown'} (${authErr.status_code || '?'})` },
             { status: 500 }
           );
         }
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { success: false, error: 'Failed to create account. Please try again.' },
+        { success: false, error: `Failed to create account: ${signupErr.error_type || 'unknown'} (${signupErr.status_code || '?'})` },
         { status: 500 }
       );
     }
