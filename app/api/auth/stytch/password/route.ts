@@ -114,13 +114,10 @@ export async function POST(request: NextRequest) {
           authErr.status_code === 404;
 
         if (!isNotFound) {
-          console.error('[Password Auth] Unexpected auth error:', JSON.stringify({
-            error_type: errorType,
-            status_code: authErr.status_code,
-            message: authErr.error_message || authErr.message,
-          }));
+          const debugPayload = { error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message };
+          console.error('[Password Auth] Unexpected auth error:', JSON.stringify(debugPayload));
           return NextResponse.json(
-            { success: false, error: 'Authentication failed. Please try again.' },
+            { success: false, error: 'Authentication failed. Please try again.', debug: debugPayload },
             { status: 500 }
           );
         }
