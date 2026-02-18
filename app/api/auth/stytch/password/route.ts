@@ -42,21 +42,40 @@ export async function POST(request: NextRequest) {
     const fullName = [first_name, last_name].filter(Boolean).join(' ');
     const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') + '-workspace';
 
-    // Step 1: Try to find existing org by slug, then authenticate
+    // Step 1: Try to find existing org by member email, then by slug
     let existingOrgId: string | null = null;
     try {
+      // Search by member email first — this finds the org the user actually belongs to
       const searchResult = await stytch.organizations.search({
         query: {
-          operands: [{ filter_name: 'organization_slugs', filter_value: [orgSlug] }],
+          operands: [{ filter_name: 'member_emails', filter_value: [email] }],
           operator: 'AND',
         },
       });
       if (searchResult.organizations.length > 0) {
         existingOrgId = searchResult.organizations[0].organization_id;
-        console.log('[Password Auth] Found org by slug:', orgSlug, '→', existingOrgId);
+        console.log('[Password Auth] Found org by member email:', email, '→', existingOrgId);
       }
-    } catch (searchErr: any) {
-      console.error('[Password Auth] Org search failed:', searchErr?.message);
+    } catch (emailSearchErr: any) {
+      console.error('[Password Auth] Org search by email failed:', emailSearchErr?.message);
+    }
+
+    // Fallback: search by derived slug
+    if (!existingOrgId) {
+      try {
+        const slugResult = await stytch.organizations.search({
+          query: {
+            operands: [{ filter_name: 'organization_slugs', filter_value: [orgSlug] }],
+            operator: 'AND',
+          },
+        });
+        if (slugResult.organizations.length > 0) {
+          existingOrgId = slugResult.organizations[0].organization_id;
+          console.log('[Password Auth] Found org by slug:', orgSlug, '→', existingOrgId);
+        }
+      } catch (slugSearchErr: any) {
+        console.error('[Password Auth] Org search by slug failed:', slugSearchErr?.message);
+      }
     }
 
     if (existingOrgId) {
