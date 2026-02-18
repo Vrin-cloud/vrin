@@ -3,6 +3,136 @@ import { BlogPost } from './types'
 // Blog posts data - add new posts here
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'the-reasoning-gap',
+    title: 'The Reasoning Gap: Why RAG Systems Fail and What Comes Next',
+    description: 'Enterprise AI has a reasoning problem. RAG was built for retrieval, but enterprises need answers that require structured thinking across documents, timelines, and constraints. Here\'s how we\'re closing that gap.',
+    date: '2026-02-17',
+    author: {
+      name: 'Vedant Patel',
+      role: 'Founder & CEO',
+      avatar: '/blogs/Profile Photo.JPEG',
+      linkedin: 'https://www.linkedin.com/in/vedant1033/',
+    },
+    category: 'research',
+    tags: ['reasoning', 'RAG', 'knowledge-graph', 'enterprise-ai', 'hybrid-rag', 'benchmarks'],
+    readingTime: '8 min read',
+    featured: true,
+    content: `
+A financial analyst asks your AI system: *"How did TechCorp's revenue change after the CEO transition in Q3?"*
+
+Your system finds the five most semantically similar text chunks. It feeds them to a language model. The model produces a confident, well-written answer. And the answer is wrong.
+
+Not because the language model is bad. Not because the embedding model missed something. The answer is wrong because finding similar text and reasoning over structured knowledge are two fundamentally different things. The industry built an incredible search engine and called it intelligence.
+
+This is the reasoning gap. And it's why most enterprise AI pilots fail to deliver ROI.
+
+---
+
+## Where RAG Started
+
+In 2020, a team at Meta AI published a paper that changed how we build AI applications. The idea was elegant: instead of asking a language model to answer from memory, give it relevant documents first. Retrieve, then generate. RAG.
+
+The insight was genuine. Language models hallucinate less when grounded in real data. Within a few years, RAG became the default architecture for enterprise AI. Vector databases, embedding pipelines, and chunking strategies became the building blocks of every AI startup's pitch deck.
+
+And for simple queries, it works well. Ask about a single topic in a single document, and semantic similarity will find what you need. The language model fills in the rest.
+
+The problem is that enterprise questions are rarely simple.
+
+## What RAG Is Good At (And Where It Stops)
+
+The RAG industry has been remarkably productive. Better embeddings capture more nuance. Contextual chunking preserves document structure. Reranking models push the most relevant results to the top. Hybrid search combines keyword matching with semantic similarity. Each improvement makes retrieval incrementally better.
+
+But here's the uncomfortable truth: all of this innovation optimizes a single operation. Semantic similarity search. Finding text that looks like the question.
+
+Consider what happens when someone asks: *"What was our quarterly revenue trend before and after the leadership change?"*
+
+This question requires five things:
+
+1. **Identify** the entities (the company, the leadership figures, revenue)
+2. **Understand** the temporal constraint (before and after, quarterly)
+3. **Locate** the relevant facts across multiple documents
+4. **Connect** the leadership change event to the revenue data
+5. **Retrieve** the specific numbers from the right time periods
+
+Standard RAG addresses only step five, and imprecisely, through semantic matching rather than structured retrieval. Steps one through four are delegated entirely to the language model as an implicit, unstructured task. The model receives a pile of text chunks and is expected to figure out the rest on its own.
+
+This works some of the time. It fails in exactly the situations where enterprises need it most: multi-document reasoning, temporal queries, numerical comparisons, and anything requiring an understanding of how facts relate to each other.
+
+Google Research recently demonstrated that insufficient retrieved context increases error rates by 6.5x compared to having no context at all. RAG with bad retrieval is worse than no RAG.
+
+## We're Not Building a Better Search Engine
+
+Most companies in this space are competing to build the best retrieval layer. Better vectors, faster search, smarter reranking. That's a valuable race, but it's not the one we're running.
+
+Vrin is a reasoning engine. The distinction matters.
+
+A search engine finds relevant text. A reasoning engine understands the structure of a question, knows how facts relate to each other across documents and time periods, identifies what it does and doesn't know, and constructs a grounded answer from structured evidence.
+
+We started from a different question: *What if each cognitive step, the perception, structuring, storage, organization, and retrieval of knowledge, were engineered explicitly rather than hoping the language model handles it?*
+
+## What's Under the Hood
+
+When a document enters Vrin, we don't just chunk and embed it. We extract structured knowledge.
+
+**Entity-centric fact extraction** identifies the real entities in a document (companies, people, products) and extracts relationships as subject-predicate-object triples. "TechCorp announced revenue of $245M" becomes a structured fact: \`(TechCorp, reported_revenue, $245M)\`. Pronouns and indirect references are resolved to their concrete entities before any fact is created.
+
+**Temporal versioning** tracks when facts are valid. A company's CEO changes. Revenue figures update quarterly. Standard RAG treats all information as equally current, which leads to contradictions. Vrin maintains a timeline: when each fact became true, when it was superseded, and what replaced it. You can query knowledge at any point in time.
+
+**Constraint-aware retrieval** understands the structure of your question before searching. When you ask about revenue "after Q3 2024," the system doesn't just find semantically similar text. It identifies the temporal constraint, the entity constraint, and the comparison being requested, then uses these to filter retrieval at the graph level.
+
+**Confidence-scored graph traversal** follows chains of relationships across documents. Multi-hop queries (questions whose answers span multiple documents) are handled through beam search across the knowledge graph, with confidence scores decaying at each hop. A cross-document synthesizer identifies entities that appear in multiple sources, detects temporal overlaps, and flags contradictions.
+
+**Adaptive bail-out** evaluates retrieval quality before generating a response. If the knowledge base doesn't contain relevant information, the system says so in under 500 milliseconds instead of hallucinating a plausible-sounding answer. This is measured across five dimensions: entity coverage, type alignment, temporal alignment, fact density, and topical relevance.
+
+The result is that the language model receives structured facts with confidence scores, temporal metadata, source attribution, and reasoning chains. Not a pile of text chunks. Fundamentally richer context.
+
+## The Numbers
+
+We evaluated Vrin on MultiHop-RAG, a benchmark designed specifically for cross-document multi-hop reasoning, the hardest category of question for any RAG system.
+
+| System | Accuracy |
+|---|---|
+| **Vrin** | **95.1%** |
+| GPT 5.2 (with oracle evidence) | 78.9% |
+| Multi-Meta RAG + GPT-4 | 63.0% |
+| Standard RAG + GPT-4 | 47.3% |
+
+The GPT 5.2 comparison is the one that matters. GPT received the exact evidence documents for each query directly in its context window, a best-case scenario that never exists in production. Vrin retrieved from the full corpus of 609 articles under realistic conditions. Despite this disadvantage, Vrin outperformed by 16.2 percentage points.
+
+The gap is largest on temporal queries (+48.9pp) and comparison queries (+15.5pp), precisely the categories where understanding the *structure* of a question matters most.
+
+These results demonstrate something important: the bottleneck in enterprise AI isn't the language model. It's the architecture surrounding it. Give a frontier model perfect context and it still underperforms a system that structures knowledge before reasoning over it.
+
+Full evaluation code is open-source on [GitHub](https://github.com/Vrin-cloud/vrin-benchmarks).
+
+## Enterprise Data Sovereignty
+
+Enterprise data is sensitive. For many organizations, sending documents to a third-party cloud is a non-starter. Vrin supports full data sovereignty: the knowledge graph, vector index, document storage, and embedding computation can reside entirely within the customer's AWS account. Vrin's compute layer accesses customer data through time-limited, scoped credentials. The API key prefix (\`vrin_\` vs \`vrin_ent_\`) transparently determines which infrastructure handles a request.
+
+Enterprise data never leaves the customer's cloud.
+
+## What Comes Next
+
+We believe the RAG industry has explored less than 5% of the available innovation space. The dominant focus has been on the retrieval subprocess: better embeddings, smarter reranking, larger context windows. Four other subprocesses, perception, structuring, storage, and organization, remain largely unaddressed.
+
+The areas we're investing in:
+
+**Adaptive retrieval depth.** Not every query needs every pipeline stage. A simple factual lookup needs only graph traversal. A general knowledge question may not need retrieval at all. Future versions will make finer-grained decisions about which stages to invoke per query.
+
+**Automatic domain specialization.** Over time, usage patterns reveal which knowledge subgraphs are most frequently accessed. A legal team queries the same regulatory frameworks. A finance team queries the same portfolio entities. We're building infrastructure to detect these patterns and create specialized memory packs per team, enabling targeted domain expertise without fine-tuning.
+
+**MCP integration.** Vrin operates as a [Model Context Protocol](https://modelcontextprotocol.io/) server. Any MCP-compatible assistant (Claude, ChatGPT, custom agents) can query Vrin's knowledge graph as a reasoning backend. Your team's structured knowledge becomes accessible from whatever AI tool they prefer.
+
+The fundamental thesis is that AI systems will eventually be specialized like human employees, not through fine-tuning a single model, but through engineering the cognitive infrastructure surrounding it. Better perception, better structure, better organization, better reasoning.
+
+We're building that infrastructure.
+
+---
+
+*Read the full technical details in our [whitepaper](/vrin-whitepaper.pdf), or try Vrin at [vrin.cloud](https://vrin.cloud).*
+`,
+  },
+  {
     slug: 'benchmark-results-ragbench-multihop',
     title: 'How We Achieved 97.5% Accuracy on Financial QA - 22% Better Than Oracle Baselines',
     description: 'A transparent look at VRIN\'s performance on industry-standard RAG benchmarks with Oracle context. We break down our methodology, share what worked, and honestly discuss our limitations.',
