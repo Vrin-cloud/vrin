@@ -251,12 +251,12 @@ Traditional RAG chunks documents and embeds them. VRIN does something different.
 When VRIN ingests a financial report, it extracts structured facts:
 
 \`\`\`
-Microsoft Corporation → revenue_q4_2024 → $69.6 billion
-Microsoft Corporation → ceo → Satya Nadella
-Satya Nadella → role → CEO of Microsoft
+Acme Corp → annual_revenue_2024 → $4.2 billion
+Acme Corp → ceo → Jane Rivera
+Jane Rivera → role → CEO of Acme Corp
 \`\`\`
 
-These facts form a knowledge graph that preserves relationships. When you ask about Microsoft's revenue, VRIN doesn't search through text chunks—it traverses relationships.
+These facts form a knowledge graph that preserves relationships. When you ask about Acme Corp's revenue, VRIN doesn't search through text chunks—it traverses relationships.
 
 ### 2. Hybrid Retrieval (Graph + Vector)
 
