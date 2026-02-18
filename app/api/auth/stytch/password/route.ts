@@ -108,12 +108,33 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Password not set for this member — they signed up via Google/magic link
-        if (errorType === 'password_not_set') {
-          return NextResponse.json(
-            { success: false, error: 'No password set for this account. Please sign in with Google or magic link.' },
-            { status: 400 }
-          );
+        // Password not set or needs reset — migrate the provided password and retry
+        if (errorType === 'password_not_set' || errorType === 'member_reset_password') {
+          try {
+            console.log('[Password Auth] Password needs migration for:', email);
+            const hash = await bcrypt.hash(password, 10);
+            await stytch.passwords.migrate({
+              email_address: email,
+              organization_id: existingOrgId!,
+              hash: hash,
+              hash_type: 'bcrypt',
+              name: fullName || undefined,
+            });
+            // Re-authenticate with the migrated password
+            const retryAuth = await stytch.passwords.authenticate({
+              organization_id: existingOrgId!,
+              email_address: email,
+              password: password,
+              session_duration_minutes: 60,
+            });
+            return buildSuccessResponse(retryAuth, fullName, false);
+          } catch (migrateErr: any) {
+            console.error('[Password Auth] Password migration failed:', migrateErr?.message);
+            return NextResponse.json(
+              { success: false, error: 'Unable to set password. Please try signing in with Google or magic link.' },
+              { status: 400 }
+            );
+          }
         }
 
         // Member not found in this org — fall through to signup
@@ -126,7 +147,7 @@ export async function POST(request: NextRequest) {
             error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message,
           }));
           return NextResponse.json(
-            { success: false, error: `Authentication failed: ${errorType || 'unknown'} (${authErr.status_code || '?'})` },
+            { success: false, error: 'Authentication failed. Please try again.' },
             { status: 500 }
           );
         }
@@ -186,7 +207,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { success: false, error: `Failed to create account: ${signupErr.error_type || 'unknown'} (${signupErr.status_code || '?'})` },
+        { success: false, error: 'Failed to create account. Please try again.' },
         { status: 500 }
       );
     }
