@@ -100,6 +100,14 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        // Account locked due to too many failed attempts
+        if (authErr.status_code === 429 || errorType === 'user_lock_limit_reached') {
+          return NextResponse.json(
+            { success: false, error: 'Too many failed login attempts. Your account has been temporarily locked. Please try again in a few minutes.' },
+            { status: 429 }
+          );
+        }
+
         // Password not set for this member — they signed up via Google/magic link
         if (errorType === 'password_not_set') {
           return NextResponse.json(
@@ -114,10 +122,11 @@ export async function POST(request: NextRequest) {
           authErr.status_code === 404;
 
         if (!isNotFound) {
-          const debugPayload = { error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message };
-          console.error('[Password Auth] Unexpected auth error:', JSON.stringify(debugPayload));
+          console.error('[Password Auth] Unexpected auth error:', JSON.stringify({
+            error_type: errorType, status_code: authErr.status_code, message: authErr.error_message || authErr.message,
+          }));
           return NextResponse.json(
-            { success: false, error: 'Authentication failed. Please try again.', debug: debugPayload },
+            { success: false, error: 'Authentication failed. Please try again.' },
             { status: 500 }
           );
         }
@@ -177,21 +186,14 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to create account. Please try again.',
-          debug: { error_type: signupErr.error_type, status_code: signupErr.status_code, message: signupErr.error_message || signupErr.message },
-        },
+        { success: false, error: 'Failed to create account. Please try again.' },
         { status: 500 }
       );
     }
   } catch (error: any) {
     console.error('[Password Auth] Unexpected error:', error?.message || error);
-    const debugInfo = process.env.NODE_ENV === 'production'
-      ? { hint: error?.message?.includes('STYTCH') ? 'Stytch env vars may be missing' : undefined }
-      : { detail: error?.message };
     return NextResponse.json(
-      { success: false, error: 'Internal server error', ...debugInfo },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
