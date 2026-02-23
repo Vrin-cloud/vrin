@@ -44,7 +44,7 @@ export default function BlogPostPage() {
       <Header />
 
       {/* Article Header */}
-      <article className="pt-32 pb-8 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <article className="pt-32 pb-8 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -54,7 +54,7 @@ export default function BlogPostPage() {
             {/* Back Link */}
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors mb-8"
+              className="inline-flex items-center gap-2 text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Blog
@@ -74,12 +74,12 @@ export default function BlogPostPage() {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 text-[#201E1E] dark:text-[#FFFDFD] leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF] leading-tight">
               {post.title}
             </h1>
 
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-6 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+            <div className="flex flex-wrap items-center gap-6 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
               <div className="flex items-center gap-3">
                 {post.author.avatar ? (
                   <Image
@@ -96,16 +96,16 @@ export default function BlogPostPage() {
                 )}
                 <div>
                   {post.author.linkedin ? (
-                    <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFDFD] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                    <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
                       {post.author.name}
                     </a>
                   ) : (
-                    <p className="font-medium text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                    <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF]">{post.author.name}</p>
                   )}
-                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">{post.author.role}</p>
+                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">{post.author.role}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50">
+              <div className="flex items-center gap-4 text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" />
                   <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -121,29 +121,29 @@ export default function BlogPostPage() {
       </article>
 
       {/* Article Content */}
-      <section className="py-12 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <section className="py-12 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-4xl">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="prose prose-lg dark:prose-invert max-w-none
-              prose-headings:font-light prose-headings:text-[#201E1E] dark:prose-headings:text-[#FFFDFD]
+              prose-headings:font-light prose-headings:text-[#201E1E] dark:prose-headings:text-[#FFFFFF]
               prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
               prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-              prose-p:text-[#201E1E]/80 dark:prose-p:text-[#FFFDFD]/80 prose-p:leading-relaxed
+              prose-p:text-[#201E1E]/80 dark:prose-p:text-[#FFFFFF]/80 prose-p:leading-relaxed
               prose-a:text-[#083C5E] dark:prose-a:text-[#8DAA9D] prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-[#201E1E] dark:prose-strong:text-[#FFFDFD] prose-strong:font-semibold
+              prose-strong:text-[#201E1E] dark:prose-strong:text-[#FFFFFF] prose-strong:font-semibold
               prose-code:text-[#083C5E] dark:prose-code:text-[#8DAA9D] prose-code:bg-[#083C5E]/10 dark:prose-code:bg-[#8DAA9D]/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
-              prose-pre:bg-[#1e1e1e] prose-pre:border prose-pre:border-[#201E1E]/10 dark:prose-pre:border-[#FFFDFD]/10 prose-pre:rounded-xl
-              prose-blockquote:border-l-[#083C5E] dark:prose-blockquote:border-l-[#8DAA9D] prose-blockquote:text-[#201E1E]/70 dark:prose-blockquote:text-[#FFFDFD]/70 prose-blockquote:not-italic
-              prose-ul:text-[#201E1E]/80 dark:prose-ul:text-[#FFFDFD]/80
-              prose-ol:text-[#201E1E]/80 dark:prose-ol:text-[#FFFDFD]/80
+              prose-pre:bg-[#1e1e1e] prose-pre:border prose-pre:border-[#201E1E]/10 dark:prose-pre:border-[#FFFFFF]/10 prose-pre:rounded-xl
+              prose-blockquote:border-l-[#083C5E] dark:prose-blockquote:border-l-[#8DAA9D] prose-blockquote:text-[#201E1E]/70 dark:prose-blockquote:text-[#FFFFFF]/70 prose-blockquote:not-italic
+              prose-ul:text-[#201E1E]/80 dark:prose-ul:text-[#FFFFFF]/80
+              prose-ol:text-[#201E1E]/80 dark:prose-ol:text-[#FFFFFF]/80
               prose-li:marker:text-[#083C5E] dark:prose-li:marker:text-[#8DAA9D]
               prose-table:border-collapse
-              prose-th:bg-[#083C5E]/10 dark:prose-th:bg-[#8DAA9D]/10 prose-th:text-[#201E1E] dark:prose-th:text-[#FFFDFD] prose-th:font-medium prose-th:px-4 prose-th:py-3 prose-th:border prose-th:border-[#201E1E]/20 dark:prose-th:border-[#FFFDFD]/20
-              prose-td:px-4 prose-td:py-3 prose-td:border prose-td:border-[#201E1E]/10 dark:prose-td:border-[#FFFDFD]/10
-              prose-hr:border-[#201E1E]/10 dark:prose-hr:border-[#FFFDFD]/10
+              prose-th:bg-[#083C5E]/10 dark:prose-th:bg-[#8DAA9D]/10 prose-th:text-[#201E1E] dark:prose-th:text-[#FFFFFF] prose-th:font-medium prose-th:px-4 prose-th:py-3 prose-th:border prose-th:border-[#201E1E]/20 dark:prose-th:border-[#FFFFFF]/20
+              prose-td:px-4 prose-td:py-3 prose-td:border prose-td:border-[#201E1E]/10 dark:prose-td:border-[#FFFFFF]/10
+              prose-hr:border-[#201E1E]/10 dark:prose-hr:border-[#FFFFFF]/10
             "
           >
             <ReactMarkdown
@@ -192,19 +192,19 @@ export default function BlogPostPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-16 pt-8 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10"
+            className="mt-16 pt-8 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10"
           >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-[#201E1E]/60 dark:text-[#FFFDFD]/60" />
-                <span className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">Share this article</span>
+                <Share2 className="w-5 h-5 text-[#201E1E]/60 dark:text-[#FFFFFF]/60" />
+                <span className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">Share this article</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={shareTwitter}
-                  className="border-[#201E1E]/20 dark:border-[#FFFDFD]/20"
+                  className="border-[#201E1E]/20 dark:border-[#FFFFFF]/20"
                 >
                   <Twitter className="w-4 h-4 mr-2" />
                   Twitter
@@ -213,7 +213,7 @@ export default function BlogPostPage() {
                   variant="outline"
                   size="sm"
                   onClick={shareLinkedIn}
-                  className="border-[#201E1E]/20 dark:border-[#FFFDFD]/20"
+                  className="border-[#201E1E]/20 dark:border-[#FFFFFF]/20"
                 >
                   <Linkedin className="w-4 h-4 mr-2" />
                   LinkedIn
@@ -222,7 +222,7 @@ export default function BlogPostPage() {
                   variant="outline"
                   size="sm"
                   onClick={copyLink}
-                  className="border-[#201E1E]/20 dark:border-[#FFFDFD]/20"
+                  className="border-[#201E1E]/20 dark:border-[#FFFFFF]/20"
                 >
                   <LinkIcon className="w-4 h-4 mr-2" />
                   Copy Link
@@ -254,14 +254,14 @@ export default function BlogPostPage() {
               )}
               <div>
                 {post.author.linkedin ? (
-                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-lg text-[#201E1E] dark:text-[#FFFDFD] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-lg text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
                     {post.author.name}
                   </a>
                 ) : (
-                  <p className="font-medium text-lg text-[#201E1E] dark:text-[#FFFDFD]">{post.author.name}</p>
+                  <p className="font-medium text-lg text-[#201E1E] dark:text-[#FFFFFF]">{post.author.name}</p>
                 )}
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 mb-3">{post.author.role}</p>
-                <p className="text-[#201E1E]/70 dark:text-[#FFFDFD]/70">
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-3">{post.author.role}</p>
+                <p className="text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
                   Building the next generation of enterprise AI memory at VRIN. We believe in transparent research and open benchmarks.
                 </p>
               </div>
@@ -271,13 +271,13 @@ export default function BlogPostPage() {
       </section>
 
       {/* Related Posts */}
-      <section className="py-16 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5">
+      <section className="py-16 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
         <div className="container max-w-4xl">
-          <h2 className="text-2xl font-light mb-8 text-[#201E1E] dark:text-[#FFFDFD]">
+          <h2 className="text-2xl font-light mb-8 text-[#201E1E] dark:text-[#FFFFFF]">
             More from VRIN
           </h2>
           <div className="text-center py-8">
-            <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 mb-4">
+            <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-4">
               More articles coming soon. Subscribe to get notified.
             </p>
             <Button asChild variant="outline">

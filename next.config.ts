@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         destination: '/industries/customer-support#demo',
         permanent: false,
       },
+      // Short URL for sales page (for email outreach)
+      {
+        source: '/sales',
+        destination: '/industries/sales',
+        permanent: false,
+      },
     ];
   },
 };

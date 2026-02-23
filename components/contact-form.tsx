@@ -88,17 +88,17 @@ ${formData.message}
       />
 
       {/* Modal */}
-      <Card className="relative w-full max-w-md mx-4 bg-[#FFFDFD] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+      <Card className="relative w-full max-w-md mx-4 bg-[#FFFFFF] dark:bg-[#201E1E] border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+          <div className="flex items-center justify-between p-6 border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center">
-                <Mail className="h-5 w-5 text-[#FFFDFD] dark:text-[#201E1E]" />
+                <Mail className="h-5 w-5 text-[#FFFFFF] dark:text-[#201E1E]" />
               </div>
               <div>
-                <h2 className="text-xl font-light text-[#201E1E] dark:text-[#FFFDFD]">Get in Touch</h2>
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">We&apos;d love to hear from you</p>
+                <h2 className="text-xl font-light text-[#201E1E] dark:text-[#FFFFFF]">Get in Touch</h2>
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">We&apos;d love to hear from you</p>
               </div>
             </div>
             <Button
@@ -116,8 +116,8 @@ ${formData.message}
             {isSubmitted ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-2">Message Sent!</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 text-sm font-light">
+                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">Message Sent!</h3>
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 text-sm font-light">
                   Thank you for reaching out. We&apos;ll get back to you soon.
                 </p>
               </div>
@@ -210,18 +210,18 @@ ${formData.message}
                     type="button"
                     variant="outline"
                     onClick={onClose}
-                    className="flex-1 bg-transparent border-[#201E1E]/30 dark:border-[#FFFDFD]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20 rounded-full"
+                    className="flex-1 bg-transparent border-[#201E1E]/30 dark:border-[#FFFFFF]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20 rounded-full"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFDFD] dark:bg-[#FFFDFD] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full"
+                    className="flex-1 bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFFFF] dark:bg-[#FFFFFF] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FFFDFD] dark:border-[#201E1E] mr-2" />
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FFFFFF] dark:border-[#201E1E] mr-2" />
                         Sending...
                       </>
                     ) : (

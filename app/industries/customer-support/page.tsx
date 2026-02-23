@@ -214,7 +214,7 @@ export default function CustomerSupportPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-16 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <section className="pt-32 pb-16 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -226,16 +226,16 @@ export default function CustomerSupportPage() {
               <Headphones className="w-4 h-4 mr-2" />
               Customer Support
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
               Resolve Complex Tickets Faster—{" "}
               <span className="text-[#083C5E] dark:text-[#8DAA9D]">Without Bouncing Between Tools</span>
             </h1>
-            <p className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light max-w-3xl mx-auto mb-4">
+            <p className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light max-w-3xl mx-auto mb-4">
               Support teams lose time on context: past tickets, Slack threads, docs, runbooks, product notes.
               Vrin brings the right evidence into the ticket, drafts customer-ready replies, and triggers
               workflow agents for follow-ups—so resolution stays fast even when cases get messy.
             </p>
-            <p className="text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50 mb-8">
+            <p className="text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50 mb-8">
               Works with your existing support portal (Zendesk, Intercom, or similar) and connects to the tools where knowledge lives.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -246,7 +246,7 @@ export default function CustomerSupportPage() {
                 </Button>
               </Link>
               <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
-                <Button size="lg" variant="outline" className="rounded-full px-8 border-[#201E1E]/20 dark:border-[#FFFDFD]/20">
+                <Button size="lg" variant="outline" className="rounded-full px-8 border-[#201E1E]/20 dark:border-[#FFFFFF]/20">
                   Book a 15-min Call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -263,7 +263,7 @@ export default function CustomerSupportPage() {
             className="relative max-w-4xl mx-auto scroll-mt-24"
           >
             <div
-              className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#201E1E]"
+              className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#201E1E]"
               onMouseEnter={() => setShowControls(true)}
               onMouseLeave={() => isPlaying && setShowControls(false)}
             >
@@ -332,7 +332,7 @@ export default function CustomerSupportPage() {
                 </div>
               </div>
             </div>
-            <p className="text-center text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50 mt-4">
+            <p className="text-center text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50 mt-4">
               See Vrin bring evidence-backed context into every support ticket
             </p>
             <div className="flex justify-center mt-6">
@@ -348,7 +348,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5">
+      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -356,10 +356,10 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Support isn&apos;t slow because your team isn&apos;t trying
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-3xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-3xl mx-auto">
               It&apos;s slow because the answer is fragmented—across tickets, docs, Slack, product notes, and the people who &quot;just know.&quot;
               Agents spend time searching, validating, and re-explaining. Meanwhile first responses slip, escalations pile up, and consistency breaks as you grow.
             </p>
@@ -374,15 +374,15 @@ export default function CustomerSupportPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E] text-center">
+                <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E] text-center">
                   <CardContent className="p-6">
                     <div className="w-12 h-12 rounded-xl bg-red-500/10 dark:bg-red-500/20 flex items-center justify-center mx-auto mb-4">
                       <problem.icon className="w-6 h-6 text-red-500" />
                     </div>
-                    <h3 className="text-lg font-medium mb-2 text-[#201E1E] dark:text-[#FFFDFD]">
+                    <h3 className="text-lg font-medium mb-2 text-[#201E1E] dark:text-[#FFFFFF]">
                       {problem.title}
                     </h3>
-                    <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                    <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                       {problem.description}
                     </p>
                   </CardContent>
@@ -394,7 +394,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* How Vrin Works Section */}
-      <section className="py-20 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -402,10 +402,10 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Vrin brings the right evidence into the ticket—then helps your team act on it
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-2xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto">
               From context to resolution, Vrin works inside your existing workflow.
             </p>
           </motion.div>
@@ -419,7 +419,7 @@ export default function CustomerSupportPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E] overflow-hidden">
+                <Card className="border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E] overflow-hidden">
                   <CardContent className="p-0">
                     <div className="flex flex-col md:flex-row items-stretch">
                       <div className="w-full md:w-24 bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center py-6 md:py-0">
@@ -431,10 +431,10 @@ export default function CustomerSupportPage() {
                             <step.icon className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
                           </div>
                           <div>
-                            <h3 className="text-xl font-medium mb-2 text-[#201E1E] dark:text-[#FFFDFD]">
+                            <h3 className="text-xl font-medium mb-2 text-[#201E1E] dark:text-[#FFFFFF]">
                               {step.title}
                             </h3>
-                            <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                            <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                               {step.description}
                             </p>
                           </div>
@@ -450,7 +450,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* Why Vrin / Differentiation Section */}
-      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5">
+      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -458,10 +458,10 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Not just &quot;AI replies.&quot; Cross-system reasoning + evidence + actions.
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-2xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto">
               What makes Vrin different from ticketing-native AI and search tools.
             </p>
           </motion.div>
@@ -475,15 +475,15 @@ export default function CustomerSupportPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E]">
+                <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E]">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="font-medium mb-1 text-[#201E1E] dark:text-[#FFFDFD]">
+                        <h3 className="font-medium mb-1 text-[#201E1E] dark:text-[#FFFFFF]">
                           {diff.title}
                         </h3>
-                        <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                        <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                           {diff.description}
                         </p>
                       </div>
@@ -497,7 +497,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* Outcomes / Metrics Section */}
-      <section className="py-20 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -505,10 +505,10 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Impact you&apos;ll see in the metrics you already track
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-2xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto">
               The workflow friction is removed at the source: context + verification + follow-through.
             </p>
           </motion.div>
@@ -524,10 +524,10 @@ export default function CustomerSupportPage() {
                 className="text-center p-6 rounded-xl bg-[#083C5E]/5 dark:bg-[#8DAA9D]/10"
               >
                 <TrendingUp className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-3" />
-                <h3 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-1">
+                <h3 className="font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-1">
                   {outcome.metric}
                 </h3>
-                <p className="text-xs text-[#201E1E]/50 dark:text-[#FFFDFD]/50">
+                <p className="text-xs text-[#201E1E]/50 dark:text-[#FFFFFF]/50">
                   {outcome.description}
                 </p>
               </motion.div>
@@ -537,7 +537,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* Integrations Section */}
-      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFDFD]/5">
+      <section className="py-20 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
         <div className="container max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -545,10 +545,10 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Connect your support portal and the knowledge sources behind it
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 max-w-2xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto">
               Vrin fits into your existing support workflow and connects to the tools where your team collaborates and documents decisions.
             </p>
           </motion.div>
@@ -559,9 +559,9 @@ export default function CustomerSupportPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E]">
+              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E]">
                 <CardContent className="p-6">
-                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFDFD] flex items-center gap-2">
+                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFFFF] flex items-center gap-2">
                     <Headphones className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
                     Support Platforms
                   </h3>
@@ -582,9 +582,9 @@ export default function CustomerSupportPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E]">
+              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E]">
                 <CardContent className="p-6">
-                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFDFD] flex items-center gap-2">
+                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFFFF] flex items-center gap-2">
                     <FileText className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
                     Knowledge & Collaboration
                   </h3>
@@ -605,9 +605,9 @@ export default function CustomerSupportPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E]">
+              <Card className="h-full border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E]">
                 <CardContent className="p-6">
-                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFDFD] flex items-center gap-2">
+                  <h3 className="font-medium mb-4 text-[#201E1E] dark:text-[#FFFFFF] flex items-center gap-2">
                     <Brain className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
                     Engineering Context
                   </h3>
@@ -626,7 +626,7 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-[#FFFDFD] dark:bg-[#201E1E]">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -634,7 +634,7 @@ export default function CustomerSupportPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFDFD]">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">
               Frequently Asked Questions
             </h2>
           </motion.div>
@@ -648,13 +648,13 @@ export default function CustomerSupportPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#FFFDFD] dark:bg-[#201E1E]">
+                <Card className="border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#FFFFFF] dark:bg-[#201E1E]">
                   <CardContent className="p-0">
                     <button
                       onClick={() => setOpenFaq(openFaq === index ? null : index)}
                       className="w-full p-6 text-left flex items-center justify-between gap-4"
                     >
-                      <h3 className="font-medium text-[#201E1E] dark:text-[#FFFDFD]">
+                      <h3 className="font-medium text-[#201E1E] dark:text-[#FFFFFF]">
                         {faq.question}
                       </h3>
                       {openFaq === index ? (
@@ -665,7 +665,7 @@ export default function CustomerSupportPage() {
                     </button>
                     {openFaq === index && (
                       <div className="px-6 pb-6">
-                        <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                        <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                           {faq.answer}
                         </p>
                       </div>

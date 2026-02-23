@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, X, ChevronDown, Headphones, Building2, Scale, Heart, FileText, BarChart3, BookOpen, Play } from "lucide-react"
+import { Menu, X, ChevronDown, Headphones, Building2, Scale, Heart, FileText, BarChart3, BookOpen, Play, TrendingUp } from "lucide-react"
 
 // Menu configuration
 const menuItems = {
@@ -17,6 +17,7 @@ const menuItems = {
         title: "BY INDUSTRY",
         items: [
           { label: "Customer Support", href: "/industries/customer-support", icon: Headphones, description: "AI memory for support teams" },
+          { label: "Sales", href: "/industries/sales", icon: TrendingUp, description: "AI knowledge for sales teams" },
           { label: "Financial Services", href: "#", icon: Building2, description: "Coming soon" },
           { label: "Legal", href: "#", icon: Scale, description: "Coming soon" },
           { label: "Healthcare", href: "#", icon: Heart, description: "Coming soon" },
@@ -127,7 +128,7 @@ export function Header() {
   const navLinkClass = (isScrolled: boolean) => `
     text-sm font-medium transition-colors duration-200 cursor-pointer flex items-center gap-1
     ${isScrolled
-      ? "text-[#FFFDFD]/80 hover:text-[#FFFDFD]"
+      ? "text-[#FFFFFF]/80 hover:text-[#FFFFFF]"
       : "text-vrin-charcoal/70 hover:text-vrin-charcoal dark:text-vrin-cream/70 dark:hover:text-vrin-cream"
     }
   `
@@ -218,7 +219,7 @@ export function Header() {
                     size="sm"
                     className={`rounded-full px-5 font-medium transition-all duration-300 ${
                       isScrolled
-                        ? "bg-[#FFFDFD] text-[#201E1E] hover:bg-[#8DAA9D]"
+                        ? "bg-[#FFFFFF] text-[#201E1E] hover:bg-[#8DAA9D]"
                         : "bg-vrin-charcoal text-vrin-cream hover:bg-vrin-blue dark:bg-vrin-cream dark:text-vrin-charcoal dark:hover:bg-vrin-sage"
                     }`}
                   >
@@ -230,7 +231,7 @@ export function Header() {
 
               <button
                 className={`lg:hidden transition-colors duration-300 ${
-                  isScrolled ? "text-[#FFFDFD]" : "text-vrin-charcoal dark:text-vrin-cream"
+                  isScrolled ? "text-[#FFFFFF]" : "text-vrin-charcoal dark:text-vrin-cream"
                 }`}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
@@ -245,19 +246,19 @@ export function Header() {
       {activeDropdown && (
         <div
           ref={dropdownPanelRef}
-          className={`absolute left-0 right-0 ${isScrolled ? 'top-[55px]' : 'top-full'}`}
+          className={`absolute left-0 right-0 ${isScrolled ? 'top-[70px]' : 'top-[calc(100%+8px)]'}`}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           <div className={isScrolled ? "max-w-4xl mx-auto px-2" : "container"}>
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 overflow-hidden">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 overflow-hidden">
               {activeDropdown === 'industries' && (
                 <div className="grid grid-cols-3 gap-0">
                   {/* Left: Menu Items */}
                   <div className="col-span-2 p-8">
                     {menuItems.industries.sections.map((section, idx) => (
                       <div key={idx}>
-                        <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFDFD]/50 tracking-wider mb-4">
+                        <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFFFF]/50 tracking-wider mb-4">
                           {section.title}
                         </h3>
                         <div className="grid grid-cols-2 gap-2">
@@ -272,10 +273,10 @@ export function Header() {
                                 <item.icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
                               </div>
                               <div>
-                                <p className="font-medium text-[#201E1E] dark:text-[#FFFDFD] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
+                                <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
                                   {item.label}
                                 </p>
-                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                                   {item.description}
                                 </p>
                               </div>
@@ -288,19 +289,19 @@ export function Header() {
 
                   {/* Right: Featured */}
                   <div className="bg-[#8DAA9D]/10 dark:bg-[#8DAA9D]/5 p-8 flex flex-col">
-                    <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFDFD]/50 tracking-wider mb-4">
+                    <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFFFF]/50 tracking-wider mb-4">
                       {menuItems.industries.featured.title}
                     </h3>
                     <div className="flex-1 flex flex-col">
-                      <div className="aspect-video bg-[#201E1E]/10 dark:bg-[#FFFDFD]/10 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                      <div className="aspect-video bg-[#201E1E]/10 dark:bg-[#FFFFFF]/10 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                         <div className="w-12 h-12 rounded-full bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center">
                           <Play className="w-5 h-5 text-white ml-1" />
                         </div>
                       </div>
-                      <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-1">
+                      <h4 className="font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-1">
                         {menuItems.industries.featured.label}
                       </h4>
-                      <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 mb-4 flex-1">
+                      <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-4 flex-1">
                         {menuItems.industries.featured.description}
                       </p>
                       <Link
@@ -321,7 +322,7 @@ export function Header() {
                   <div className="col-span-2 p-8">
                     {menuItems.resources.sections.map((section, idx) => (
                       <div key={idx}>
-                        <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFDFD]/50 tracking-wider mb-4">
+                        <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFFFF]/50 tracking-wider mb-4">
                           {section.title}
                         </h3>
                         <div className="grid grid-cols-2 gap-2">
@@ -336,10 +337,10 @@ export function Header() {
                                 <item.icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
                               </div>
                               <div>
-                                <p className="font-medium text-[#201E1E] dark:text-[#FFFDFD] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
+                                <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
                                   {item.label}
                                 </p>
-                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60">
+                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                                   {item.description}
                                 </p>
                               </div>
@@ -352,17 +353,17 @@ export function Header() {
 
                   {/* Right: Featured */}
                   <div className="bg-[#083C5E]/5 dark:bg-[#083C5E]/10 p-8 flex flex-col">
-                    <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFDFD]/50 tracking-wider mb-4">
+                    <h3 className="text-xs font-semibold text-[#201E1E]/50 dark:text-[#FFFFFF]/50 tracking-wider mb-4">
                       {menuItems.resources.featured.title}
                     </h3>
                     <div className="flex-1 flex flex-col">
                       <div className="aspect-video bg-gradient-to-br from-[#083C5E] to-[#8DAA9D] rounded-xl mb-4 flex items-center justify-center">
                         <span className="text-4xl font-bold text-white">97.5%</span>
                       </div>
-                      <h4 className="font-medium text-[#201E1E] dark:text-[#FFFDFD] mb-1">
+                      <h4 className="font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-1">
                         {menuItems.resources.featured.label}
                       </h4>
-                      <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 mb-4 flex-1">
+                      <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-4 flex-1">
                         {menuItems.resources.featured.description}
                       </p>
                       <Link
@@ -392,7 +393,7 @@ export function Header() {
             {/* Industries Section */}
             <div className="py-2">
               <p className={`text-xs font-semibold tracking-wider mb-2 ${
-                isScrolled ? "text-[#FFFDFD]/50" : "text-vrin-charcoal/50 dark:text-vrin-cream/50"
+                isScrolled ? "text-[#FFFFFF]/50" : "text-vrin-charcoal/50 dark:text-vrin-cream/50"
               }`}>
                 INDUSTRIES
               </p>
@@ -402,7 +403,7 @@ export function Header() {
                   href={item.href}
                   className={`block text-base font-normal py-2 transition-colors ${
                     isScrolled
-                      ? "text-[#FFFDFD]/70 hover:text-[#8DAA9D]"
+                      ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
                       : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -413,9 +414,9 @@ export function Header() {
             </div>
 
             {/* Resources Section */}
-            <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+            <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
               <p className={`text-xs font-semibold tracking-wider mb-2 mt-2 ${
-                isScrolled ? "text-[#FFFDFD]/50" : "text-vrin-charcoal/50 dark:text-vrin-cream/50"
+                isScrolled ? "text-[#FFFFFF]/50" : "text-vrin-charcoal/50 dark:text-vrin-cream/50"
               }`}>
                 RESOURCES
               </p>
@@ -425,7 +426,7 @@ export function Header() {
                   href={item.href}
                   className={`block text-base font-normal py-2 transition-colors ${
                     isScrolled
-                      ? "text-[#FFFDFD]/70 hover:text-[#8DAA9D]"
+                      ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
                       : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -436,12 +437,12 @@ export function Header() {
             </div>
 
             {/* Direct Links */}
-            <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+            <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
               <Link
                 href="/enterprise"
                 className={`block text-base font-normal py-2 transition-colors ${
                   isScrolled
-                    ? "text-[#FFFDFD]/70 hover:text-[#8DAA9D]"
+                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
                     : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -452,7 +453,7 @@ export function Header() {
                 href="/#pricing"
                 className={`block text-base font-normal py-2 transition-colors ${
                   isScrolled
-                    ? "text-[#FFFDFD]/70 hover:text-[#8DAA9D]"
+                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
                     : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -464,7 +465,7 @@ export function Header() {
             {/* CTA */}
             <div className={`flex items-center gap-4 pt-6 mt-4 border-t ${
               isScrolled
-                ? "border-[#FFFDFD]/10"
+                ? "border-[#FFFFFF]/10"
                 : "border-vrin-charcoal/10 dark:border-vrin-cream/10"
             }`}>
               <Link href="/auth" className="flex-1">
@@ -472,7 +473,7 @@ export function Header() {
                   size="sm"
                   className={`w-full rounded-full font-medium ${
                     isScrolled
-                      ? "bg-[#FFFDFD] text-[#201E1E] hover:bg-[#8DAA9D]"
+                      ? "bg-[#FFFFFF] text-[#201E1E] hover:bg-[#8DAA9D]"
                       : "bg-vrin-charcoal text-vrin-cream dark:bg-vrin-cream dark:text-vrin-charcoal"
                   }`}
                 >

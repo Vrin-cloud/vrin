@@ -10,7 +10,7 @@
     /* Announcement bar height - controlled by JS, default to 0 for pages without banner */
     --announcement-bar-height: 0px;
 
-    /* VRIN Off-White #FFFDFD instead of pure white */
+    /* VRIN Off-White #FFFFFF instead of pure white */
     --background: 0 100% 99.6%;
     --foreground: 0 3% 12%;
     --card: 0 100% 99.6%;
@@ -38,7 +38,7 @@
     --radius: 0.5rem;
 
     /* Custom VRIN Brand Colors */
-    /* Off-White #FFFDFD */
+    /* Off-White #FFFFFF */
     --vrin-cream: 0 100% 99.6%;
     /* Warm Charcoal #201E1E */
     --vrin-charcoal: 0 3% 12%;
@@ -122,11 +122,11 @@
 }
 
 /* VRIN Custom Color Palette Design System */
-/* Off-White: #FFFDFD | Charcoal: #201E1E | Blue: #083C5E | Sage: #8DAA9D */
+/* Off-White: #FFFFFF | Charcoal: #201E1E | Blue: #083C5E | Sage: #8DAA9D */
 
 /* Custom color utilities */
 .bg-vrin-cream {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
 }
 
 .bg-vrin-charcoal {
@@ -142,7 +142,7 @@
 }
 
 .text-vrin-cream {
-  color: #FFFDFD;
+  color: #FFFFFF;
 }
 
 .text-vrin-charcoal {
@@ -158,7 +158,7 @@
 }
 
 .border-vrin-cream {
-  border-color: #FFFDFD;
+  border-color: #FFFFFF;
 }
 
 .border-vrin-charcoal {
@@ -180,7 +180,7 @@
 }
 
 .dark .gradient-text {
-  background-image: linear-gradient(to right, #FFFDFD, #8DAA9D, #FFFDFD);
+  background-image: linear-gradient(to right, #FFFFFF, #8DAA9D, #FFFFFF);
 }
 
 .gradient-bg {
@@ -188,7 +188,7 @@
 }
 
 .dark .gradient-bg {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
 }
 
 /* Accent text with brand colors */
@@ -202,7 +202,7 @@
 
 /* Section backgrounds */
 .section-light {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
 }
 
 .dark .section-light {
@@ -219,17 +219,17 @@
 
 .section-dark {
   background-color: #201E1E;
-  color: #FFFDFD;
+  color: #FFFFFF;
 }
 
 .dark .section-dark {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
   color: #201E1E;
 }
 
 /* Card styling */
 .card-elegant {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
   border: 1px solid rgba(32, 30, 30, 0.1);
   @apply shadow-sm hover:shadow-md transition-shadow duration-300;
 }
@@ -242,7 +242,7 @@
 /* Button styles */
 .btn-primary {
   background-color: #201E1E;
-  color: #FFFDFD;
+  color: #FFFFFF;
   @apply transition-all duration-200;
 }
 
@@ -251,7 +251,7 @@
 }
 
 .dark .btn-primary {
-  background-color: #FFFDFD;
+  background-color: #FFFFFF;
   color: #201E1E;
 }
 
@@ -272,7 +272,7 @@
 
 .dark .btn-secondary {
   border-color: rgba(255, 253, 253, 0.3);
-  color: #FFFDFD;
+  color: #FFFFFF;
 }
 
 .dark .btn-secondary:hover {

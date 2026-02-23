@@ -112,7 +112,7 @@ export function StickyNavChallengeSection() {
   };
 
   return (
-    <section ref={ref} className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E]">
+    <section ref={ref} className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
       <div className="px-4 sm:px-6 lg:px-8 mx-auto max-w-[1400px]">
         {/* Header */}
         <motion.div
@@ -129,17 +129,17 @@ export function StickyNavChallengeSection() {
 
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl lg:text-5xl font-extralight mb-6 leading-tight text-[#201E1E] dark:text-[#FFFDFD]"
+            className="text-3xl md:text-4xl lg:text-5xl font-extralight mb-6 leading-tight text-[#201E1E] dark:text-[#FFFFFF]"
           >
             Why Traditional AI Fails Your Team
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed"
+            className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed"
           >
             Your company data lives in dozens of disconnected apps.
-            <span className="font-medium text-[#201E1E] dark:text-[#FFFDFD]"> No AI can see across all of them</span>—until now.
+            <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> No AI can see across all of them</span>—until now.
           </motion.p>
         </motion.div>
 
@@ -180,7 +180,7 @@ export function StickyNavChallengeSection() {
                         <div className="relative z-10 pl-2">
                           <div className="flex items-center gap-2 mb-2">
                             <span className={`text-sm font-medium uppercase tracking-widest ${
-                              isActive ? 'text-[#083C5E] dark:text-[#8DAA9D]' : 'text-[#201E1E]/50 dark:text-[#FFFDFD]/50'
+                              isActive ? 'text-[#083C5E] dark:text-[#8DAA9D]' : 'text-[#201E1E]/50 dark:text-[#FFFFFF]/50'
                             }`}>
                               Problem #{index + 1}
                             </span>
@@ -195,8 +195,8 @@ export function StickyNavChallengeSection() {
 
                           <h4 className={`font-medium transition-colors ${
                             isActive
-                              ? 'text-xl text-[#201E1E] dark:text-[#FFFDFD] mb-3'
-                              : 'text-lg text-[#201E1E]/70 dark:text-[#FFFDFD]/70'
+                              ? 'text-xl text-[#201E1E] dark:text-[#FFFFFF] mb-3'
+                              : 'text-lg text-[#201E1E]/70 dark:text-[#FFFFFF]/70'
                           }`}>
                             {challenge.title}
                           </h4>
@@ -209,7 +209,7 @@ export function StickyNavChallengeSection() {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50 line-clamp-2 mt-1"
+                                className="text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50 line-clamp-2 mt-1"
                               >
                                 {challenge.problem}
                               </motion.p>
@@ -223,11 +223,11 @@ export function StickyNavChallengeSection() {
                                 exit={{ opacity: 0, height: 0 }}
                                 transition={{ duration: 0.3 }}
                               >
-                                <p className="text-base leading-relaxed text-[#201E1E]/70 dark:text-[#FFFDFD]/70">
+                                <p className="text-base leading-relaxed text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
                                   {challenge.problem}
                                 </p>
 
-                                <div className="mt-4 pt-4 border-t border-[#201E1E]/10 dark:border-[#FFFDFD]/10">
+                                <div className="mt-4 pt-4 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
                                   <div className="flex items-center gap-2 text-sm font-medium text-[#083C5E] dark:text-[#8DAA9D]">
                                     <ArrowRight className="w-4 h-4" />
                                     <span>See VRIN Solution</span>
@@ -260,7 +260,7 @@ export function StickyNavChallengeSection() {
                       {/* Solution Section - Minimal */}
                       <div className="w-full">
                         <div className="text-center mb-8">
-                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mb-2">
+                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-2">
                             {challenge.solution}
                           </h2>
                           <h3 className="text-lg md:text-xl font-medium text-[#083C5E] dark:text-[#8DAA9D]">
@@ -324,8 +324,8 @@ print(response["sources"])   # Source documents`}
                             </div>
                           ) : (
                             /* Fallback placeholder */
-                            <div className="rounded-2xl border-2 border-dashed border-[#201E1E]/20 dark:border-[#FFFDFD]/20 p-12 text-center">
-                              <p className="text-sm text-[#201E1E]/50 dark:text-[#FFFDFD]/50">
+                            <div className="rounded-2xl border-2 border-dashed border-[#201E1E]/20 dark:border-[#FFFFFF]/20 p-12 text-center">
+                              <p className="text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50">
                                 Visual placeholder
                               </p>
                             </div>

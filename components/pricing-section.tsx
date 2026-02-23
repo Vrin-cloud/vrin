@@ -105,16 +105,16 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
   }
 
   return (
-    <section id="pricing" className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E]">
+    <section id="pricing" className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
       <div className="container">
         <div className="text-center max-w-4xl mx-auto mb-20">
           <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
             Pricing Plans
           </span>
-          <h2 className="text-4xl md:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mb-6">
+          <h2 className="text-4xl md:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-6">
             Choose Your Intelligence Level
           </h2>
-          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed">
+          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed">
             From individual developers to enterprise deployments, VRIN scales with your needs.
             All plans include our revolutionary user-defined AI specialization.
           </p>
@@ -133,10 +133,10 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
               <Card className={`h-full relative overflow-hidden rounded-2xl ${
                 plan.popular
                   ? 'border-2 border-[#083C5E] dark:border-[#8DAA9D] shadow-xl scale-105'
-                  : 'border border-[#201E1E]/10 dark:border-[#FFFDFD]/10'
+                  : 'border border-[#201E1E]/10 dark:border-[#FFFFFF]/10'
               }`}>
                 {plan.popular && (
-                  <div className="absolute top-0 left-0 right-0 bg-[#083C5E] dark:bg-[#8DAA9D] text-[#FFFDFD] dark:text-[#201E1E] text-center py-2 text-xs font-medium uppercase tracking-widest">
+                  <div className="absolute top-0 left-0 right-0 bg-[#083C5E] dark:bg-[#8DAA9D] text-[#FFFFFF] dark:text-[#201E1E] text-center py-2 text-xs font-medium uppercase tracking-widest">
                     {plan.badge}
                   </div>
                 )}
@@ -147,7 +147,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                       {plan.icon}
                     </div>
                     <div>
-                      <CardTitle className="text-xl font-medium text-[#201E1E] dark:text-[#FFFDFD]">{plan.name}</CardTitle>
+                      <CardTitle className="text-xl font-medium text-[#201E1E] dark:text-[#FFFFFF]">{plan.name}</CardTitle>
                       {!plan.popular && (
                         <span className="text-xs uppercase tracking-widest text-[#8DAA9D]">
                           {plan.badge}
@@ -156,7 +156,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     </div>
                   </div>
 
-                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
+                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
                     {plan.description}
                   </p>
                 </CardHeader>
@@ -170,7 +170,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-start gap-3">
                           <Check className="h-4 w-4 text-[#083C5E] dark:text-[#8DAA9D] mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">{feature}</span>
+                          <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -180,8 +180,8 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     onClick={() => handleAction(plan.action, plan.name)}
                     className={`w-full rounded-full ${
                       plan.popular
-                        ? 'bg-[#083C5E] hover:bg-[#083C5E]/90 text-[#FFFDFD] dark:bg-[#8DAA9D] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D]/90'
-                        : 'bg-[#201E1E]/10 hover:bg-[#201E1E]/20 text-[#201E1E] dark:bg-[#FFFDFD]/10 dark:text-[#FFFDFD] dark:hover:bg-[#FFFDFD]/20'
+                        ? 'bg-[#083C5E] hover:bg-[#083C5E]/90 text-[#FFFFFF] dark:bg-[#8DAA9D] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D]/90'
+                        : 'bg-[#201E1E]/10 hover:bg-[#201E1E]/20 text-[#201E1E] dark:bg-[#FFFFFF]/10 dark:text-[#FFFFFF] dark:hover:bg-[#FFFFFF]/20'
                     }`}
                   >
                     {plan.cta}
@@ -201,11 +201,11 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
           viewport={{ once: true }}
           className="mt-20 max-w-4xl mx-auto"
         >
-          <Card className="border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-2xl">
+          <Card className="border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-2xl">
             <CardContent className="p-10">
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-2">All Plans Include</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">Revolutionary capabilities that set VRIN apart</p>
+                <h3 className="text-2xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-2">All Plans Include</h3>
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">Revolutionary capabilities that set VRIN apart</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
@@ -214,7 +214,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     <Zap className="h-4 w-4" />
                     Core Intelligence
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">
                     <li>User-defined AI specialization</li>
                     <li>Multi-hop reasoning across documents</li>
                     <li>Smart deduplication (40-60% savings)</li>
@@ -228,7 +228,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     <Building className="h-4 w-4" />
                     Enterprise Features
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">
                     <li>Complete audit trails</li>
                     <li>Explainable AI responses</li>
                     <li>High-confidence fact extraction</li>
@@ -239,20 +239,20 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
               </div>
 
               <div className="mt-10 text-center">
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light mb-6">
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light mb-6">
                   Questions about pricing or need a custom solution?
                 </p>
                 <div className="flex justify-center gap-4">
                   <Button
                     onClick={() => openContactForm("Pricing Questions")}
                     variant="outline"
-                    className="border-[#201E1E]/30 dark:border-[#FFFDFD]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#083C5E]/20 rounded-full px-6"
+                    className="border-[#201E1E]/30 dark:border-[#FFFFFF]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#083C5E]/20 rounded-full px-6"
                   >
                     Ask About Pricing
                   </Button>
                   <Button
                     onClick={() => openContactForm("Custom Enterprise Solution")}
-                    className="bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFDFD] dark:bg-[#FFFDFD] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full px-6"
+                    className="bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFFFF] dark:bg-[#FFFFFF] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full px-6"
                   >
                     Custom Solution
                   </Button>
@@ -264,7 +264,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
 
         {/* ROI Note */}
         <div className="text-center mt-16 max-w-2xl mx-auto">
-          <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light">
+          <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
             <span className="font-medium text-[#083C5E] dark:text-[#8DAA9D]">ROI Guarantee:</span> VRIN typically pays for itself within the first quarter through
             reduced engineering costs, faster time-to-market, and superior analysis quality.
           </p>

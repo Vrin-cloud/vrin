@@ -64,7 +64,7 @@ export function CoreFeatures() {
           <div className="h-full w-32 bg-gradient-to-r from-transparent via-[#8DAA9D] to-transparent animate-beam-horizontal"></div>
         </div>
         <div className="absolute bottom-8 left-8 right-8 h-px overflow-hidden">
-          <div className="h-full w-32 bg-gradient-to-r from-transparent via-[#FFFDFD] to-transparent animate-beam-horizontal-reverse" style={{ animationDelay: '2s' }}></div>
+          <div className="h-full w-32 bg-gradient-to-r from-transparent via-[#FFFFFF] to-transparent animate-beam-horizontal-reverse" style={{ animationDelay: '2s' }}></div>
         </div>
       </div>
 
@@ -80,11 +80,11 @@ export function CoreFeatures() {
             Core Features
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#FFFDFD] mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#FFFFFF] mb-6">
             What&apos;s inside VRIN?
           </h2>
 
-          <p className="text-lg text-[#FFFDFD]/70 font-light leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg text-[#FFFFFF]/70 font-light leading-relaxed max-w-2xl mx-auto">
             Teams choose VRIN because it transforms AI from forgetful assistants into expert systems with persistent memory and deep reasoning.
           </p>
         </motion.div>
@@ -100,7 +100,7 @@ export function CoreFeatures() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group p-8 bg-[#201E1E]/30 rounded-2xl border border-[#FFFDFD]/10 hover:border-[#8DAA9D]/50 transition-all duration-300"
+                className="group p-8 bg-[#201E1E]/30 rounded-2xl border border-[#FFFFFF]/10 hover:border-[#8DAA9D]/50 transition-all duration-300"
               >
                 {/* Icon */}
                 <div className="mb-6">
@@ -110,11 +110,11 @@ export function CoreFeatures() {
                 </div>
 
                 {/* Content */}
-                <h3 className="text-lg font-medium text-[#FFFDFD] mb-3">
+                <h3 className="text-lg font-medium text-[#FFFFFF] mb-3">
                   {feature.title}
                 </h3>
 
-                <p className="text-sm text-[#FFFDFD]/60 font-light leading-relaxed">
+                <p className="text-sm text-[#FFFFFF]/60 font-light leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

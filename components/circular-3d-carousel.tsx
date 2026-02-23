@@ -106,7 +106,7 @@ export default function Circular3DCarousel() {
   const Icon = currentStep.icon;
 
   return (
-    <section className="py-24 bg-[#FFFDFD] dark:bg-[#201E1E] relative overflow-hidden">
+    <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E] relative overflow-hidden">
       {/* Subtle background grid */}
       <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]">
         <svg width="100%" height="100%" className="absolute inset-0">
@@ -117,7 +117,7 @@ export default function Circular3DCarousel() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1"
-                className="text-[#201E1E] dark:text-[#FFFDFD]"
+                className="text-[#201E1E] dark:text-[#FFFFFF]"
               />
             </pattern>
           </defs>
@@ -137,11 +137,11 @@ export default function Circular3DCarousel() {
             How VRIN Works
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFDFD] mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-6">
             From Raw Data to Expert Insights
           </h2>
 
-          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFDFD]/60 font-light leading-relaxed">
+          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed">
             VRIN&apos;s HybridRAG architecture transforms fragmented information into persistent, intelligent memory.
           </p>
         </motion.div>
@@ -156,13 +156,13 @@ export default function Circular3DCarousel() {
                 className={`
                   group relative px-5 py-3 rounded-full font-medium text-sm transition-all duration-300
                   ${activeStep === index
-                    ? 'bg-[#083C5E] dark:bg-[#8DAA9D] text-[#FFFDFD] dark:text-[#201E1E] shadow-lg'
-                    : 'bg-[#FFFDFD] dark:bg-[#201E1E]/50 text-[#201E1E]/70 dark:text-[#FFFDFD]/70 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20 border border-[#201E1E]/10 dark:border-[#FFFDFD]/10'
+                    ? 'bg-[#083C5E] dark:bg-[#8DAA9D] text-[#FFFFFF] dark:text-[#201E1E] shadow-lg'
+                    : 'bg-[#FFFFFF] dark:bg-[#201E1E]/50 text-[#201E1E]/70 dark:text-[#FFFFFF]/70 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#8DAA9D]/20 border border-[#201E1E]/10 dark:border-[#FFFFFF]/10'
                   }
                 `}
               >
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs font-medium ${activeStep === index ? 'text-[#FFFDFD]/60 dark:text-[#201E1E]/60' : 'text-[#8DAA9D]'}`}>
+                  <span className={`text-xs font-medium ${activeStep === index ? 'text-[#FFFFFF]/60 dark:text-[#201E1E]/60' : 'text-[#8DAA9D]'}`}>
                     {step.step}
                   </span>
                   <span>{step.name}</span>
@@ -181,7 +181,7 @@ export default function Circular3DCarousel() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="relative p-10 md:p-14 rounded-3xl bg-[#FFFDFD] dark:bg-[#201E1E]/50 border border-[#201E1E]/10 dark:border-[#FFFDFD]/10 shadow-sm"
+              className="relative p-10 md:p-14 rounded-3xl bg-[#FFFFFF] dark:bg-[#201E1E]/50 border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 shadow-sm"
             >
               {/* Navigation Arrows */}
               <button
@@ -202,7 +202,7 @@ export default function Circular3DCarousel() {
                 {/* Icon and Title */}
                 <div className="flex flex-col items-center text-center mb-10">
                   <div className="w-16 h-16 rounded-2xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center mb-6">
-                    <Icon className="w-8 h-8 text-[#FFFDFD] dark:text-[#201E1E]" />
+                    <Icon className="w-8 h-8 text-[#FFFFFF] dark:text-[#201E1E]" />
                   </div>
 
                   <div className="mb-3">
@@ -211,7 +211,7 @@ export default function Circular3DCarousel() {
                     </span>
                   </div>
 
-                  <h3 className="text-2xl md:text-3xl font-light text-[#201E1E] dark:text-[#FFFDFD] mb-2">
+                  <h3 className="text-2xl md:text-3xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-2">
                     {currentStep.name}
                   </h3>
 
@@ -221,7 +221,7 @@ export default function Circular3DCarousel() {
                 </div>
 
                 {/* Description */}
-                <p className="text-base md:text-lg text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light leading-relaxed mb-10 text-center">
+                <p className="text-base md:text-lg text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light leading-relaxed mb-10 text-center">
                   {currentStep.description}
                 </p>
 
@@ -233,7 +233,7 @@ export default function Circular3DCarousel() {
                       className="flex items-start gap-3 p-4 bg-[#083C5E]/5 dark:bg-[#083C5E]/20 rounded-xl"
                     >
                       <CheckCircle className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFDFD]/70 font-light">
+                      <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">
                         {highlight}
                       </span>
                     </div>
@@ -248,7 +248,7 @@ export default function Circular3DCarousel() {
                       onClick={() => setActiveStep(index)}
                       className={`
                         h-1.5 rounded-full transition-all duration-300
-                        ${activeStep === index ? 'w-8 bg-[#083C5E] dark:bg-[#8DAA9D]' : 'w-1.5 bg-[#201E1E]/20 dark:bg-[#FFFDFD]/20'}
+                        ${activeStep === index ? 'w-8 bg-[#083C5E] dark:bg-[#8DAA9D]' : 'w-1.5 bg-[#201E1E]/20 dark:bg-[#FFFFFF]/20'}
                       `}
                     />
                   ))}
@@ -267,7 +267,7 @@ export default function Circular3DCarousel() {
         >
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#8DAA9D]/10 dark:bg-[#083C5E]/30 border border-[#8DAA9D]/20 dark:border-[#8DAA9D]/30">
             <Sparkles className="w-4 h-4 text-[#083C5E] dark:text-[#8DAA9D]" />
-            <span className="text-sm font-light text-[#201E1E]/70 dark:text-[#FFFDFD]/70">
+            <span className="text-sm font-light text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
               All of this happens automatically—you just integrate the API
             </span>
           </div>

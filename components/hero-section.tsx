@@ -82,9 +82,12 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <Badge variant="outline" className="px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 border-[#083C5E]/20 dark:border-[#8DAA9D]/20 text-vrin-blue dark:text-vrin-sage">
-              Now Available
-            </Badge>
+            <div className="relative inline-flex rounded-full overflow-hidden">
+              <Badge variant="outline" className="px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 border-[#083C5E]/20 dark:border-[#8DAA9D]/20 text-vrin-blue dark:text-vrin-sage">
+                Now Available
+              </Badge>
+              <BorderBeam size={30} duration={4} colorFrom="#083C5E" colorTo="#8DAA9D" />
+            </div>
           </motion.div>
 
           {/* Two Column Layout: Text Left, Spline Right */}
