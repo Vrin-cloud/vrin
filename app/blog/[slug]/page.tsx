@@ -45,7 +45,7 @@ export default function BlogPostPage() {
 
       {/* Article Header */}
       <article className="pt-32 pb-8 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-4xl">
+        <div className="container max-w-[680px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +74,7 @@ export default function BlogPostPage() {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF] leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-medium tracking-tight mb-6 text-[#201E1E] dark:text-[#FFFFFF] leading-[1.1]">
               {post.title}
             </h1>
 
@@ -122,27 +122,27 @@ export default function BlogPostPage() {
 
       {/* Article Content */}
       <section className="py-12 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-4xl">
+        <div className="container max-w-[680px]">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="prose prose-lg dark:prose-invert max-w-none
-              prose-headings:font-light prose-headings:text-[#201E1E] dark:prose-headings:text-[#FFFFFF]
-              prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-              prose-p:text-[#201E1E]/80 dark:prose-p:text-[#FFFFFF]/80 prose-p:leading-relaxed
+            className="prose dark:prose-invert max-w-none text-[17px]
+              prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-[#201E1E] dark:prose-headings:text-[#FFFFFF]
+              prose-h2:text-[1.75rem] prose-h2:leading-[1.3] prose-h2:mt-12 prose-h2:mb-6
+              prose-h3:text-[1.375rem] prose-h3:leading-[1.35] prose-h3:mt-8 prose-h3:mb-4
+              prose-p:text-[#201E1E]/80 dark:prose-p:text-[#FFFFFF]/80 prose-p:leading-[1.6]
               prose-a:text-[#083C5E] dark:prose-a:text-[#8DAA9D] prose-a:no-underline hover:prose-a:underline
               prose-strong:text-[#201E1E] dark:prose-strong:text-[#FFFFFF] prose-strong:font-semibold
-              prose-code:text-[#083C5E] dark:prose-code:text-[#8DAA9D] prose-code:bg-[#083C5E]/10 dark:prose-code:bg-[#8DAA9D]/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
+              prose-code:text-[#083C5E] dark:prose-code:text-[#8DAA9D] prose-code:bg-[#083C5E]/10 dark:prose-code:bg-[#8DAA9D]/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-[0.9em] prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
               prose-pre:bg-[#1e1e1e] prose-pre:border prose-pre:border-[#201E1E]/10 dark:prose-pre:border-[#FFFFFF]/10 prose-pre:rounded-xl
               prose-blockquote:border-l-[#083C5E] dark:prose-blockquote:border-l-[#8DAA9D] prose-blockquote:text-[#201E1E]/70 dark:prose-blockquote:text-[#FFFFFF]/70 prose-blockquote:not-italic
-              prose-ul:text-[#201E1E]/80 dark:prose-ul:text-[#FFFFFF]/80
-              prose-ol:text-[#201E1E]/80 dark:prose-ol:text-[#FFFFFF]/80
+              prose-ul:text-[#201E1E]/80 dark:prose-ul:text-[#FFFFFF]/80 prose-ul:leading-[1.6]
+              prose-ol:text-[#201E1E]/80 dark:prose-ol:text-[#FFFFFF]/80 prose-ol:leading-[1.6]
               prose-li:marker:text-[#083C5E] dark:prose-li:marker:text-[#8DAA9D]
-              prose-table:border-collapse
-              prose-th:bg-[#083C5E]/10 dark:prose-th:bg-[#8DAA9D]/10 prose-th:text-[#201E1E] dark:prose-th:text-[#FFFFFF] prose-th:font-medium prose-th:px-4 prose-th:py-3 prose-th:border prose-th:border-[#201E1E]/20 dark:prose-th:border-[#FFFFFF]/20
-              prose-td:px-4 prose-td:py-3 prose-td:border prose-td:border-[#201E1E]/10 dark:prose-td:border-[#FFFFFF]/10
+              prose-table:border-collapse prose-table:text-[15px]
+              prose-th:bg-[#083C5E]/10 dark:prose-th:bg-[#8DAA9D]/10 prose-th:text-[#201E1E] dark:prose-th:text-[#FFFFFF] prose-th:font-medium prose-th:px-4 prose-th:py-2.5 prose-th:border prose-th:border-[#201E1E]/20 dark:prose-th:border-[#FFFFFF]/20
+              prose-td:px-4 prose-td:py-2.5 prose-td:border prose-td:border-[#201E1E]/10 dark:prose-td:border-[#FFFFFF]/10
               prose-hr:border-[#201E1E]/10 dark:prose-hr:border-[#FFFFFF]/10
             "
           >
@@ -150,6 +150,35 @@ export default function BlogPostPage() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                p({ node, children, ...props }) {
+                  // If a paragraph contains only an image, render as div to avoid
+                  // invalid <p><figure>...</figure></p> nesting
+                  const hasImage = node?.children?.some(
+                    (child: any) => child.type === 'element' && child.tagName === 'img'
+                  )
+                  if (hasImage) {
+                    return <div {...props}>{children}</div>
+                  }
+                  return <p {...props}>{children}</p>
+                },
+                img({ node, src, alt, ...props }) {
+                  return (
+                    <figure className="my-10">
+                      <img
+                        src={src}
+                        alt={alt || ''}
+                        className="w-full h-auto rounded-xl"
+                        loading="lazy"
+                        {...props}
+                      />
+                      {alt && (
+                        <figcaption className="mt-3 text-center text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50">
+                          {alt}
+                        </figcaption>
+                      )}
+                    </figure>
+                  )
+                },
                 code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '')
                   // Check if it's inline code: no language AND no newlines
@@ -272,7 +301,7 @@ export default function BlogPostPage() {
 
       {/* Related Posts */}
       <section className="py-16 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
-        <div className="container max-w-4xl">
+        <div className="container max-w-[680px]">
           <h2 className="text-2xl font-light mb-8 text-[#201E1E] dark:text-[#FFFFFF]">
             More from VRIN
           </h2>

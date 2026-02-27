@@ -32,10 +32,10 @@ export default function BlogPage() {
             <Badge variant="outline" className="mb-6 px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 border-[#083C5E]/20 dark:border-[#8DAA9D]/20 text-[#083C5E] dark:text-[#8DAA9D]">
               VRIN Blog
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
               Engineering & Research
             </h1>
-            <p className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto">
               Deep dives into hybrid RAG architecture, benchmark results, and the technology powering enterprise AI memory.
             </p>
           </motion.div>

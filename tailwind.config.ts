@@ -69,6 +69,10 @@ const config: Config = {
           sage: "#8DAA9D",
         },
       },
+      letterSpacing: {
+        'heading': '-0.02em',
+        'display': '-0.03em',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

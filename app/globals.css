@@ -119,6 +119,20 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  h1 {
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  h3 {
+    letter-spacing: -0.01em;
+  }
 }
 
 /* VRIN Custom Color Palette Design System */

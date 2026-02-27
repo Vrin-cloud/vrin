@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Brain, Zap, Shield, BarChart3, Clock, Database, Check, Target } from "lucide-react"
+import Image from "next/image"
 import { MemoryNodes } from "@/components/memory-nodes"
 import { TrustedBy } from "@/components/trusted-by"
 import { Header } from "@/components/header"
@@ -23,7 +23,6 @@ import { VrinVsZepComparison } from "@/components/vrin-vs-zep-comparison"
 import ProfessionalIntegrationSection from "@/components/professional-integration-section"
 import Circular3DCarousel from "@/components/circular-3d-carousel"
 import { PricingSection } from "@/components/pricing-section"
-import ModernSystemArchitecture from "@/components/modern-system-architecture"
 import { StickyNavChallengeSection } from "@/components/sticky-nav-challenge-section"
 import { CoreFeatures } from "@/components/core-features"
 import { AnnouncementBar } from "@/components/announcement-bar"
@@ -61,10 +60,10 @@ export default function Home() {
             <Badge variant="outline" className="mb-6 px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 border-[#083C5E]/20 dark:border-[#8DAA9D]/20 text-[#083C5E] dark:text-[#8DAA9D]">
               Product Demonstration
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
+            <h2 className="text-4xl md:text-5xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
               See VRIN in Action
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal">
               Watch how VRIN transforms AI applications with persistent memory, user-defined specialization, and expert-level reasoning.
             </p>
           </div>
@@ -121,8 +120,8 @@ export default function Home() {
       <section id="industries" className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-extralight mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Proven Across Industries</h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Proven Across Industries</h2>
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal">
               Vrin&apos;s memory orchestration platform delivers value across diverse sectors, with specialized demos and case studies.
             </p>
           </div>
@@ -137,7 +136,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium mb-3 text-[#201E1E] dark:text-[#FFFFFF]">Healthcare</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5 font-light">
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5">
                   Transform patient care with persistent memory for clinical conversations, treatment history, and care coordination.
                 </p>
                 <div className="flex items-center gap-2 text-sm">
@@ -155,7 +154,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium mb-3 text-[#201E1E] dark:text-[#FFFFFF]">Finance</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5 font-light">
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5">
                   Enhance financial AI with persistent memory for client relationships, transaction history, and regulatory compliance.
                 </p>
                 <div className="flex items-center gap-2 text-sm">
@@ -173,7 +172,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium mb-3 text-[#201E1E] dark:text-[#FFFFFF]">Legal</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5 font-light">
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-5">
                   Revolutionize legal AI with memory for case histories, precedent tracking, and client communication context.
                 </p>
                 <div className="flex items-center gap-2 text-sm">
@@ -184,7 +183,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-14">
-            <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6 font-light">
+            <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6">
               Each industry has unique requirements. Our platform adapts to your domain&apos;s specific needs.
             </p>
             <Link href="/industries">
@@ -200,8 +199,8 @@ export default function Home() {
       <section id="healthcare-demo" className="py-24 bg-[#083C5E]/5 dark:bg-[#083C5E]/20">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <h2 className="text-3xl md:text-4xl font-extralight mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Healthcare Industry Demo</h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Healthcare Industry Demo</h2>
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal">
               Watch how VRIN transforms AI interactions with persistent memory in the Healthcare Industry.
             </p>
           </div>
@@ -222,7 +221,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-10">
-            <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6 font-light">
+            <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6">
               See how VRIN enhances patient care with persistent clinical memory and specialized AI reasoning
             </p>
             <div className="flex justify-center gap-4">
@@ -244,108 +243,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Modern Architecture Comparison - Sophisticated Styling */}
+      {/* System Architecture */}
       <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container">
           <div className="text-center max-w-4xl mx-auto mb-16">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#8DAA9D]/10 dark:bg-[#8DAA9D]/20 border-[#8DAA9D]/30 text-[#083C5E] dark:text-[#8DAA9D]">
-              Next-Generation Architecture
+              System Architecture
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
-              Beyond Traditional RAG Systems
+            <h2 className="text-4xl md:text-5xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
+              How Vrin Learns & Reasons
             </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
-              VRIN&apos;s hybrid architecture combines the best of vector search and graph traversal,
-              enhanced with user-defined specialization for unmatched domain expertise.
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-3xl mx-auto">
+              Two pipelines, one unified knowledge engine. Documents are structured into an enterprise knowledge graph,
+              then queries are reasoned over — not just searched.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8 mb-16">
-            {/* Traditional RAG */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center"
-            >
-              <Card className="p-8 h-full border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5 rounded-2xl">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#201E1E]/10 dark:bg-[#FFFFFF]/10 flex items-center justify-center">
-                  <Database className="w-7 h-7 text-[#201E1E]/50 dark:text-[#FFFFFF]/50" />
-                </div>
-                <h3 className="text-xl font-medium text-[#201E1E]/70 dark:text-[#FFFFFF]/70 mb-4">Traditional RAG</h3>
-                <ul className="space-y-3 text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 text-left">
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>Vector-only retrieval</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>No domain specialization</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>Limited context understanding</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>68.18 F1 performance</li>
-                </ul>
-              </Card>
-            </motion.div>
-
-            {/* Graph RAG */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center"
-            >
-              <Card className="p-8 h-full border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5 rounded-2xl">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#201E1E]/10 dark:bg-[#FFFFFF]/10 flex items-center justify-center">
-                  <BarChart3 className="w-7 h-7 text-[#201E1E]/50 dark:text-[#FFFFFF]/50" />
-                </div>
-                <h3 className="text-xl font-medium text-[#201E1E]/70 dark:text-[#FFFFFF]/70 mb-4">Graph RAG</h3>
-                <ul className="space-y-3 text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 text-left">
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>Graph-only traversal</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>Better for multi-hop queries</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>Still lacks specialization</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 bg-[#201E1E]/40 dark:bg-[#FFFFFF]/40 rounded-full"></span>71.17 Acc on complex tasks</li>
-                </ul>
-              </Card>
-            </motion.div>
-
-            {/* VRIN Hybrid */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-center"
-            >
-              <Card className="p-8 h-full border-2 border-[#083C5E] dark:border-[#8DAA9D] bg-[#FFFFFF] dark:bg-[#201E1E] rounded-2xl relative overflow-hidden shadow-xl shadow-[#083C5E]/10">
-                <div className="absolute top-4 right-4">
-                  <Badge className="bg-[#083C5E] text-[#FFFFFF] dark:bg-[#8DAA9D] dark:text-[#201E1E] text-xs font-medium">Best</Badge>
-                </div>
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center">
-                  <Brain className="w-7 h-7 text-[#FFFFFF] dark:text-[#201E1E]" />
-                </div>
-                <h3 className="text-xl font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-4">VRIN Hybrid</h3>
-                <ul className="space-y-3 text-sm text-[#201E1E]/70 dark:text-[#FFFFFF]/70 text-left">
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-[#083C5E] dark:bg-[#8DAA9D] rounded-full"></span>Intelligent query routing</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-[#083C5E] dark:bg-[#8DAA9D] rounded-full"></span>User-defined AI experts</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-[#083C5E] dark:bg-[#8DAA9D] rounded-full"></span>Multi-hop reasoning</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-[#083C5E] dark:bg-[#8DAA9D] rounded-full"></span>71.17+ Acc with specialization</li>
-                </ul>
-              </Card>
-            </motion.div>
+          <div className="max-w-6xl mx-auto">
+            <Image
+              src="/Vrin-architecture.png"
+              alt="Vrin system architecture — knowledge ingestion pipeline and query reasoning pipeline with hybrid structured knowledge stores"
+              width={2400}
+              height={1600}
+              className="w-full h-auto rounded-2xl"
+              priority
+            />
           </div>
 
         </div>
       </section>
 
-
-
-
-
-
-
-      {/* Modern System Architecture Section */}
-      <ModernSystemArchitecture />
-
       {/* Integration Showcase - Sophisticated Styling */}
       <section className="py-24 bg-[#083C5E]/5 dark:bg-[#083C5E]/20">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-extralight mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Seamless Integration</h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-[#201E1E] dark:text-[#FFFFFF]">Seamless Integration</h2>
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal">
               Drop Vrin into your existing stack with simple APIs. No complex setup or migration required.
             </p>
           </div>

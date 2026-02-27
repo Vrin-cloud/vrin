@@ -101,7 +101,7 @@ export function HeroSection() {
             >
               {/* Main Headline with Rotating Text - Elegant Typography */}
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight">
                   <span className="text-vrin-charcoal dark:text-vrin-cream">AI Deep Reasoning</span>
                   <br />
                   <span className="text-vrin-charcoal dark:text-vrin-cream">for </span>
@@ -120,7 +120,7 @@ export function HeroSection() {
                 </h1>
 
                 {/* Subheadline - Refined typography */}
-                <p className="text-lg md:text-xl text-vrin-charcoal/60 dark:text-vrin-cream/60 font-light mt-6 max-w-xl">
+                <p className="text-base md:text-lg text-vrin-charcoal/60 dark:text-vrin-cream/60 font-normal mt-6 max-w-xl">
                   HybridRAG retrieval with multi-hop reasoning and per-claim citations
                 </p>
               </div>

@@ -30,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/blog/benchmark-results-ragbench-multihop`,
+      url: `${baseUrl}/blog/the-reasoning-gap`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

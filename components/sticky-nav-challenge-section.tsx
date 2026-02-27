@@ -129,14 +129,14 @@ export function StickyNavChallengeSection() {
 
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl lg:text-5xl font-extralight mb-6 leading-tight text-[#201E1E] dark:text-[#FFFFFF]"
+            className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 leading-tight text-[#201E1E] dark:text-[#FFFFFF]"
           >
             Why Traditional AI Fails Your Team
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed"
+            className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed"
           >
             Your company data lives in dozens of disconnected apps.
             <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> No AI can see across all of them</span>—until now.
@@ -260,7 +260,7 @@ export function StickyNavChallengeSection() {
                       {/* Solution Section - Minimal */}
                       <div className="w-full">
                         <div className="text-center mb-8">
-                          <h2 className="text-2xl md:text-4xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-2">
+                          <h2 className="text-2xl md:text-4xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-2">
                             {challenge.solution}
                           </h2>
                           <h3 className="text-lg md:text-xl font-medium text-[#083C5E] dark:text-[#8DAA9D]">

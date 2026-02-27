@@ -226,11 +226,11 @@ export default function CustomerSupportPage() {
               <Headphones className="w-4 h-4 mr-2" />
               Customer Support
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
               Resolve Complex Tickets Faster—{" "}
               <span className="text-[#083C5E] dark:text-[#8DAA9D]">Without Bouncing Between Tools</span>
             </h1>
-            <p className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light max-w-3xl mx-auto mb-4">
+            <p className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-3xl mx-auto mb-4">
               Support teams lose time on context: past tickets, Slack threads, docs, runbooks, product notes.
               Vrin brings the right evidence into the ticket, drafts customer-ready replies, and triggers
               workflow agents for follow-ups—so resolution stays fast even when cases get messy.

@@ -80,11 +80,11 @@ export function CoreFeatures() {
             Core Features
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#FFFFFF] mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#FFFFFF] mb-6">
             What&apos;s inside VRIN?
           </h2>
 
-          <p className="text-lg text-[#FFFFFF]/70 font-light leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-[#FFFFFF]/70 font-normal leading-relaxed max-w-2xl mx-auto">
             Teams choose VRIN because it transforms AI from forgetful assistants into expert systems with persistent memory and deep reasoning.
           </p>
         </motion.div>
@@ -114,7 +114,7 @@ export function CoreFeatures() {
                   {feature.title}
                 </h3>
 
-                <p className="text-sm text-[#FFFFFF]/60 font-light leading-relaxed">
+                <p className="text-sm text-[#FFFFFF]/60 leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

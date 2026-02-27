@@ -57,6 +57,7 @@
     "date-fns": "3.6.0",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^12.23.12",
+    "geist": "^1.7.0",
     "gsap": "^3.13.0",
     "input-otp": "1.4.1",
     "katex": "^0.16.25",

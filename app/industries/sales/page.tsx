@@ -91,13 +91,13 @@ export default function SalesPage() {
               <TrendingUp className="w-4 h-4 mr-2" />
               For Sales Teams
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight leading-tight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight mb-6 text-[#201E1E] dark:text-[#FFFFFF]">
               Your sales team doesn&apos;t need another place to search.{" "}
               <span className="text-[#083C5E] dark:text-[#8DAA9D]">
                 They need something that thinks and reasons.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light mb-8 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal mb-8 max-w-3xl mx-auto">
               Vrin reasons across your entire knowledge base and delivers
               sourced answers in seconds&mdash;on every call, for every deal.
             </p>

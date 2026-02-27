@@ -111,10 +111,10 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
           <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
             Pricing Plans
           </span>
-          <h2 className="text-4xl md:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-6">
+          <h2 className="text-4xl md:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
             Choose Your Intelligence Level
           </h2>
-          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed">
+          <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed">
             From individual developers to enterprise deployments, VRIN scales with your needs.
             All plans include our revolutionary user-defined AI specialization.
           </p>
@@ -156,7 +156,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     </div>
                   </div>
 
-                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
                     {plan.description}
                   </p>
                 </CardHeader>
@@ -170,7 +170,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-start gap-3">
                           <Check className="h-4 w-4 text-[#083C5E] dark:text-[#8DAA9D] mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">{feature}</span>
+                          <span className="text-sm text-[#201E1E]/70 dark:text-[#FFFFFF]/70">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -205,7 +205,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
             <CardContent className="p-10">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-2">All Plans Include</h3>
-                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">Revolutionary capabilities that set VRIN apart</p>
+                <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60">Revolutionary capabilities that set VRIN apart</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
@@ -214,7 +214,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     <Zap className="h-4 w-4" />
                     Core Intelligence
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
                     <li>User-defined AI specialization</li>
                     <li>Multi-hop reasoning across documents</li>
                     <li>Smart deduplication (40-60% savings)</li>
@@ -228,7 +228,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                     <Building className="h-4 w-4" />
                     Enterprise Features
                   </h4>
-                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70 font-light">
+                  <ul className="text-sm space-y-2 ml-6 text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
                     <li>Complete audit trails</li>
                     <li>Explainable AI responses</li>
                     <li>High-confidence fact extraction</li>
@@ -239,7 +239,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
               </div>
 
               <div className="mt-10 text-center">
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light mb-6">
+                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6">
                   Questions about pricing or need a custom solution?
                 </p>
                 <div className="flex justify-center gap-4">
@@ -264,7 +264,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
 
         {/* ROI Note */}
         <div className="text-center mt-16 max-w-2xl mx-auto">
-          <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light">
+          <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
             <span className="font-medium text-[#083C5E] dark:text-[#8DAA9D]">ROI Guarantee:</span> VRIN typically pays for itself within the first quarter through
             reduced engineering costs, faster time-to-market, and superior analysis quality.
           </p>

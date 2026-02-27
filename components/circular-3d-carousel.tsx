@@ -137,11 +137,11 @@ export default function Circular3DCarousel() {
             How VRIN Works
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight text-[#201E1E] dark:text-[#FFFFFF] mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
             From Raw Data to Expert Insights
           </h2>
 
-          <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-light leading-relaxed">
+          <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed">
             VRIN&apos;s HybridRAG architecture transforms fragmented information into persistent, intelligent memory.
           </p>
         </motion.div>

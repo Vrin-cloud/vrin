@@ -41,15 +41,15 @@ const menuItems = {
         items: [
           { label: "Blog", href: "/blog", icon: FileText, description: "Engineering & research insights" },
           { label: "Documentation", href: "/docs", icon: BookOpen, description: "API reference and guides" },
-          { label: "Benchmarks", href: "/blog/benchmark-results-ragbench-multihop", icon: BarChart3, description: "Performance comparisons" },
+          { label: "Benchmarks", href: "/blog/the-reasoning-gap", icon: BarChart3, description: "Performance comparisons" },
         ]
       }
     ],
     featured: {
       title: "LATEST POST",
-      label: "97.5% Accuracy on FinQA",
-      description: "22% better than Oracle baselines on financial reasoning",
-      href: "/blog/benchmark-results-ragbench-multihop",
+      label: "95.1% on MultiHop-RAG",
+      description: "16.2pp better than GPT 5.2 on cross-document reasoning",
+      href: "/blog/the-reasoning-gap",
       hasVideo: false
     }
   },

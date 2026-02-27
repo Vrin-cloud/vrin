@@ -14,8 +14,8 @@ export const blogPosts: BlogPost[] = [
       linkedin: 'https://www.linkedin.com/in/vedant1033/',
     },
     category: 'research',
-    tags: ['reasoning', 'RAG', 'knowledge-graph', 'enterprise-ai', 'hybrid-rag', 'benchmarks'],
-    readingTime: '8 min read',
+    tags: ['reasoning', 'RAG', 'knowledge-graph', 'enterprise-ai', 'hybrid-rag', 'benchmarks', 'cognitive-science', 'neuroscience'],
+    readingTime: '13 min read',
     featured: true,
     content: `
 A financial analyst asks your AI system: *"How did TechCorp's revenue change after the CEO transition in Q3?"*
@@ -30,7 +30,7 @@ This is the reasoning gap. And it's why most enterprise AI pilots fail to delive
 
 ## Where RAG Started
 
-In 2020, a team at Meta AI published a paper that changed how we build AI applications. The idea was elegant: instead of asking a language model to answer from memory, give it relevant documents first. Retrieve, then generate. RAG.
+In 2020, a team at Meta AI published [a paper](https://arxiv.org/abs/2005.11401) that changed how we build AI applications. The idea was elegant: instead of asking a language model to answer from memory, give it relevant documents first. Retrieve, then generate. RAG.
 
 The insight was genuine. Language models hallucinate less when grounded in real data. Within a few years, RAG became the default architecture for enterprise AI. Vector databases, embedding pipelines, and chunking strategies became the building blocks of every AI startup's pitch deck.
 
@@ -68,42 +68,98 @@ Vrin is a reasoning engine. The distinction matters.
 
 A search engine finds relevant text. A reasoning engine understands the structure of a question, knows how facts relate to each other across documents and time periods, identifies what it does and doesn't know, and constructs a grounded answer from structured evidence.
 
-We started from a different question: *What if each cognitive step, the perception, structuring, storage, organization, and retrieval of knowledge, were engineered explicitly rather than hoping the language model handles it?*
+We started from a different question: *What if we engineered each cognitive step — the perception, structuring, storage, organization, and retrieval of knowledge — based on how the brain actually solves these problems, rather than hoping the language model handles it?*
+
+It turns out we weren't the only ones thinking this way. In 2024, a team at Ohio State published [HippoRAG](https://arxiv.org/abs/2405.14831) at NeurIPS — a RAG framework explicitly built on hippocampal memory theory. Their graph-plus-vector hybrid outperformed standard RAG by up to 20% on multi-hop questions. Vrin independently arrived at the same architecture and extends it with confidence scoring, temporal reasoning, and enterprise data sovereignty.
+
+The convergence isn't a coincidence. It's what happens when you take cognitive science seriously.
+
+## Why This Architecture Works
+
+The RAG industry reinvented knowledge retrieval from scratch — and mostly ignored fifty years of cognitive science research on how brains actually organize and retrieve information.
+
+That's starting to change. The brain uses a dual-store architecture: the hippocampus acts as a fast episodic index (recent research reveals it uses [unique neural "barcodes"](https://doi.org/10.1016/j.cell.2024.02.032) to tag each memory), while the neocortex builds slow, structured representations over time. This isn't a metaphor — it's been computationally validated as Complementary Learning Systems theory and directly applied to RAG by [HippoRAG](https://arxiv.org/abs/2405.14831). The parallels to Vrin's vector store (fast episodic retrieval) and knowledge graph (slow structured knowledge) are exact.
+
+The brain's knowledge representation turns out to be a graph. Semantic network theory has described entity-relationship structures in human memory since the 1970s. What's new is the physical evidence: a [2025 study in *Science*](https://doi.org/10.1126/science.ado8316) mapped the synaptic architecture of memory engrams and found that memories organize through hub-like multi-synaptic structures — not point-to-point connections. The brain builds a knowledge graph at the cellular level, with high-connectivity hub neurons playing the role that high-degree entity nodes play in Vrin's Neptune graph.
+
+The brain also knows when to stop. The anterior cingulate cortex monitors retrieval confidence and can [halt the process when information is insufficient](https://doi.org/10.1146/annurev-psych-022423-032425) — a metacognitive circuit that prevents confabulation. Vrin's adaptive bail-out system solves the same problem: score retrieval quality, and if it's inadequate, say "I don't know" in under 500 milliseconds instead of generating a plausible-sounding wrong answer.
+
+Vrin didn't copy the brain. But the engineering problems are the same — organize knowledge for fast retrieval, maintain structured relationships, consolidate new information into existing schemas, and know when you don't have enough evidence to answer. When different systems solve the same problem independently, the solutions tend to converge. Recent work confirms this pattern: [brain-inspired modular architectures outperform monolithic LLMs on planning tasks](https://doi.org/10.1038/s41467-025-63804-5), and [compositional memory replay](https://doi.org/10.1038/s41593-025-01908-3) — the brain's method of consolidating episodes into reusable knowledge — maps directly to how Vrin's fact extraction pipeline transforms documents into structured graph knowledge.
 
 ## What's Under the Hood
 
 When a document enters Vrin, we don't just chunk and embed it. We extract structured knowledge.
 
-**Entity-centric fact extraction** identifies the real entities in a document (companies, people, products) and extracts relationships as subject-predicate-object triples. "TechCorp announced revenue of $245M" becomes a structured fact: \`(TechCorp, reported_revenue, $245M)\`. Pronouns and indirect references are resolved to their concrete entities before any fact is created.
+![Vrin system architecture — knowledge ingestion and query reasoning pipelines with hybrid structured knowledge stores](/Vrin-architecture.png)
 
-**Temporal versioning** tracks when facts are valid. A company's CEO changes. Revenue figures update quarterly. Standard RAG treats all information as equally current, which leads to contradictions. Vrin maintains a timeline: when each fact became true, when it was superseded, and what replaced it. You can query knowledge at any point in time.
+**Entity-centric fact extraction** identifies the real entities in a document (companies, people, products) and extracts relationships as subject-predicate-object triples. "TechCorp announced revenue of $245M" becomes a structured fact: \`(TechCorp, reported_revenue, $245M)\`. Pronouns and indirect references are resolved to their concrete entities before any fact is created. This mirrors how the brain organizes memory around entities in semantic networks — a structure now [confirmed at the synaptic level](https://doi.org/10.1126/science.ado8316).
 
-**Constraint-aware retrieval** understands the structure of your question before searching. When you ask about revenue "after Q3 2024," the system doesn't just find semantically similar text. It identifies the temporal constraint, the entity constraint, and the comparison being requested, then uses these to filter retrieval at the graph level.
+**Temporal versioning** tracks when facts are valid. A company's CEO changes. Revenue figures update quarterly. Standard RAG treats all information as equally current, which leads to contradictions. Vrin maintains a timeline: when each fact became true, when it was superseded, and what replaced it. You can query knowledge at any point in time. This parallels Tulving's fundamental distinction between episodic and semantic memory — the brain's own system for separating time-bound events from enduring knowledge.
 
-**Confidence-scored graph traversal** follows chains of relationships across documents. Multi-hop queries (questions whose answers span multiple documents) are handled through beam search across the knowledge graph, with confidence scores decaying at each hop. A cross-document synthesizer identifies entities that appear in multiple sources, detects temporal overlaps, and flags contradictions.
+**Constraint-aware retrieval** understands the structure of your question before searching. When you ask about revenue "after Q3 2024," the system doesn't just find semantically similar text. It identifies the temporal constraint, the entity constraint, and the comparison being requested, then uses these to filter retrieval at the graph level. This approach is inspired by recent work on [decomposed retrieval](https://arxiv.org/abs/2502.01142), where multi-hop questions are broken into atomic sub-queries before retrieval.
 
-**Adaptive bail-out** evaluates retrieval quality before generating a response. If the knowledge base doesn't contain relevant information, the system says so in under 500 milliseconds instead of hallucinating a plausible-sounding answer. This is measured across five dimensions: entity coverage, type alignment, temporal alignment, fact density, and topical relevance.
+**Confidence-scored graph traversal** follows chains of relationships across documents. Multi-hop queries (questions whose answers span multiple documents) are handled through beam search across the knowledge graph, with confidence scores decaying at each hop. A cross-document synthesizer identifies entities that appear in multiple sources, detects temporal overlaps, and flags contradictions. The underlying mechanism — spreading activation through a semantic network — has been [formally shown](https://arxiv.org/abs/2112.04035) to be mathematically equivalent to transformer attention.
+
+**Adaptive bail-out** evaluates retrieval quality before generating a response. Instead of always sending retrieved context to the language model and hoping for the best, Vrin scores retrieval quality across five dimensions and makes an explicit go/no-go decision. The brain solves this identically: the anterior cingulate cortex [monitors retrieval confidence](https://doi.org/10.1146/annurev-psych-022423-032425) and halts the process when evidence is insufficient — a metacognitive circuit that prevents confabulation.
+
+![High confidence retrieval — all five dimensions score well, triggering full LLM generation](/blogs/images/High%20Confidence%20Polygon.png)
+
+When all five dimensions score highly — entity coverage, type alignment, temporal alignment, fact density, and topical relevance — the system proceeds to generate a full answer with confidence. The large polygon represents comprehensive evidence coverage.
+
+![Low confidence retrieval — asymmetric scores trigger adaptive bail-out in under 500ms](/blogs/images/Low%20Confidence%20Polygon.png)
+
+When the polygon collapses — low entity coverage, poor topical relevance, missing temporal alignment — the system bails out in under 500 milliseconds instead of hallucinating a plausible-sounding answer. This is a deliberate architectural choice: *saying "I don't know" quickly is more valuable than saying something wrong confidently.*
 
 The result is that the language model receives structured facts with confidence scores, temporal metadata, source attribution, and reasoning chains. Not a pile of text chunks. Fundamentally richer context.
 
 ## The Numbers
 
-We evaluated Vrin on MultiHop-RAG, a benchmark designed specifically for cross-document multi-hop reasoning, the hardest category of question for any RAG system.
+We evaluated Vrin on [MultiHop-RAG](https://arxiv.org/abs/2401.15391), a benchmark designed specifically for cross-document multi-hop reasoning — the hardest category of question for any RAG system. Our evaluation follows [BetterBench](https://arxiv.org/abs/2407.07565) statistical guidelines: 384 stratified samples (seed=42), 95% CI [90.5%, 99.7%].
 
-| System | Accuracy |
-|---|---|
-| **Vrin** | **95.1%** |
-| GPT 5.2 (with oracle evidence) | 78.9% |
-| Multi-Meta RAG + GPT-4 | 63.0% |
-| Standard RAG + GPT-4 | 47.3% |
+![MultiHop-RAG Benchmark — Semantic Accuracy across systems](/blogs/images/MultiHop-RAG-Benchmark.png)
 
-The GPT 5.2 comparison is the one that matters. GPT received the exact evidence documents for each query directly in its context window, a best-case scenario that never exists in production. Vrin retrieved from the full corpus of 609 articles under realistic conditions. Despite this disadvantage, Vrin outperformed by 16.2 percentage points.
-
-The gap is largest on temporal queries (+48.9pp) and comparison queries (+15.5pp), precisely the categories where understanding the *structure* of a question matters most.
+The GPT 5.2 comparison is the one that matters. GPT received the exact evidence documents for each query directly in its context window — a best-case scenario that never exists in production. Vrin retrieved from the full corpus of 609 articles under realistic conditions. Despite this disadvantage, Vrin outperformed by 16.2 percentage points.
 
 These results demonstrate something important: the bottleneck in enterprise AI isn't the language model. It's the architecture surrounding it. Give a frontier model perfect context and it still underperforms a system that structures knowledge before reasoning over it.
 
 Full evaluation code is open-source on [GitHub](https://github.com/Vrin-cloud/vrin-benchmarks).
+
+> Ready to see these results on your own data? [Try Vrin free at vrin.cloud](https://vrin.cloud) — ingest your documents and ask the questions that current tools can't answer.
+
+## Not All Queries Are Equal
+
+The aggregate 95.1% masks an important pattern: Vrin's advantage varies dramatically by query type. Understanding where the gap is largest reveals *why* structured reasoning matters.
+
+![Performance gap between Vrin and GPT 5.2, broken down by query type](/blogs/images/Performance%20Gap%20-%20Query%20Type.png)
+
+### Temporal Queries (+48.9pp)
+
+*"Which company announced layoffs first — Meta or Google — and how did their stock prices compare in the following week?"*
+
+This is where the gap is widest. Temporal queries require understanding *when* events happened and reasoning about their sequence. Standard RAG has no concept of time — a fact from 2019 and a fact from 2024 are equally "relevant" if they're semantically similar. Vrin's temporal versioning and constraint-aware retrieval make time a first-class dimension.
+
+### Comparison Queries (+15.5pp)
+
+*"Compare the AI investment strategies of Microsoft and Google based on their Q4 earnings calls."*
+
+Comparison queries require locating equivalent facts about two or more entities across separate documents, then synthesizing them. A vector search returns chunks that mention Microsoft *or* Google, but not necessarily the same aspect of both. Graph traversal retrieves structured facts about both entities on the same dimensions, enabling precise comparison.
+
+## Where GPT 5.2 Excels
+
+We believe transparency about limitations builds more trust than cherry-picked wins.
+
+GPT 5.2 is a formidable model. On single-document inference tasks — where the answer requires logical reasoning within a provided document rather than cross-document synthesis — it performs within 0.8 percentage points of Vrin (98.4% vs 99.2%). Its advanced chain-of-thought capabilities make it genuinely impressive for tasks that fit within a single context.
+
+GPT 5.2 also produces more fluent, natural-sounding responses. When both systems arrive at the correct answer, GPT's response is often more polished and better structured for human consumption.
+
+Where GPT 5.2 struggles — and where Vrin's architecture creates its advantage — is when answers require:
+
+- **Temporal reasoning** across time periods (revenue before vs. after an event)
+- **Cross-document synthesis** (facts scattered across 3+ source documents)
+- **Entity resolution** (connecting "the CEO" in one document to "Jane Rivera" in another)
+- **Knowing what it doesn't know** (GPT generates confident answers even when context is insufficient)
+
+These aren't edge cases. In enterprise knowledge bases, they're the majority of questions that matter. The Anthropic team has written about this challenge in their work on [contextual retrieval](https://www.anthropic.com/news/contextual-retrieval) — improving what the model receives is often more impactful than improving the model itself.
 
 ## Enterprise Data Sovereignty
 
@@ -113,290 +169,33 @@ Enterprise data never leaves the customer's cloud.
 
 ## What Comes Next
 
-We believe the RAG industry has explored less than 5% of the available innovation space. The dominant focus has been on the retrieval subprocess: better embeddings, smarter reranking, larger context windows. Four other subprocesses, perception, structuring, storage, and organization, remain largely unaddressed.
+We believe the RAG industry has explored less than 5% of the available innovation space. The dominant focus has been on the retrieval subprocess: better embeddings, smarter reranking, larger context windows. But cognitive science has studied five subprocesses of knowledge work for decades — perception, structuring, storage, organization, and retrieval. Four of those five, each with established science behind them, remain largely unapplied in AI systems.
 
 The areas we're investing in:
 
 **Adaptive retrieval depth.** Not every query needs every pipeline stage. A simple factual lookup needs only graph traversal. A general knowledge question may not need retrieval at all. Future versions will make finer-grained decisions about which stages to invoke per query.
 
-**Automatic domain specialization.** Over time, usage patterns reveal which knowledge subgraphs are most frequently accessed. A legal team queries the same regulatory frameworks. A finance team queries the same portfolio entities. We're building infrastructure to detect these patterns and create specialized memory packs per team, enabling targeted domain expertise without fine-tuning.
+**Knowledge graph pattern detection and model specialization.** Over time, usage patterns reveal which subgraphs and entity clusters are most frequently retrieved. A legal team queries the same regulatory frameworks. A finance team queries the same portfolio entities. We're building infrastructure to detect these patterns and automatically create memory packs from the most heavily-accessed subgraphs. These memory packs then become the foundation for fine-tuning smaller, domain-specialized models. A model trained on a healthcare team's most-queried knowledge subgraph will outperform a general-purpose model on that team's queries while running at a fraction of the cost. Structured knowledge in the graph enables precise pattern detection, pattern detection enables targeted memory pack creation, and memory packs enable efficient domain specialization — per team, per concept.
 
 **MCP integration.** Vrin operates as a [Model Context Protocol](https://modelcontextprotocol.io/) server. Any MCP-compatible assistant (Claude, ChatGPT, custom agents) can query Vrin's knowledge graph as a reasoning backend. Your team's structured knowledge becomes accessible from whatever AI tool they prefer.
 
-The fundamental thesis is that AI systems will eventually be specialized like human employees, not through fine-tuning a single model, but through engineering the cognitive infrastructure surrounding it. Better perception, better structure, better organization, better reasoning.
+The fundamental thesis is that AI systems will eventually be specialized like human employees — through engineering the cognitive infrastructure surrounding the model and fine-tuning specialized models from the structured knowledge it produces. Better perception, better structure, better organization, better reasoning.
 
 We're building that infrastructure.
 
 ---
 
-*Read the full technical details in our [whitepaper](/vrin-whitepaper.pdf), or try Vrin at [vrin.cloud](https://vrin.cloud).*
-`,
-  },
-  {
-    slug: 'benchmark-results-ragbench-multihop',
-    title: 'How We Achieved 97.5% Accuracy on Financial QA - 22% Better Than Oracle Baselines',
-    description: 'A transparent look at VRIN\'s performance on industry-standard RAG benchmarks with Oracle context. We break down our methodology, share what worked, and honestly discuss our limitations.',
-    date: '2026-01-05',
-    author: {
-      name: 'Vedant Patel',
-      role: 'Founder & CEO',
-      avatar: '/blogs/Profile Photo.JPEG',
-      linkedin: 'https://www.linkedin.com/in/vedant1033/',
-    },
-    category: 'research',
-    tags: ['benchmarks', 'RAG', 'performance', 'FinQA', 'MultiHop-RAG', 'hybrid-rag'],
-    readingTime: '12 min read',
-    featured: true,
-    image: '/blog/benchmark-results-hero.png',
-    content: `
-When we first tested VRIN against industry-standard RAG benchmarks, we were skeptical of our own results. **97.5% accuracy on financial question answering** seemed too good. So we tested again. And again. The numbers held.
-
-This post is our attempt to be completely transparent about what we found, how we tested, and what it means for teams building AI applications that need to actually work.
-
----
-
-## The Results at a Glance
-
-<div class="benchmark-highlight">
-
-| Benchmark | Metric | VRIN | Oracle Baseline | Improvement |
-|-----------|--------|------|-----------------|-------------|
-| **RAGBench FinQA** | Number Match | **97.5% ±3.2%** | 79.4% (LLaMA 3.3-70B Oracle) | **+22.8%** |
-| **MultiHop-RAG** | Semantic Accuracy | **82.6% ±3.2%** | 63.0% (Multi-Meta RAG + GPT-4) | **+31%** |
-
-</div>
-
-*Results at 95% confidence (±3.2% margin) using 28% of each test dataset with Oracle context methodology. Full methodology, raw data, and reproduction scripts available on [GitHub](https://github.com/Vrin-cloud/vrin-benchmarks).*
-
-**Important Note on Methodology:** These benchmarks use "Oracle + Noise" context—each question receives a curated set of 2-5 documents that includes the relevant information plus some distractors. This measures **reasoning quality** (can the system extract and compute the correct answer?) rather than **retrieval capability** (can the system find the right documents from thousands?). We compare against other systems using the same Oracle context methodology for a fair comparison.
-
-These aren't cherry-picked results. They're from statistically rigorous tests against public benchmarks with published Oracle baselines. Let us show you exactly how we got here.
-
----
-
-## Why These Benchmarks Matter
-
-We chose these two benchmarks specifically because they test the hardest problems in enterprise RAG:
-
-### T²-RAGBench FinQA: The Table + Text Challenge
-
-Financial documents are the ultimate stress test for RAG systems. They combine:
-
-- **Dense tables** with numerical data that must be precisely retrieved
-- **Narrative text** that provides context for those numbers
-- **Multi-step reasoning** to compute ratios, percentages, and comparisons
-
-The benchmark contains **32,908 question-answer pairs** from 9,095 real-world financial reports. When a financial analyst asks "What was the percentage change in goodwill from 2016 to 2017?", the system needs to find the right table, extract the correct cells, and compute the answer.
-
-Most systems struggle here even with Oracle context. The T²-RAGBench leaderboard shows LLaMA 3.3-70B achieves **79.4%** with Oracle context (where relevant documents are pre-provided). Retrieval-based systems drop to ~47% when they must find documents from a larger corpus.
-
-### MultiHop-RAG: The Cross-Document Reasoning Challenge
-
-Real questions rarely have answers in a single document. MultiHop-RAG tests this with **2,556 queries** that require synthesizing information across 2-4 documents.
-
-Example query: *"Which company, discussed by both TechCrunch and The Verge for its antitrust issues, paid billions to be the default search engine?"*
-
-Answering this requires:
-1. Finding TechCrunch articles about antitrust
-2. Finding Verge articles about antitrust
-3. Identifying the common entity (Google)
-4. Confirming the search engine default payment detail
-
-The best published result is **63.0%** using Multi-Meta RAG with GPT-4.
-
----
-
-## Our Testing Methodology
-
-We followed rigorous statistical protocols to ensure our results are meaningful and reproducible.
-
-### Sample Design
-
-\`\`\`
-Sample Coverage:  28% of each test dataset (~670 questions)
-Confidence:       95% with ±3.2% margin of error
-Sampling:         Random selection, reproducible seed (42)
-Context Type:     Oracle + Noise (2-5 documents per question)
-\`\`\`
-
-This sample size follows BetterBench statistical guidelines. Results plateaued across multiple test runs, indicating stable performance.
-
-### Test Protocol (Oracle Context)
-
-For each benchmark question:
-
-1. **Ingest**: Insert the provided documents for that question into VRIN (Oracle context)
-2. **Extract**: Let VRIN's entity-centric pipeline process the content
-3. **Query**: Submit the benchmark question
-4. **Evaluate**: Compare VRIN's response against the expected answer
-
-**Note**: This methodology matches how the T²-RAGBench leaderboard evaluates Oracle context performance. Each question receives its designated document set (2-5 documents, some relevant, some distractors). This tests reasoning capability, not retrieval from a large corpus.
-
-### Evaluation Criteria
-
-**FinQA (Number Match)**: Does VRIN's response contain the correct numerical values? This is a strict metric—partial credit isn't given.
-
-**MultiHop-RAG (Semantic Accuracy)**: Is the answer semantically correct? This accounts for VRIN providing verbose, contextual answers rather than one-word responses.
-
----
-
-## What's Actually Happening Under the Hood
-
-The performance gap comes from architectural decisions, not just better prompts.
-
-### 1. Entity-Centric Fact Extraction
-
-Traditional RAG chunks documents and embeds them. VRIN does something different.
-
-When VRIN ingests a financial report, it extracts structured facts:
-
-\`\`\`
-Acme Corp → annual_revenue_2024 → $4.2 billion
-Acme Corp → ceo → Jane Rivera
-Jane Rivera → role → CEO of Acme Corp
-\`\`\`
-
-These facts form a knowledge graph that preserves relationships. When you ask about Acme Corp's revenue, VRIN doesn't search through text chunks—it traverses relationships.
-
-### 2. Hybrid Retrieval (Graph + Vector)
-
-For any query, VRIN runs two retrieval paths in parallel:
-
-- **Graph traversal**: Finds facts directly connected to query entities
-- **Vector search**: Finds semantically similar content
-
-The results are fused, giving you both precision (from the graph) and recall (from vectors).
-
-### 3. Table-Aware Processing
-
-Financial documents are full of tables. VRIN's extraction pipeline:
-
-- Detects table structures in documents
-- Preserves row/column relationships
-- Extracts cell values as discrete facts
-- Links table data to document context
-
-This means "What was goodwill in 2017?" actually finds the table cell, not just text that mentions goodwill.
-
-### 4. Entity Discovery from Documents
-
-Here's a subtle but powerful capability: VRIN doesn't just match entities in your query—it discovers entities in retrieved documents and performs secondary graph traversals.
-
-If you ask about "the choppy website issue" and the retrieved documents mention "Sarah Chen reported the problem," VRIN will discover Sarah Chen and find additional facts about her involvement.
-
----
-
-## Honest Assessment: What We Don't Do Well
-
-We believe transparency builds trust. Here's where VRIN has room to improve:
-
-### Table Extraction Gaps
-
-Our markdown table detection handles standard formats well, but complex nested tables or unusual layouts can trip it up. We're actively improving this with a dedicated development track.
-
-### Multi-Constraint Intersection
-
-Queries with 3+ simultaneous constraints sometimes miss edge cases. "Find all Q4 2023 revenue figures for tech companies mentioned in both WSJ and Bloomberg" can get complex.
-
-### Very Large Tables
-
-Tables with 50+ rows can exceed optimal chunk sizes. We're working on hierarchical table processing.
-
-### Statistical Rigor
-
-Our tests sample 28% of each benchmark dataset (~670 questions), providing ±3.2% margin of error at 95% confidence following BetterBench guidelines. Results plateaued across multiple runs with reproducible seed (42).
-
----
-
-## What This Means for Your Team
-
-These benchmark results translate to real capabilities for reasoning over provided documents:
-
-### If You're Building Financial Applications
-
-97.5% accuracy on FinQA (Oracle context) means VRIN can reason accurately over financial reports when you provide the relevant documents. Due diligence, earnings analysis, regulatory compliance—tasks where numerical precision matters.
-
-### If You Have Knowledge Across Many Documents
-
-82.6% on MultiHop-RAG means your AI can synthesize information across related documents the way a research analyst would. Legal discovery, competitive intelligence, technical documentation—anywhere answers span multiple sources you've ingested.
-
-### Understanding Oracle Context
-
-These results use "Oracle context"—the relevant documents are provided for each question. In production, you'd ingest your document corpus and VRIN retrieves relevant content. The benchmark measures reasoning capability; production performance also depends on retrieval quality from your specific corpus.
-
----
-
-## Reproduce Our Results
-
-Our benchmark scripts, raw results, and evaluation logs are fully open source:
-
-\`\`\`bash
-# Clone the benchmark repository
-git clone https://github.com/Vrin-cloud/vrin-benchmarks
-cd vrin-benchmarks
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run FinQA benchmark (requires VRIN API key)
-python run_finqa_benchmark.py --sample 100
-
-# Run MultiHop-RAG benchmark
-python run_multihop_benchmark.py --sample 100
-
-# View our actual results
-ls results/  # Contains raw JSON logs from our runs
-\`\`\`
-
-**What's in the repo:**
-- \`run_finqa_benchmark.py\` - FinQA evaluation script
-- \`run_multihop_benchmark.py\` - MultiHop-RAG evaluation script
-- \`README.md\` - Detailed methodology documentation
-
-The evaluation logic is straightforward—no hidden post-processing or result filtering. Every answer is logged with the expected response for full transparency.
-
----
-
-## Try It With Your Own Documents
-
-Benchmarks are useful, but your documents are what matter. We encourage you to:
-
-1. **Sign up** at [vrin.cloud](https://vrin.cloud)
-2. **Ingest** a few of your challenging documents
-3. **Ask** the questions that current solutions can't answer well
-4. **Compare** the results
-
-If VRIN doesn't work for your use case, we'd rather know that than have you waste time.
-
----
-
-## What's Next
-
-We're continuing to push on several fronts:
-
-- **Full dataset validation** on FinQA and MultiHop-RAG
-- **Table extraction improvements** for complex document layouts
-- **Additional benchmarks** including RAGTruth (hallucination detection)
-- **Enterprise-specific benchmarks** for legal, healthcare, and compliance domains
-
----
-
-## The Bottom Line
-
-VRIN's performance on RAGBench FinQA (97.5%) and MultiHop-RAG (82.6%) demonstrates that the hybrid approach—knowledge graphs plus vector search—delivers superior reasoning capability on Oracle context benchmarks:
-
-- **+22.8%** better than LLaMA 3.3-70B Oracle baseline on FinQA
-- **+31%** better than Multi-Meta RAG + GPT-4 on MultiHop-RAG
-
-This isn't about having a better language model. It's about smarter extraction, structured knowledge, and systems that reason across documents the way humans do. Our entity-centric extraction and temporal disambiguation enable accurate numerical reasoning that even 70B parameter models struggle with.
-
-**What these results mean**: When given the right documents, VRIN extracts and reasons over financial data more accurately than leading LLMs. The next frontier is combining this reasoning capability with robust retrieval for real-world deployments.
-
-The code is open. The methodology is documented. The results are reproducible. We're betting that transparency about what works (and what doesn't yet) is more valuable than marketing claims.
-
----
-
-*Questions about methodology or want to discuss results? [Open an issue on GitHub](https://github.com/Vrin-cloud/vrin-benchmarks/issues) or contact us at [vrin.cloud](https://vrin.cloud)*
+*Read the full technical details in our [whitepaper](/vrin-whitepaper.pdf), explore the [evaluation code on GitHub](https://github.com/Vrin-cloud/vrin-benchmarks), or try Vrin at [vrin.cloud](https://vrin.cloud).*
+
+**Further Reading:**
+- Gutierrez et al., ["HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models"](https://arxiv.org/abs/2405.14831), NeurIPS 2024
+- Bakermans, Behrens et al., ["Constructing future behavior in the hippocampal formation through composition and replay"](https://doi.org/10.1038/s41593-025-01908-3), Nature Neuroscience 2025
+- Webb et al., ["A brain-inspired agentic architecture to improve planning with LLMs"](https://doi.org/10.1038/s41467-025-63804-5), Nature Communications 2025
+- Fleming, ["Metacognition and Confidence: A Review and Synthesis"](https://doi.org/10.1146/annurev-psych-022423-032425), Annual Review of Psychology 2024
+- Tang et al., ["MultiHop-RAG: Benchmarking Retrieval-Augmented Generation for Multi-Hop Queries"](https://arxiv.org/abs/2401.15391), 2024
+- Zhu et al., ["DeepRAG: Thinking to Retrieval Step by Step"](https://arxiv.org/abs/2502.01142), 2025
+- Anthropic, ["Contextual Retrieval"](https://www.anthropic.com/news/contextual-retrieval), 2024
+- Perlitz et al., ["BetterBench: Assessing AI Benchmarks, Uncovering Issues, and Establishing Best Practices"](https://arxiv.org/abs/2407.07565), 2024
 `,
   },
   {

@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
-import { Inter, Manrope } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
+import { Manrope } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 
-const inter = Inter({ subsets: ["latin"] })
 const manrope = Manrope({
   subsets: ["latin"],
   variable: '--font-manrope',
@@ -267,7 +267,7 @@ export default function RootLayout({
         <meta name="referrer" content="origin-when-cross-origin" />
         <meta name="color-scheme" content="light dark" />
       </head>
-      <body className={`${inter.className} ${manrope.variable}`}>
+      <body className={`${GeistSans.className} ${manrope.variable}`}>
         <Providers>
           {children}
         </Providers>
