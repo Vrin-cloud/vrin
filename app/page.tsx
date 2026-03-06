@@ -21,11 +21,12 @@ import { HeroSection } from "@/components/hero-section"
 import { EnterpriseSocialProof } from "@/components/enterprise-social-proof"
 import { VrinVsZepComparison } from "@/components/vrin-vs-zep-comparison"
 import ProfessionalIntegrationSection from "@/components/professional-integration-section"
-import Circular3DCarousel from "@/components/circular-3d-carousel"
+// import Circular3DCarousel from "@/components/circular-3d-carousel"
 import { PricingSection } from "@/components/pricing-section"
 import { StickyNavChallengeSection } from "@/components/sticky-nav-challenge-section"
 import { CoreFeatures } from "@/components/core-features"
 import { AnnouncementBar } from "@/components/announcement-bar"
+import { HowVrinWorks } from "@/components/how-vrin-works"
 // import { InteractiveFeaturesShowcase } from "@/components/interactive-features-showcase"
 
 export default function Home() {
@@ -110,8 +111,8 @@ export default function Home() {
 
 
 
-      {/* 3D Circular Carousel Product Section */}
-      <Circular3DCarousel />
+      {/* How Vrin Works — 3-step workflow with SVG diagram */}
+      <HowVrinWorks />
 
       {/* Core Features Section */}
       <CoreFeatures />
