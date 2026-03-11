@@ -70,7 +70,7 @@ A search engine finds relevant text. A reasoning engine understands the structur
 
 We started from a different question: *What if we engineered each cognitive step — the perception, structuring, storage, organization, and retrieval of knowledge — based on how the brain actually solves these problems, rather than hoping the language model handles it?*
 
-It turns out we weren't the only ones thinking this way. In 2024, a team at Ohio State published [HippoRAG](https://arxiv.org/abs/2405.14831) at NeurIPS — a RAG framework explicitly built on hippocampal memory theory. Their graph-plus-vector hybrid outperformed standard RAG by up to 20% on multi-hop questions. In 2025, [HippoRAG 2](https://arxiv.org/abs/2502.14802) extended this with dual-node knowledge graphs and Personalized PageRank, establishing the state of the art on multi-hop QA. Vrin independently arrived at the same architecture, extends it with confidence scoring, temporal reasoning, and enterprise data sovereignty — and now surpasses HippoRAG 2 on MuSiQue multi-hop QA (0.377 vs 0.372 Exact Match).
+It turns out we weren't the only ones thinking this way. In 2024, a team at Ohio State published [HippoRAG](https://arxiv.org/abs/2405.14831) at NeurIPS — a RAG framework explicitly built on hippocampal memory theory. Their graph-plus-vector hybrid outperformed standard RAG by up to 20% on multi-hop questions. In 2025, [HippoRAG 2](https://arxiv.org/abs/2502.14802) extended this with dual-node knowledge graphs and Personalized PageRank, establishing the state of the art on multi-hop QA. Vrin independently arrived at the same architecture, extends it with confidence scoring, temporal reasoning, iterative reasoning, and enterprise data sovereignty — and now significantly surpasses HippoRAG 2 on MuSiQue multi-hop QA (0.469 vs 0.372 Exact Match, +26%).
 
 The convergence isn't a coincidence. It's what happens when you take cognitive science seriously.
 
@@ -136,13 +136,13 @@ We ingested the full corpus of 4,718 Wikipedia paragraphs (38,493 stored facts a
 
 | System | Exact Match | Token F1 |
 |--------|-------------|----------|
-| **Vrin** | **0.377** | 0.471 |
-| HippoRAG 2 | 0.372 | **0.486** |
+| **Vrin** | **0.469** | **0.565** |
+| HippoRAG 2 | 0.372 | 0.486 |
 | Standard RAG | — | 0.457 |
 
-Vrin surpasses [HippoRAG 2](https://arxiv.org/abs/2502.14802) — the current state of the art on multi-hop QA — on Exact Match. The small F1 gap (0.015) is an artifact of answer extraction: Vrin's reasoning responses are post-processed to extract short factoid answers, introducing minor token-level noise.
+Vrin surpasses [HippoRAG 2](https://arxiv.org/abs/2502.14802) — the current state of the art on multi-hop QA — on both Exact Match (+0.097, 26% improvement) and Token F1 (+0.079, 16% improvement). The improvement is driven by Vrin's iterative reasoning engine: each multi-hop question is decomposed into dependency-ordered sub-questions, with targeted retrieval per identified knowledge gap and structured chain-of-thought injection.
 
-Two patterns from the per-complexity breakdown stand out. Moderate-complexity queries (2-hop) achieve the highest EM (0.394) — a sweet spot where multi-hop reasoning helps without cascading errors across many hops. Complex queries achieve the highest F1 (0.479), fully utilizing PPR retrieval, parallel strategies, and deep graph traversal. Only 1.0% of queries triggered bail-out, down from ~10% in early development.
+Simple queries achieve the highest scores (EM=0.531, F1=0.613), with all complexity tiers benefiting from iterative reasoning. Only 1.0% of queries triggered bail-out, down from ~10% in early development.
 
 Across two fundamentally different benchmarks — news articles and Wikipedia compositions — the same architecture produces state-of-the-art results. The bottleneck isn't the model. It's the infrastructure surrounding it.
 
