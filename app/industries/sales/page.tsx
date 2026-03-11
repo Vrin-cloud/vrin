@@ -1,8 +1,8 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -53,7 +53,44 @@ const faqs = [
 
 export default function SalesPage() {
   const heroRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [hasStarted, setHasStarted] = useState(false)
+  const isVideoInView = useInView(videoRef, { amount: 0.4 })
+
+  const startVideo = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (!hasStarted) {
+      video.currentTime = 0
+      setHasStarted(true)
+    }
+    video.play().catch(() => {})
+  }, [hasStarted])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (isVideoInView) {
+      startVideo()
+    } else {
+      video.pause()
+    }
+  }, [isVideoInView, startVideo])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const video = videoRef.current
+      if (!video) return
+      if (document.hidden) {
+        video.pause()
+      } else if (isVideoInView) {
+        video.play().catch(() => {})
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
+  }, [isVideoInView])
 
   // Scroll-linked hero card animation
   const { scrollYProgress: heroScroll } = useScroll({
@@ -145,66 +182,80 @@ export default function SalesPage() {
       </section>
 
       {/* ================================================================ */}
-      {/* Section A: The problem — ocean blur image + pain points          */}
+      {/* Pillar 1: Knowledge Reasoning — video + copy                     */}
       {/* ================================================================ */}
       <section className="py-20 md:py-28 bg-[#201E1E] dark:bg-[#FFFFFF]">
-        <div className="container max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left — aesthetic image */}
+        <div className="container max-w-[90rem] px-8 md:px-16">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left — autoplay video */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative"
+              className="relative lg:col-span-7"
             >
-              <div className="rounded-2xl overflow-hidden aspect-[4/5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/background-images/ocean blur.jpg"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+              <div className="rounded-2xl overflow-hidden shadow-2xl w-full">
+                <video
+                  ref={videoRef}
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="w-full h-auto"
+                >
+                  <source
+                    src="/videos/vrin-sales-page-autoplay.mp4"
+                    type="video/mp4"
+                  />
+                </video>
               </div>
             </motion.div>
 
-            {/* Right — pain statements */}
-            <div className="space-y-10">
+            {/* Right — copy */}
+            <div className="space-y-8 lg:col-span-5 lg:pl-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
                 <p className="text-sm font-medium tracking-widest uppercase text-[#8DAA9D] dark:text-[#083C5E] mb-6">
-                  The Problem
+                  Knowledge Reasoning
+                </p>
+                <h2 className="text-3xl md:text-4xl font-light leading-tight mb-6 text-[#FFFFFF] dark:text-[#201E1E]">
+                  Every rep answers like your best closer. On every call,
+                  from day one.
+                </h2>
+                <p className="text-[#FFFFFF]/60 dark:text-[#201E1E]/60 leading-relaxed mb-8">
+                  Your battle cards, case studies, pricing docs, and competitive
+                  intel already have the answer. Vrin connects them into a
+                  knowledge graph and reasons across all of it. Any rep
+                  can pull the perfect response in seconds, not hours.
                 </p>
               </motion.div>
+
               {[
                 {
-                  headline: "\u201CLet me get back to you on that.\u201D",
-                  body: "The most expensive sentence in sales. Every time a rep says it, the deal loses momentum\u2014and your competitor gets time to respond.",
+                  text: "No more \u201Clet me get back to you.\u201D Reps get sourced, multi-document answers live on the call.",
                 },
                 {
-                  headline: "The answer exists. Nobody can find it.",
-                  body: "It\u2019s buried across Notion, Slack, Drive, and the heads of people who are too busy to answer. Your team is searching, not selling.",
+                  text: "New hires sell like veterans. Day-one access to every insight your best closer built over years.",
                 },
                 {
-                  headline: "New reps. Same ramp problem.",
-                  body: "Your top performer built their knowledge over years. New hires shouldn\u2019t need years to catch up\u2014but right now, they do.",
+                  text: "Every answer cites its source. Reps verify the claim in 2 seconds before saying it to a prospect.",
                 },
               ].map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.15 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start gap-3"
                 >
-                  <h3 className="text-xl md:text-2xl font-light text-[#FFFFFF] dark:text-[#201E1E] mb-3 leading-snug">
-                    {item.headline}
-                  </h3>
-                  <p className="text-[#FFFFFF]/60 dark:text-[#201E1E]/60 leading-relaxed">
-                    {item.body}
+                  <CheckCircle className="w-5 h-5 text-[#8DAA9D] dark:text-[#083C5E] mt-0.5 flex-shrink-0" />
+                  <p className="text-[#FFFFFF]/80 dark:text-[#201E1E]/80 leading-relaxed">
+                    {item.text}
                   </p>
                 </motion.div>
               ))}
@@ -220,7 +271,7 @@ export default function SalesPage() {
         <div className="container max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — differentiators */}
-            <div className="space-y-10 order-2 lg:order-1">
+            <div className="space-y-10 order-2 lg:order-1 lg:pr-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -269,7 +320,7 @@ export default function SalesPage() {
               transition={{ duration: 0.6 }}
               className="relative order-1 lg:order-2"
             >
-              <div className="rounded-2xl overflow-hidden aspect-[4/5]">
+              <div className="rounded-2xl overflow-hidden aspect-[4/5] w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/background-images/strokes.jpg"
@@ -296,7 +347,7 @@ export default function SalesPage() {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="rounded-2xl overflow-hidden aspect-[4/5]">
+              <div className="rounded-2xl overflow-hidden aspect-[4/5] w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/background-images/universe blur.jpg"
@@ -307,7 +358,7 @@ export default function SalesPage() {
             </motion.div>
 
             {/* Right — outcomes */}
-            <div className="space-y-10">
+            <div className="space-y-10 lg:pl-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

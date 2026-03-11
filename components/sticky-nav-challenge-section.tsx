@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView, useAnimation, AnimatePresence } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import {
   ArrowRight,
   Network,
@@ -13,6 +13,44 @@ export function StickyNavChallengeSection() {
   const isInView = useInView(ref, { once: false, margin: "-100px" });
   const controls = useAnimation();
   const [activeSection, setActiveSection] = useState(0);
+
+  const multiHopVideoRef = useRef<HTMLVideoElement>(null);
+  const [multiHopHasStarted, setMultiHopHasStarted] = useState(false);
+  const isMultiHopInView = useInView(multiHopVideoRef, { amount: 0.4 });
+
+  const startMultiHopVideo = useCallback(() => {
+    const video = multiHopVideoRef.current;
+    if (!video) return;
+    if (!multiHopHasStarted) {
+      video.currentTime = 0;
+      setMultiHopHasStarted(true);
+    }
+    video.play().catch(() => {});
+  }, [multiHopHasStarted]);
+
+  useEffect(() => {
+    const video = multiHopVideoRef.current;
+    if (!video) return;
+    if (isMultiHopInView) {
+      startMultiHopVideo();
+    } else {
+      video.pause();
+    }
+  }, [isMultiHopInView, startMultiHopVideo]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const video = multiHopVideoRef.current;
+      if (!video) return;
+      if (document.hidden) {
+        video.pause();
+      } else if (isMultiHopInView) {
+        video.play().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isMultiHopInView]);
 
   const sectionRefs = [
     useRef(null),
@@ -314,11 +352,12 @@ print(response["sources"])   # Source documents`}
                             /* Multi-Hop Workflow Video for Problem 2 */
                             <div className="rounded-2xl overflow-hidden">
                               <video
+                                ref={multiHopVideoRef}
                                 src="/videos/Vrin Multi-Hop Workflow.mp4"
-                                autoPlay
                                 loop
                                 muted
                                 playsInline
+                                preload="auto"
                                 className="w-full h-auto rounded-2xl"
                               />
                             </div>
