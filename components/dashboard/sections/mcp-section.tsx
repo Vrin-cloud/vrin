@@ -6,21 +6,20 @@ import {
   Plug,
   Copy,
   CheckCircle2,
-  Eye,
-  EyeOff,
   MessageSquare,
   Search,
-  Database,
   Terminal,
   Code,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react';
 
 interface MCPSectionProps {
   apiKey: string | null;
 }
 
-const MCP_SERVER_URL = 'https://ofcrp2bnpjrhz3gngzusvqodsm0khzzq.lambda-url.us-east-1.on.aws/mcp';
+const MCP_BASE_URL = 'https://g4zoulyga7l4a6a4wfxsqqm5aq0tkouw.lambda-url.us-east-1.on.aws';
+const MCP_SERVER_URL = `${MCP_BASE_URL}/mcp/<YOUR_API_KEY>`;
 
 interface CodeExample {
   language: string;
@@ -72,7 +71,6 @@ function CodeBlock({ example, id, copiedCode, onCopy }: {
 
 export function MCPSection({ apiKey }: MCPSectionProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [showApiKey, setShowApiKey] = useState(false);
 
   const copyToClipboard = async (text: string, id: string) => {
     try {
@@ -83,10 +81,6 @@ export function MCPSection({ apiKey }: MCPSectionProps) {
       console.error('Failed to copy to clipboard:', err);
     }
   };
-
-  const maskedKey = apiKey
-    ? `${apiKey.slice(0, 8)}${'*'.repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
-    : '••••••••••••••••';
 
   const claudeDesktopConfig = JSON.stringify({
     mcpServers: {
@@ -100,6 +94,7 @@ export function MCPSection({ apiKey }: MCPSectionProps) {
 
   const pythonExample = `from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
+import asyncio, json
 
 async def main():
     async with streamablehttp_client(
@@ -108,19 +103,32 @@ async def main():
         async with ClientSession(read, write) as session:
             await session.initialize()
 
-            # List available tools
-            tools = await session.list_tools()
-            print(f"Available tools: {[t.name for t in tools.tools]}")
-
-            # Query your knowledge base
+            # Start an async query
             result = await session.call_tool(
-                "vrin_query",
+                "vrin_query_async",
                 arguments={
                     "query": "What do you know about our Q4 results?",
-                    "mode": "expert"
+                    "depth": "thinking"
                 }
             )
-            print(result.content[0].text)`;
+            job = json.loads(result.content[0].text)
+            job_id = job["job_id"]
+
+            # Poll until complete
+            while True:
+                check = await session.call_tool(
+                    "vrin_check_job",
+                    arguments={"job_id": job_id}
+                )
+                status = json.loads(check.content[0].text)
+                if status["status"] == "completed":
+                    print(status["result"]["context"])
+                    break
+                elif status["status"] == "failed":
+                    print(f"Error: {status['error']}")
+                    break
+                print(f"Progress: {status.get('message', 'working...')}")
+                await asyncio.sleep(5)`;
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -141,7 +149,9 @@ async def main():
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">MCP Server URL</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Use this URL to connect any MCP-compatible AI agent to your VRIN knowledge base.
+          Replace <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">&lt;YOUR_API_KEY&gt;</code> with
+          any of your API keys from the <strong>API Keys</strong> section, then paste the URL into any MCP client.
+          No additional authentication setup needed.
         </p>
         <div className="flex items-center gap-2">
           <code className="flex-1 bg-gray-100 px-4 py-3 rounded-lg text-sm font-mono text-gray-800 break-all">
@@ -159,48 +169,6 @@ async def main():
               <Copy className="w-4 h-4" />
             )}
           </motion.button>
-        </div>
-      </div>
-
-      {/* Authentication */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          VRIN uses OAuth 2.1 for MCP authentication. Your AI agent handles the OAuth flow
-          automatically when connecting — you&apos;ll be prompted to sign in via your browser.
-        </p>
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">Your API Key</label>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 bg-gray-100 px-4 py-3 rounded-lg text-sm font-mono text-gray-800">
-              {showApiKey ? (apiKey || 'No API key found') : maskedKey}
-            </code>
-            <button
-              onClick={() => setShowApiKey(!showApiKey)}
-              className="flex-shrink-0 p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              title={showApiKey ? 'Hide API key' : 'Reveal API key'}
-            >
-              {showApiKey ? (
-                <EyeOff className="w-4 h-4 text-gray-600" />
-              ) : (
-                <Eye className="w-4 h-4 text-gray-600" />
-              )}
-            </button>
-            {apiKey && (
-              <motion.button
-                onClick={() => copyToClipboard(apiKey, 'api-key')}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-shrink-0 p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                {copiedCode === 'api-key' ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Copy className="w-4 h-4 text-gray-600" />
-                )}
-              </motion.button>
-            )}
-          </div>
         </div>
       </div>
 
@@ -247,10 +215,6 @@ async def main():
                   onCopy={copyToClipboard}
                 />
               </div>
-
-              <p className="text-sm text-gray-500">
-                When you first use a VRIN tool, Claude will open your browser to complete OAuth sign-in.
-              </p>
             </div>
           </div>
 
@@ -282,17 +246,11 @@ async def main():
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">3</span>
                 <span className="text-sm text-gray-700">
-                  Click <strong>Add MCP Server</strong> and paste the MCP Server URL above
+                  Click <strong>Add MCP Server</strong> and paste your MCP Server URL from above
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">4</span>
-                <span className="text-sm text-gray-700">
-                  Complete the OAuth sign-in when prompted in your browser
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">5</span>
                 <span className="text-sm text-gray-700">
                   Start a new chat — VRIN tools will be available automatically
                 </span>
@@ -355,50 +313,43 @@ async def main():
         </p>
 
         <div className="space-y-4">
+          <div className="flex items-start gap-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <code className="text-sm font-semibold text-gray-900 font-mono">vrin_query_async</code>
+                <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Start here</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Start a knowledge base query. Returns instantly with a job ID. Your AI agent then polls with
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">vrin_check_job</code>
+                until results are ready. Supports modes:
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">context</code>
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">chat</code>
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">expert</code>
+                and depth levels:
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">basic</code>
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">thinking</code>
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">research</code>
+              </p>
+            </div>
+          </div>
+
           <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <Search className="w-4 h-4 text-blue-600" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <code className="text-sm font-semibold text-gray-900 font-mono">vrin_query</code>
+                <code className="text-sm font-semibold text-gray-900 font-mono">vrin_check_job</code>
               </div>
               <p className="text-sm text-gray-600">
-                Query your knowledge base with natural language. Supports multiple response modes:
-                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">chat</code>
-                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">expert</code>
-                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs mx-1">brainstorm</code>
-                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">raw_facts</code>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Search className="w-4 h-4 text-amber-600" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <code className="text-sm font-semibold text-gray-900 font-mono">vrin_search_entities</code>
-              </div>
-              <p className="text-sm text-gray-600">
-                Search for entities in your knowledge graph by name or partial match. Useful for discovering
-                what entities exist before querying for specific facts.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Database className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <code className="text-sm font-semibold text-gray-900 font-mono">vrin_get_facts</code>
-              </div>
-              <p className="text-sm text-gray-600">
-                Retrieve structured facts (subject-predicate-object triples) about a specific entity,
-                with confidence scores and source documents. Supports temporal filtering.
+                Poll for query results after starting with <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">vrin_query_async</code>.
+                Returns real-time progress updates (e.g., &quot;Searching knowledge graph, step 3 of 7&quot;)
+                while VRIN processes your query. Keep calling until status
+                is <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">completed</code>.
               </p>
             </div>
           </div>
