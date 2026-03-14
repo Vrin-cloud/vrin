@@ -44,25 +44,18 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const rafIdRef = useRef<number | null>(null);
   const isStreamingActiveRef = useRef<boolean>(false);
 
-  // Initialize on mount - restore session from localStorage if available
+  // Initialize on mount — do NOT restore session from localStorage.
+  // A fresh page load should always start a new conversation.
+  // Sessions are only set when: (1) auto-created on first message, or
+  // (2) explicitly loaded via loadMessages() from conversation sidebar.
   useEffect(() => {
     if (!apiKey) return;
 
     console.log('🔄 Chat session initialized with API key');
 
-    // Restore session_id from localStorage for conversation continuity
-    const storedSessionId = localStorage.getItem('vrin_chat_session_id');
-    if (storedSessionId && !session) {
-      console.log('📌 Restoring session from localStorage:', storedSessionId);
-      const restoredSession: ChatSession = {
-        session_id: storedSessionId,
-        conversation_turn: 0,
-        created_at: Date.now(),
-        last_activity: Date.now(),
-        messages: []
-      };
-      setSession(restoredSession);
-    }
+    // Clear any stale session so first query creates a fresh conversation
+    localStorage.removeItem('vrin_chat_session_id');
+    setSession(null);
 
     setIsLoading(false);
     setIsStreaming(false);

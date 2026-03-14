@@ -1558,19 +1558,21 @@ export default function ChatPage() {
                   ) : (
                     // Assistant message: No background, full center space, max-width for content
                     <div className="w-full max-w-3xl">
-                      {/* Reasoning Panel - Show BEFORE response if thinking_steps or reasoning_tokens exist */}
+                      {/* Reasoning Chain - Show collapsed for completed messages */}
                       {message.metadata && ((message.metadata.thinking_steps && message.metadata.thinking_steps.length > 0) || (message.metadata.reasoning_tokens && message.metadata.reasoning_tokens > 0)) && (
-                        <ThinkingPanel
-                          metadata={{
-                            model: message.metadata.model || 'gpt-5-mini',
-                            reasoning_tokens: message.metadata.reasoning_tokens || 0,
-                            input_tokens: message.metadata.input_tokens || 0,
-                            output_tokens: message.metadata.output_tokens || 0,
-                            total_tokens: message.metadata.total_tokens || 0,
-                            processing_time: message.metadata.response_time || message.metadata.search_time,
-                            thinking_steps: message.metadata.thinking_steps || [],  // Use actual thinking steps from backend
-                            reasoning_summary: message.metadata.reasoning_summary  // GPT-5 reasoning summary
-                          }}
+                        <ReasoningChain
+                          progressSteps={(message.metadata.thinking_steps || []).map((step: any, i: number) => ({
+                            stage: step.step || `step_${i}`,
+                            label: step.step || step.description || '',
+                            detail: step.description || '',
+                            step: i + 1,
+                            total_steps: (message.metadata?.thinking_steps || []).length,
+                            elapsed_ms: 0,
+                          }))}
+                          thinkingContent={message.metadata.thinking_content || ''}
+                          reasoningSummary={message.metadata.reasoning_summary}
+                          isActive={false}
+                          thinkingTokens={message.metadata.reasoning_tokens}
                         />
                       )}
 

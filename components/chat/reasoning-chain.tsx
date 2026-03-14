@@ -28,7 +28,7 @@ export function ReasoningChain({
   isActive,
   thinkingTokens,
 }: ReasoningChainProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(isActive)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   // Track elapsed time while active

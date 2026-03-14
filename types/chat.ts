@@ -53,7 +53,9 @@ export interface MessageMetadata {
   output_tokens?: number;  // Output tokens used
   total_tokens?: number;  // Total tokens used
   model?: string;  // Model used for response
-  reasoning_summary?: string;  // GPT-5 reasoning summary (thinking process)
+  reasoning_summary?: string;  // LLM reasoning summary (thinking process)
+  thinking_content?: string;  // Claude extended thinking content
+  thinking_length?: number;  // Length of thinking content
   thinking_steps?: Array<{  // Thinking steps from reasoning
     step: string;
     description: string;
