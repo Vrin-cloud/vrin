@@ -12,6 +12,9 @@ interface UseChatSessionReturn {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
+  progressSteps: any[];
+  thinkingContent: string;
+  isThinking: boolean;
   sendMessage: (message: string, mode?: ResponseMode, enableStreaming?: boolean, webSearchEnabled?: boolean, attachments?: FileAttachment[], conversationUploadIds?: string[], model?: string, queryDepth?: QueryDepth | null) => Promise<void>;
   cancelStreaming: () => void;
   startNewSession: () => Promise<void>;
@@ -28,10 +31,14 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [progressSteps, setProgressSteps] = useState<any[]>([]);
+  const [thinkingContent, setThinkingContent] = useState('');
+  const [isThinking, setIsThinking] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Streaming accumulator using ref pattern (prevent stale closures)
   const streamingBufferRef = useRef<string>('');
+  const thinkingBufferRef = useRef<string>('');
 
   // Use requestAnimationFrame for smooth updates tied to browser render cycle
   const rafIdRef = useRef<number | null>(null);
@@ -192,6 +199,10 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
         // DON'T set isStreaming yet - wait for first content to arrive
         // This ensures loading indicator stays visible during backend processing
         setStreamingContent('');
+        setProgressSteps([]);
+        setThinkingContent('');
+        setIsThinking(false);
+        thinkingBufferRef.current = '';
 
         // Create abort controller for cancellation
         abortControllerRef.current = new AbortController();
@@ -216,6 +227,10 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
             requestPayload,
             apiKey,
             {
+              onProgress: (progressEvent) => {
+                console.log('Progress step:', progressEvent.stage, progressEvent.step);
+                setProgressSteps(prev => [...prev, progressEvent]);
+              },
               onMetadata: (metadata) => {
                 console.log('📊 Streaming metadata received:', metadata);
 
@@ -262,12 +277,21 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                   console.log('⚠️ No reasoning_metadata in metadata event');
                 }
               },
+              onThinking: (delta) => {
+                // On first thinking chunk, set isThinking
+                if (!thinkingBufferRef.current) {
+                  setIsThinking(true);
+                }
+                thinkingBufferRef.current += delta;
+                setThinkingContent(thinkingBufferRef.current);
+              },
               onContent: (delta) => {
                 // On FIRST content chunk, transition from loading to streaming
                 if (contentChunkCounter === 0) {
                   console.log('🎬 First content chunk received - transitioning to streaming');
                   setIsLoading(false);
                   setIsStreaming(true);
+                  setIsThinking(false);
 
                   // Initialize streaming buffer and animation loop
                   streamingBufferRef.current = '';
@@ -336,6 +360,15 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                   console.log('✅ Reasoning summary added to metadata:', reasoningSummary.length, 'chars');
                 }
 
+                // Add thinking content to metadata if available
+                if (thinkingBufferRef.current) {
+                  finalMetadata = {
+                    ...finalMetadata,
+                    thinking_content: thinkingBufferRef.current,
+                    thinking_length: thinkingBufferRef.current.length,
+                  };
+                }
+
                 // Update session if new one was created
                 if (finalSessionId) {
                   if (!activeSession || finalSessionId !== activeSession.session_id) {
@@ -384,6 +417,9 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
                 // Clear streaming state
                 setIsStreaming(false);
                 setStreamingContent('');
+                setIsThinking(false);
+                setProgressSteps([]);
+                setThinkingContent('');
               },
               onError: (error) => {
                 console.error('❌ Streaming error:', error);
@@ -594,6 +630,9 @@ export const useChatSession = (apiKey: string): UseChatSessionReturn => {
     isStreaming,
     streamingContent,
     error,
+    progressSteps,
+    thinkingContent,
+    isThinking,
     sendMessage,
     cancelStreaming,
     startNewSession,

@@ -49,6 +49,7 @@ import { MarkdownRenderer } from '@/components/chat/markdown-renderer'
 import { SourcesPanel } from '@/components/chat/sources-panel'
 import { ThinkingPanel } from '@/components/dashboard/thinking-panel'
 import { LoadingAnimation } from '@/components/chat/loading-animation'
+import { ReasoningChain } from '@/components/chat/reasoning-chain'
 import { formatRelativeTime } from '@/lib/utils/time'
 import { chatAPI } from '@/lib/services/chat-api'
 import toast from 'react-hot-toast'
@@ -197,6 +198,9 @@ export default function ChatPage() {
     isStreaming,
     streamingContent,
     error,
+    progressSteps,
+    thinkingContent,
+    isThinking,
     sendMessage,
     cancelStreaming,
     startNewSession,
@@ -1648,7 +1652,23 @@ export default function ChatPage() {
 
               {/* Loading indicator (shows when waiting for response, but NOT when streaming) */}
               {isLoading && !isStreaming && (
-                <LoadingAnimation isStreaming={isStreaming} />
+                progressSteps.length > 0 || isThinking ? (
+                  <ReasoningChain
+                    progressSteps={progressSteps}
+                    thinkingContent={thinkingContent}
+                    isActive={true}
+                  />
+                ) : (
+                  <LoadingAnimation isStreaming={isStreaming} />
+                )
+              )}
+              {/* Show thinking content during streaming phase too */}
+              {isThinking && isStreaming && thinkingContent && (
+                <ReasoningChain
+                  progressSteps={progressSteps}
+                  thinkingContent={thinkingContent}
+                  isActive={true}
+                />
               )}
 
               {error && (

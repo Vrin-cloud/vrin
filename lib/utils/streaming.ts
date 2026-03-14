@@ -2,7 +2,7 @@
 // Handles progressive response streaming from backend
 
 export interface StreamEvent {
-  type: 'metadata' | 'content' | 'reasoning' | 'done' | 'error';
+  type: 'metadata' | 'content' | 'reasoning' | 'progress' | 'thinking' | 'done' | 'error';
   data?: any;
   delta?: string;
   reasoning_tokens?: number;
@@ -13,6 +13,8 @@ export interface StreamCallbacks {
   onMetadata?: (metadata: any) => void;
   onContent?: (delta: string) => void;
   onReasoning?: (reasoningSummary: string) => void;  // NEW: Handle reasoning summary
+  onProgress?: (progressEvent: any) => void;    // Pipeline progress events
+  onThinking?: (delta: string) => void;          // LLM thinking stream
   onDone?: (finalData: any) => void;
   onError?: (error: Error) => void;
 }
@@ -114,6 +116,18 @@ export async function handleStreamingResponse(
                 if (reasoningSummary) {
                   console.log(`🧠 Reasoning summary (${reasoningSummary.length} chars):`, reasoningSummary.substring(0, 100) + '...');
                   callbacks.onReasoning?.(reasoningSummary);
+                }
+                break;
+
+              case 'progress':
+                console.log('Progress event:', event.data?.stage);
+                callbacks.onProgress?.(event.data);
+                break;
+
+              case 'thinking':
+                const thinkingDelta = event.data?.delta;
+                if (thinkingDelta) {
+                  callbacks.onThinking?.(thinkingDelta);
                 }
                 break;
 
