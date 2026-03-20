@@ -36,7 +36,7 @@ export default function BlogPage() {
               Engineering & Research
             </h1>
             <p className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto">
-              Deep dives into hybrid RAG architecture, benchmark results, and the technology powering enterprise AI memory.
+              Deep dives into knowledge reasoning architecture, benchmark results, and the technology powering enterprise AI.
             </p>
           </motion.div>
         </div>

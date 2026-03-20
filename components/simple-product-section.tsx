@@ -69,7 +69,7 @@ export default function SimpleProductSection() {
           </h2>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            A <span className="font-semibold text-blue-600 dark:text-blue-400">HybridRAG context & memory layer</span> that routes across graph/vector, 
+            A <span className="font-semibold text-blue-600 dark:text-blue-400">knowledge reasoning layer</span> that routes across graph and vector retrieval,
             writes typed facts with provenance, and composes domain-specific reasoning via user specializations.
           </p>
         </motion.div>

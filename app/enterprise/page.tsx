@@ -136,7 +136,7 @@ export default function EnterpriseLandingPage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Enterprise-grade Hybrid RAG system with complete data sovereignty, 
+              Enterprise-grade knowledge reasoning system with complete data sovereignty,
               compliance frameworks, and user-defined AI specialization. 
               Deploy in minutes, control everything.
             </p>

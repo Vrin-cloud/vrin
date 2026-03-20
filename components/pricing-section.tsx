@@ -21,7 +21,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
       features: [
         "100k chunks / 100k edges",
         "5k queries/month",
-        "Shared HybridRAG infrastructure",
+        "Shared reasoning infrastructure",
         "Basic memory & CBOM",
         "API key authentication",
         "CSV/S3 connectors",

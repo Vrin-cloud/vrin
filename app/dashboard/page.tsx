@@ -678,7 +678,7 @@ function HomeSection({ user, onNavigate }: { user: User; onNavigate: (section: s
     {
       step: 2,
       title: 'Chat with Your Knowledge',
-      description: 'Ask questions in natural language and get intelligent answers from your connected data using hybrid RAG technology.',
+      description: 'Ask questions in natural language and get intelligent answers from your connected data using deep reasoning.',
       icon: MessageSquare,
       action: 'Open Chat',
       section: 'chat',

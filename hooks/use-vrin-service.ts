@@ -173,7 +173,7 @@ export function useVRINService({ apiKey }: UseVRINServiceProps = {}) {
       version: '0.3.2',
       features: [
         'Smart Deduplication',
-        'Hybrid RAG Search',
+        'Deep Knowledge Search',
         'Fact Extraction',
         'Knowledge Graph',
         'Storage Optimization',

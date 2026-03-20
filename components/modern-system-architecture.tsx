@@ -53,7 +53,7 @@ const architecturePipelines = [
   },
   {
     id: 'hybrid',
-    title: 'VRIN HybridRAG Pipeline',
+    title: 'VRIN Knowledge Reasoning Pipeline',
     description: 'Intelligent query routing with user-defined AI experts, combining vector search and graph traversal.',
     performance: { accuracy: '71.17+ Acc', speed: '<1.8s', limitation: 'None identified' },
     components: [
@@ -215,7 +215,7 @@ export default function ModernSystemArchitecture() {
           </Badge>
 
           <h2 className="text-4xl md:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-            Architecture Comparison: Traditional vs HybridRAG
+            Architecture Comparison: Traditional vs VRIN
           </h2>
 
           <p className="text-xl text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-4xl mx-auto leading-relaxed">
@@ -279,7 +279,7 @@ export default function ModernSystemArchitecture() {
                   <td className="py-4 px-6 text-[#8DAA9D]">Good</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFFFF]">VRIN HybridRAG</td>
+                  <td className="py-4 px-6 font-medium text-[#201E1E] dark:text-[#FFFFFF]">VRIN Knowledge Reasoning</td>
                   <td className="py-4 px-6 text-[#083C5E] dark:text-[#8DAA9D] font-medium">71.17+ Acc</td>
                   <td className="py-4 px-6 text-[#083C5E] dark:text-[#8DAA9D] font-medium">&lt;1.8s</td>
                   <td className="py-4 px-6 text-[#8DAA9D] font-medium">User-Defined</td>

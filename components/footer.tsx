@@ -26,16 +26,12 @@ export function Footer() {
             <h3 className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-6">Product</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <a
-                  href="#product-demo"
-                  className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById('product-demo')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                <Link
+                  href="/auth"
+                  className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200"
                 >
-                  Demo
-                </a>
+                  Try VRIN
+                </Link>
               </li>
               <li>
                 <a

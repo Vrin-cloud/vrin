@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     // Memory & context (legacy + related)
     "AI memory", "AI context", "persistent AI memory", "context orchestration",
     "LLM memory", "AI memory for enterprise", "context management AI",
-    // RAG & search
-    "hybrid RAG", "retrieval augmented generation", "enterprise RAG", "AI search engine",
-    "semantic search AI", "intelligent search", "AI-powered search",
+    // Knowledge & search
+    "knowledge reasoning infrastructure", "enterprise knowledge infrastructure", "AI search engine",
+    "semantic search AI", "intelligent search", "AI-powered search", "traceable AI answers",
     // Enterprise & business
     "enterprise AI", "business intelligence AI", "corporate knowledge management",
     "AI for enterprises", "enterprise knowledge graph", "business AI reasoning",

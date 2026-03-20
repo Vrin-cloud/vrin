@@ -22,8 +22,8 @@ const features = [
   },
   {
     icon: Zap,
-    title: "HybridRAG Routing",
-    description: "Intelligent query analysis routes to optimal path: vector search for similarity, graph traversal for reasoning."
+    title: "Gets Smarter With Every Query",
+    description: "VRIN learns which retrieval strategies work best for your knowledge base. The more your team uses it, the more accurate and faster it becomes."
   },
   {
     icon: Shield,

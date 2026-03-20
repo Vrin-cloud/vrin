@@ -78,7 +78,7 @@ export default function ChatWidget({ organizationName }: ChatWidgetProps) {
       <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-4 h-4" />
-          <span>Powered by VRIN Hybrid RAG</span>
+          <span>Powered by VRIN Knowledge Reasoning</span>
         </div>
         <span>Real-time streaming responses</span>
       </div>

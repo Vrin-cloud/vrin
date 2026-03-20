@@ -104,13 +104,13 @@ export function ModernDocumentationSection({ standalone = false }: ModernDocumen
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">VRIN API Documentation</h2>
             <p className="text-xl text-gray-600 mb-6">
-              Build intelligent applications with the VRIN Hybrid RAG engine v0.8.0 - featuring multi-hop constraint solver, temporal fact consistency, conversation state, and expert-level analysis.
+              Build intelligent applications with the VRIN knowledge reasoning engine v0.8.0 - featuring multi-hop reasoning, temporal fact consistency, conversation state, and expert-level analysis.
             </p>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white p-6 shadow-sm">
                 <Zap className="w-6 h-6 text-gray-700 mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Hybrid RAG</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Deep Reasoning</h3>
                 <p className="text-gray-600 text-sm">
                   Combines the best of vector and graph-based retrieval for superior accuracy and context understanding.
                 </p>
@@ -484,7 +484,7 @@ if register_result['success']:
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">API Reference</h2>
             <p className="text-gray-600 mb-6">
-              Complete reference for the VRIN Hybrid RAG API endpoints with examples and response formats.
+              Complete reference for the VRIN API endpoints with examples and response formats.
             </p>
           </div>
 
@@ -904,7 +904,7 @@ response = client.query("What are the strategic risks in this M&A transaction?")
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Examples & Use Cases</h2>
             <p className="text-gray-600 mb-6">
-              Real-world examples showing how to build powerful applications with VRIN&apos;s Hybrid RAG engine.
+              Real-world examples showing how to build powerful applications with VRIN&apos;s knowledge reasoning engine.
             </p>
           </div>
 

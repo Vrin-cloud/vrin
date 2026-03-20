@@ -121,7 +121,7 @@ export function HeroSection() {
 
                 {/* Subheadline - Refined typography */}
                 <p className="text-base md:text-lg text-vrin-charcoal/60 dark:text-vrin-cream/60 font-normal mt-6 max-w-xl">
-                  HybridRAG retrieval with multi-hop reasoning and per-claim citations
+                  The knowledge infrastructure layer that enables deep reasoning across your documents &amp; apps for any AI model
                 </p>
               </div>
 

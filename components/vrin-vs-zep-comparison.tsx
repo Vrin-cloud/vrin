@@ -22,8 +22,8 @@ export function VrinVsZepComparison() {
     {
       feature: "Retrieval Architecture",
       vrin: {
-        value: "Hybrid RAG (Dense + Sparse)",
-        advantage: "450x faster than traditional RAG",
+        value: "Multi-Strategy (Graph + Vector)",
+        advantage: "450x faster than traditional search",
         icon: Zap,
         color: "text-green-600"
       },
@@ -309,7 +309,7 @@ export function VrinVsZepComparison() {
                   <Zap className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h4 className="font-semibold text-gray-900 mb-2">Technical Superiority</h4>
                   <p className="text-sm text-gray-600">
-                    450x faster retrieval with hybrid RAG architecture
+                    450x faster retrieval with multi-strategy reasoning
                   </p>
                 </div>
                 <ArrowRight className="h-6 w-6 text-gray-400 mx-auto rotate-90 lg:rotate-0" />

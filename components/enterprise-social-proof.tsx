@@ -47,7 +47,7 @@ export function EnterpriseSocialProof() {
       company: "Enterprise SaaS Platform",
       industry: "Technology",
       challenge: "Scaling AI agents across 10M+ users",
-      solution: "Vrin's hybrid RAG architecture",
+      solution: "Vrin's knowledge reasoning infrastructure",
       results: [
         "10M+ concurrent user sessions",
         "450x faster than traditional RAG",

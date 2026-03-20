@@ -142,7 +142,7 @@ export default function Circular3DCarousel() {
           </h2>
 
           <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed">
-            VRIN&apos;s HybridRAG architecture transforms fragmented information into persistent, intelligent memory.
+            VRIN&apos;s knowledge reasoning engine transforms fragmented information into persistent, intelligent memory.
           </p>
         </motion.div>
 

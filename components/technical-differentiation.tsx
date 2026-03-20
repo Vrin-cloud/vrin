@@ -21,9 +21,9 @@ export function TechnicalDifferentiation() {
   const vrinAdvantages = [
     {
       icon: Zap,
-      title: "Hybrid RAG Architecture",
-      description: "Combines dense and sparse retrieval for optimal performance",
-      benefit: "450x faster than traditional RAG",
+      title: "Multi-Strategy Retrieval",
+      description: "Combines knowledge graph traversal with vector search for deep reasoning",
+      benefit: "450x faster than traditional search",
       color: "text-orange-600"
     },
     {
@@ -52,7 +52,7 @@ export function TechnicalDifferentiation() {
   const comparisonTable = [
     {
       feature: "Retrieval Architecture",
-      vrin: "Hybrid RAG (Dense + Sparse)",
+      vrin: "Multi-Strategy (Graph + Vector)",
       competitor: "Traditional RAG",
       advantage: "450x faster retrieval"
     },
@@ -258,7 +258,7 @@ export function TechnicalDifferentiation() {
               <div className="text-center">
                 <div className="bg-white rounded-xl p-6 border border-gray-200 mb-4">
                   <Brain className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                  <h4 className="font-semibold text-gray-900 mb-2">Hybrid RAG Engine</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">Knowledge Reasoning Engine</h4>
                   <p className="text-sm text-gray-600">
                     Dense + Sparse retrieval with conflict resolution
                   </p>

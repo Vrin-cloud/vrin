@@ -105,7 +105,7 @@ export default function ProductSection() {
             variants={itemVariants}
             className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed"
           >
-            A <span className="font-semibold text-blue-600">HybridRAG context & memory layer</span> that routes across graph/vector, 
+            A <span className="font-semibold text-blue-600">knowledge reasoning layer</span> that routes across graph and vector retrieval,
             writes typed facts with provenance, and composes domain-specific reasoning via user specializations.
           </motion.p>
         </motion.div>
