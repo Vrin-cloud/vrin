@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans"
 import { Manrope } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/providers"
+import { Analytics } from "@vercel/analytics/next"
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -271,6 +272,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   )
