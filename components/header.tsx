@@ -41,22 +41,22 @@ const menuItems = {
         items: [
           { label: "Blog", href: "/blog", icon: FileText, description: "Engineering & research insights" },
           { label: "Documentation", href: "/docs", icon: BookOpen, description: "API reference and guides" },
-          { label: "Benchmarks", href: "/blog/the-reasoning-gap", icon: BarChart3, description: "Performance comparisons" },
+          { label: "Benchmarks", href: "/blog/benchmark-results-multihop-musique", icon: BarChart3, description: "95.1% MultiHop-RAG, 28% better than SOTA" },
         ]
       }
     ],
     featured: {
-      title: "LATEST POST",
-      label: "95.1% on MultiHop-RAG",
-      description: "16.2pp better than GPT 5.2 on cross-document reasoning",
-      href: "/blog/the-reasoning-gap",
+      title: "LATEST RESEARCH",
+      label: "95.1% on MultiHop-RAG, +28% on MuSiQue",
+      description: "Benchmark results: how graph-based reasoning outperforms vector search",
+      href: "/blog/benchmark-results-multihop-musique",
       hasVideo: false
     }
   },
-  enterprise: {
-    label: "Enterprise",
+  forAgents: {
+    label: "For AI Agents",
     hasDropdown: false,
-    href: "/enterprise"
+    href: "/for-agents"
   },
   pricing: {
     label: "Pricing",
@@ -438,17 +438,6 @@ export function Header() {
 
             {/* Direct Links */}
             <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
-              <Link
-                href="/enterprise"
-                className={`block text-base font-normal py-2 transition-colors ${
-                  isScrolled
-                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
-                    : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Enterprise
-              </Link>
               <Link
                 href="/#pricing"
                 className={`block text-base font-normal py-2 transition-colors ${

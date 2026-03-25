@@ -20,8 +20,10 @@ export function HeroSection() {
 
   const rotatingTexts = [
     "your Data",
+    "your Agents",
     "your Product",
     "your Team",
+    "your Platform",
     "Sales",
     "Engineering",
     "Finance",
@@ -29,8 +31,7 @@ export function HeroSection() {
     "Marketing",
     "Operations",
     "Legal",
-    "HR",
-    "Customer Success",
+    "your Customers",
     "Analytics",
     "Security",
     "Research"
@@ -121,7 +122,7 @@ export function HeroSection() {
 
                 {/* Subheadline - Refined typography */}
                 <p className="text-base md:text-lg text-vrin-charcoal/60 dark:text-vrin-cream/60 font-normal mt-6 max-w-xl">
-                  The knowledge infrastructure layer that enables deep reasoning across your documents &amp; apps for any AI model
+                  The knowledge infrastructure layer that enables deep reasoning across your documents &amp; apps, for your teams and your AI agents
                 </p>
               </div>
 

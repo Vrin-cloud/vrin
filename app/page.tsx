@@ -13,6 +13,7 @@ import { StickyNavChallengeSection } from "@/components/sticky-nav-challenge-sec
 import { CoreFeatures } from "@/components/core-features"
 import { AnnouncementBar } from "@/components/announcement-bar"
 import { HowVrinWorks } from "@/components/how-vrin-works"
+import { ForAgentsSection } from "@/components/for-agents-section"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -56,8 +57,7 @@ export default function Home() {
               How Vrin Learns & Reasons
             </h2>
             <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-3xl mx-auto">
-              Two pipelines, one unified knowledge engine. Documents are structured into an enterprise knowledge graph,
-              then queries are reasoned over — not just searched.
+              Every document becomes structured knowledge. Every question gets reasoned answers with sources.
             </p>
           </div>
 
@@ -75,6 +75,9 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* For AI Agent Builders */}
+      <ForAgentsSection />
 
       {/* Pricing Section */}
       <PricingSection openContactForm={openContactForm} />

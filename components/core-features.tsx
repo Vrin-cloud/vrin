@@ -3,17 +3,18 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Database, Network, Brain, Zap, Shield, GitBranch } from 'lucide-react';
+import Image from 'next/image';
 
 const features = [
   {
     icon: Database,
-    title: "Facts-First Memory",
-    description: "Knowledge graphs that store facts with provenance, not just embeddings. Build institutional memory that compounds over time."
+    title: "Facts-First Reasoning",
+    description: "Knowledge graphs that store facts with provenance, not just embeddings. Build institutional knowledge that compounds over time."
   },
   {
     icon: Network,
     title: "Multi-Hop Reasoning",
-    description: "Constraint-solver engine that traces relationships across documents and time to answer complex 'why' questions."
+    description: "Reasoning engine that traces relationships across documents and time to answer complex 'why' questions."
   },
   {
     icon: Brain,
@@ -23,7 +24,7 @@ const features = [
   {
     icon: Zap,
     title: "Gets Smarter With Every Query",
-    description: "VRIN learns which retrieval strategies work best for your knowledge base. The more your team uses it, the more accurate and faster it becomes."
+    description: "Vrin learns which retrieval strategies work best for your knowledge base. The more your team uses it, the more accurate and faster it becomes."
   },
   {
     icon: Shield,
@@ -87,6 +88,38 @@ export function CoreFeatures() {
           <p className="text-base text-[#FFFFFF]/70 font-normal leading-relaxed max-w-2xl mx-auto">
             Teams choose VRIN because it transforms AI from forgetful assistants into expert systems with persistent memory and deep reasoning.
           </p>
+        </motion.div>
+
+        {/* Works With — LLM Provider Logos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-16 max-w-4xl mx-auto"
+        >
+          <p className="text-center text-xs font-medium uppercase tracking-widest text-[#FFFFFF]/40 mb-8">
+            Works with
+          </p>
+          <div className="flex items-center justify-center gap-10 flex-wrap">
+            {[
+              { name: "OpenAI", file: "openai.svg" },
+              { name: "Anthropic", file: "anthropic.svg" },
+              { name: "Google", file: "google.svg" },
+
+              { name: "Mistral", file: "mistral.svg" },
+              { name: "xAI", file: "xai.svg" },
+            ].map((provider) => (
+              <div key={provider.name} className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <Image
+                  src={`/llm-providers/${provider.file}`}
+                  alt={provider.name}
+                  width={100}
+                  height={32}
+                  className="h-7 w-auto object-contain brightness-0 invert"
+                />
+              </div>
+            ))}
+          </div>
         </motion.div>
 
         {/* Features Grid */}

@@ -91,7 +91,7 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-[#FFFFFF]/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-6 text-sm text-[#FFFFFF]/50">
-            <span>© 2025 Vrin. All rights reserved.</span>
+            <span>© 2026 Vrin. All rights reserved.</span>
           </div>
 
           <div className="flex items-center gap-3 text-sm text-[#FFFFFF]/50">

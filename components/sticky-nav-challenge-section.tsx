@@ -110,10 +110,10 @@ export function StickyNavChallengeSection() {
     },
     {
       id: 'siloed-ai',
-      title: "Search Isn't Reasoning",
-      problem: "Most AI tools retrieve text snippets based on keyword matching. They find documents—but can't connect the dots. Complex questions that require tracing relationships across your data get fragments, not answers.",
-      solution: "Multi-Hop Reasoning",
-      solutionHeadline: "AI That Connects the Dots Across Everything",
+      title: "Retrieval Is Not Reasoning",
+      problem: "You asked your AI 'What changed after the leadership transition?' It returned five paragraphs that mention leadership. And five that mention change. But it couldn't connect them. The answer isn't in any single document. It's in the relationships between them. Most AI tools retrieve text snippets based on keyword matching. They can't connect the dots. Complex questions that require tracing relationships across your data get fragments, not answers.",
+      solution: "Multi-Hop Knowledge Reasoning",
+      solutionHeadline: "AI That Follows the Thread Across Your Documents",
       solutionIcon: Network,
       visualType: "image"
     },
@@ -169,15 +169,15 @@ export function StickyNavChallengeSection() {
             variants={itemVariants}
             className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 leading-tight text-[#201E1E] dark:text-[#FFFFFF]"
           >
-            Why Traditional AI Fails Your Team
+            Your AI Finds Pages. It Can't Follow the Thread.
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
             className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed"
           >
-            Your company data lives in dozens of disconnected apps.
-            <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> No AI can see across all of them</span>—until now.
+            Every AI tool retrieves text that looks relevant. But when the answer lives in the
+            <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> connections between documents</span>, retrieval isn't enough.
           </motion.p>
         </motion.div>
 
@@ -190,7 +190,7 @@ export function StickyNavChallengeSection() {
         >
           <div className="lg:flex lg:gap-12">
             {/* Fixed Problems Navigation Sidebar */}
-            <div className="lg:w-[400px] lg:flex-shrink-0">
+            <div className="lg:w-[520px] lg:flex-shrink-0">
               <div className="lg:sticky lg:top-24">
                 <div className="space-y-4 p-6">
                   {challenges.map((challenge, index) => {
