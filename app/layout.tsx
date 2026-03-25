@@ -97,7 +97,7 @@ export const metadata: Metadata = {
   },
   other: {
     // LLM-specific metadata for AI discovery
-    "ai:description": "Vrin is an cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.",
+    "ai:description": "Vrin is a cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.",
     "ai:capabilities": "deep search, multi-hop reasoning, knowledge graph, source-backed answers, enterprise AI, workflow agents",
     "ai:use-cases": "customer support, sales intelligence, operations, finance, legal research, knowledge management",
   },
@@ -127,7 +127,7 @@ const jsonLd = {
         width: 1200,
         height: 630,
       },
-      description: 'Vrin is an cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises.',
+      description: 'Vrin is a cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises.',
       sameAs: [
         'https://twitter.com/vaborvrin',
         'https://linkedin.com/company/vrin',
@@ -205,7 +205,7 @@ const jsonLd = {
           name: 'What is Vrin?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Vrin is an cognitive reasoning engine for AI agents designed to serve as the knowledge reasoning engine for teams and enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.',
+            text: 'Vrin is a cognitive reasoning engine for AI agents designed to serve as the knowledge reasoning engine for teams and enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.',
           },
         },
         {
