@@ -169,7 +169,7 @@ export function StickyNavChallengeSection() {
             variants={itemVariants}
             className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 leading-tight text-[#201E1E] dark:text-[#FFFFFF]"
           >
-            Your AI Finds Pages. It Can't Follow the Thread.
+            Your AI Finds Pages. It Can&apos;t Follow the Thread.
           </motion.h2>
 
           <motion.p
@@ -177,7 +177,7 @@ export function StickyNavChallengeSection() {
             className="text-base md:text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal leading-relaxed"
           >
             Every AI tool retrieves text that looks relevant. But when the answer lives in the
-            <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> connections between documents</span>, retrieval isn't enough.
+            <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]"> connections between documents</span>, retrieval isn&apos;t enough.
           </motion.p>
         </motion.div>
 

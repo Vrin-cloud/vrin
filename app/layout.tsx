@@ -13,10 +13,10 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vrin.cloud'),
   title: {
-    default: "Vrin - AI Deep Search & Reasoning Engine for Enterprise",
+    default: "Vrin - Cognitive Reasoning for AI Agents",
     template: "%s | Vrin"
   },
-  description: "Vrin is the Cognitive Reasoning Core for teams & enterprises. Our AI Deep Search engine structures siloed data into entity-centric Knowledge Graphs, enabling multi-hop reasoning and cross-document insights with source-backed answers.",
+  description: "Vrin is the knowledge reasoning engine for teams & enterprises. Our knowledge reasoning engine enables deep reasoning across your documents and apps, for your teams and your AI agents.",
   keywords: [
     // Primary positioning
     "AI deep search", "AI reasoning engine", "cognitive reasoning core", "enterprise AI search",
@@ -52,8 +52,8 @@ export const metadata: Metadata = {
   category: "Technology",
   classification: "Enterprise AI Software",
   openGraph: {
-    title: "Vrin - AI Deep Search & Reasoning Engine for Enterprise",
-    description: "The Cognitive Reasoning Core for teams & enterprises. Structure siloed data into Knowledge Graphs, enable multi-hop reasoning, and get source-backed answers across all your company's data.",
+    title: "Vrin - Cognitive Reasoning for AI Agents",
+    description: "The knowledge reasoning engine for teams & enterprises. Structure siloed data into Knowledge Graphs, enable multi-hop reasoning, and get source-backed answers across all your company's data.",
     url: "https://www.vrin.cloud",
     siteName: "Vrin",
     images: [
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Vrin - AI Deep Search & Reasoning Engine",
+        alt: "Vrin - Cognitive Reasoning for AI Agents",
       },
     ],
     locale: "en_US",
@@ -69,8 +69,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vrin - AI Deep Search & Reasoning Engine",
-    description: "The Cognitive Reasoning Core for enterprise. Multi-hop reasoning over your company's knowledge with source-backed answers.",
+    title: "Vrin - Cognitive Reasoning for AI Agents",
+    description: "The knowledge reasoning engine for enterprise. Multi-hop reasoning over your company's knowledge with source-backed answers.",
     images: ["/og-image.png"],
     creator: "@vaborvrin",
     site: "@vaborvrin",
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
   },
   other: {
     // LLM-specific metadata for AI discovery
-    "ai:description": "Vrin is an AI Deep Search and Reasoning Engine that serves as the Cognitive Reasoning Core for enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.",
+    "ai:description": "Vrin is an cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.",
     "ai:capabilities": "deep search, multi-hop reasoning, knowledge graph, source-backed answers, enterprise AI, workflow agents",
     "ai:use-cases": "customer support, sales intelligence, operations, finance, legal research, knowledge management",
   },
@@ -127,7 +127,7 @@ const jsonLd = {
         width: 1200,
         height: 630,
       },
-      description: 'Vrin is an AI Deep Search and Reasoning Engine that serves as the Cognitive Reasoning Core for enterprises.',
+      description: 'Vrin is an cognitive reasoning engine for AI agents that serves as the knowledge reasoning engine for enterprises.',
       sameAs: [
         'https://twitter.com/vaborvrin',
         'https://linkedin.com/company/vrin',
@@ -147,7 +147,7 @@ const jsonLd = {
       '@id': 'https://www.vrin.cloud/#website',
       url: 'https://www.vrin.cloud',
       name: 'Vrin',
-      description: 'AI Deep Search & Reasoning Engine for Enterprise',
+      description: 'Cognitive Reasoning for AI Agents',
       publisher: {
         '@id': 'https://www.vrin.cloud/#organization',
       },
@@ -167,7 +167,7 @@ const jsonLd = {
       applicationCategory: 'BusinessApplication',
       applicationSubCategory: 'Enterprise AI Software',
       operatingSystem: 'Web-based, Cloud',
-      description: 'AI Deep Search and Reasoning Engine - The Cognitive Reasoning Core for teams & enterprises. Structures siloed data into entity-centric Knowledge Graphs enabling multi-hop reasoning and cross-document insights.',
+      description: 'cognitive reasoning engine for AI agents - The knowledge reasoning engine for teams & enterprises. Structures siloed data into entity-centric Knowledge Graphs enabling multi-hop reasoning and cross-document insights.',
       offers: {
         '@type': 'Offer',
         price: '0',
@@ -175,7 +175,7 @@ const jsonLd = {
         description: 'Free tier available, enterprise plans available',
       },
       featureList: [
-        'AI Deep Search across enterprise data',
+        'Cognitive reasoning across enterprise data',
         'Multi-hop reasoning over Knowledge Graphs',
         'Entity-centric data structuring',
         'Cross-document insights synthesis',
@@ -205,7 +205,7 @@ const jsonLd = {
           name: 'What is Vrin?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Vrin is an AI Deep Search and Reasoning Engine designed to serve as the Cognitive Reasoning Core for teams and enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.',
+            text: 'Vrin is an cognitive reasoning engine for AI agents designed to serve as the knowledge reasoning engine for teams and enterprises. It structures siloed company data into entity-centric Knowledge Graphs to enable multi-hop reasoning and cross-document insights.',
           },
         },
         {

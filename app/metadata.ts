@@ -4,13 +4,13 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vrin.cloud'),
   title: {
-    default: "Vrin - AI Deep Search & Reasoning Engine for Enterprise",
+    default: "Vrin - Cognitive Reasoning for AI Agents",
     template: "%s | Vrin"
   },
-  description: "Vrin is the Cognitive Reasoning Core for teams & enterprises. Our AI Deep Search engine structures siloed data into entity-centric Knowledge Graphs, enabling multi-hop reasoning and cross-document insights with source-backed answers.",
+  description: "Vrin is the knowledge reasoning engine for teams & enterprises. Our knowledge reasoning engine enables deep reasoning across your documents and apps, for your teams and your AI agents.",
   keywords: [
     // Primary positioning
-    "AI deep search", "AI reasoning engine", "cognitive reasoning core", "enterprise AI search",
+    "cognitive reasoning for AI agents", "AI reasoning engine", "knowledge reasoning engine", "reasoning for AI agents",
     "AI knowledge graph", "multi-hop reasoning", "cross-document reasoning",
     // Memory & context (legacy + related)
     "AI memory", "AI context", "persistent AI memory", "context orchestration",
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   creator: "Vrin",
   publisher: "Vrin",
   openGraph: {
-    title: "Vrin - AI Deep Search & Reasoning Engine for Enterprise",
-    description: "The Cognitive Reasoning Core for teams & enterprises. Structure siloed data into Knowledge Graphs, enable multi-hop reasoning, and get source-backed answers.",
+    title: "Vrin - Cognitive Reasoning for AI Agents",
+    description: "The knowledge reasoning engine for teams & enterprises. Structure siloed data into Knowledge Graphs, enable multi-hop reasoning, and get source-backed answers.",
     url: "https://www.vrin.cloud",
     siteName: "Vrin",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Vrin - AI Deep Search & Reasoning Engine",
+        alt: "Vrin - Cognitive Reasoning for AI Agents",
       },
     ],
     locale: "en_US",
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vrin - AI Deep Search & Reasoning Engine",
-    description: "The Cognitive Reasoning Core for enterprise. Multi-hop reasoning over your company's knowledge with source-backed answers.",
+    title: "Vrin - Cognitive Reasoning for AI Agents",
+    description: "The knowledge reasoning engine for enterprise. Multi-hop reasoning over your company's knowledge with source-backed answers.",
     images: ["/og-image.png"],
     creator: "@vaborvrin",
   },
@@ -67,7 +67,7 @@ export const viewport = {
 export function generateCustomerSupportMetadata(): Metadata {
   return {
     title: "AI for Customer Support | Vrin",
-    description: "Resolve complex tickets faster with Vrin's AI Deep Search. Bring evidence-backed context into every ticket, draft customer-ready replies, and trigger workflow agents for follow-ups.",
+    description: "Resolve complex tickets faster with Vrin's knowledge reasoning. Bring evidence-backed context into every ticket, draft customer-ready replies, and trigger workflow agents for follow-ups.",
     keywords: [
       "AI for customer support", "AI support agent", "customer support AI", "support ticket AI",
       "Zendesk AI", "Intercom AI", "helpdesk AI", "AI ticket resolution",
