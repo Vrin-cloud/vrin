@@ -19,22 +19,15 @@ export function HeroSection() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
   const rotatingTexts = [
-    "your Data",
-    "your Agents",
-    "your Product",
-    "your Team",
-    "your Platform",
-    "Sales",
-    "Engineering",
-    "Finance",
-    "Support",
-    "Marketing",
-    "Operations",
-    "Legal",
-    "your Customers",
-    "Analytics",
-    "Security",
-    "Research"
+    "AI Agents",
+    "Strategy Consulting",
+    "Investment Management",
+    "Clinical Medicine",
+    "Corporate Law",
+    "Product Teams",
+    "Scientific R&D",
+    "Complex Engineering",
+    "Supply Chain Operations"
   ];
 
   useEffect(() => {
@@ -103,7 +96,7 @@ export function HeroSection() {
               {/* Main Headline with Rotating Text - Elegant Typography */}
               <div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight">
-                  <span className="text-vrin-charcoal dark:text-vrin-cream">AI Deep Reasoning</span>
+                  <span className="text-vrin-charcoal dark:text-vrin-cream">Knowledge Reasoning</span>
                   <br />
                   <span className="text-vrin-charcoal dark:text-vrin-cream">for </span>
                   <AnimatePresence mode="wait">

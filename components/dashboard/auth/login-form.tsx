@@ -122,7 +122,7 @@ export function LoginForm() {
             />
           </div>
           <p className="text-gray-600 text-lg">
-            AI Deep Reasoning and Action Engine
+            Knowledge Reasoning for AI Agents
           </p>
         </motion.div>
       </div>

@@ -16,8 +16,7 @@ export function Footer() {
               </Link>
             </div>
             <p className="text-sm text-[#FFFFFF]/60 font-light leading-relaxed">
-              The first AI Deep Reasoning & Action Engine that never forgets.
-              Transform any AI from forgetful to brilliant.
+              Knowledge Reasoning Infrastructure for AI Agents.
             </p>
           </div>
 

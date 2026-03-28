@@ -244,7 +244,7 @@ export default function AuthContent() {
               />
             </div>
             <p className="text-gray-600 text-lg">
-              AI Deep Reasoning and Action Engine
+              Knowledge Reasoning for AI Agents
             </p>
           </motion.div>
         </div>
@@ -310,7 +310,7 @@ export default function AuthContent() {
             />
           </div>
           <p className="text-gray-600 text-lg">
-            AI Deep Reasoning and Action Engine
+            Knowledge Reasoning for AI Agents
           </p>
         </motion.div>
       </div>
@@ -341,7 +341,7 @@ export default function AuthContent() {
               />
             </div>
             <p className="text-gray-600">
-              AI Deep Reasoning and Action Engine
+              Knowledge Reasoning for AI Agents
             </p>
           </div>
 
