@@ -18,7 +18,7 @@ const blocks = [
   },
   {
     icon: Target,
-    title: "VRIN reasons about what context is needed before inference begins.",
+    title: "Vrin reasons about what context is needed before inference begins.",
     description: "Pre-inference context reasoning. Not retrieval. Not recall. A structured reasoning chain that gives the AI agent exactly what it needs to get the answer right."
   }
 ];
@@ -42,7 +42,7 @@ export function WhyVrinSection() {
             variant="outline"
             className="mb-6 px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#8DAA9D]/10 dark:bg-[#8DAA9D]/20 border-[#8DAA9D]/30 text-[#083C5E] dark:text-[#8DAA9D]"
           >
-            Why VRIN
+            Why Vrin
           </Badge>
           <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-[#FFFFFF]">
             The missing layer in your AI stack
