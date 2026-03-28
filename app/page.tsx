@@ -14,6 +14,7 @@ import { CoreFeatures } from "@/components/core-features"
 import { AnnouncementBar } from "@/components/announcement-bar"
 import { HowVrinWorks } from "@/components/how-vrin-works"
 import { ForAgentsSection } from "@/components/for-agents-section"
+import { WhyVrinSection } from "@/components/why-vrin-section"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -36,6 +37,9 @@ export default function Home() {
       
             {/* Enhanced Hero Section */}
       <HeroSection />
+
+      {/* Why VRIN — Explainer for cold visitors */}
+      <WhyVrinSection />
 
       {/* AI Memory Gap Problem Statement */}
       <StickyNavChallengeSection />
