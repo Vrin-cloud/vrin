@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -262,18 +263,12 @@ export default function PlaygroundPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Minimal header */}
       <header className="border-b border-white/10 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center">
           <Link href="/" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#8DAA9D]">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-              <path d="M12 6v12M6 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <Image src="/dark-icon.svg" alt="Vrin" width={28} height={28} />
             <span className="font-semibold">Vrin</span>
             <span className="text-white/40 mx-2">/</span>
             <span className="text-white/60">Playground</span>
-          </Link>
-          <Link href="/" className="text-sm text-white/50 hover:text-white transition-colors">
-            Back to vrin.cloud
           </Link>
         </div>
       </header>

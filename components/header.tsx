@@ -148,7 +148,7 @@ export function Header() {
       {/* Main header container */}
       <div
         className={`mx-auto transition-all duration-500 ${
-          isScrolled ? "max-w-4xl px-2" : "container"
+          isScrolled ? "max-w-5xl px-2" : "container"
         }`}
       >
         <div
@@ -255,7 +255,7 @@ export function Header() {
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div className={isScrolled ? "max-w-4xl mx-auto px-2" : "container"}>
+          <div className={isScrolled ? "max-w-5xl mx-auto px-2" : "container"}>
             <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10 overflow-hidden">
               {activeDropdown === 'industries' && (
                 <div className="grid grid-cols-3 gap-0">
