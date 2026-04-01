@@ -44,28 +44,9 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative py-20 md:py-28 overflow-hidden">
-      {/* Sophisticated Background - Warm cream with subtle texture */}
-      <div className="absolute inset-0 bg-vrin-cream dark:bg-vrin-charcoal" />
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]">
-        <svg width="100%" height="100%" className="absolute inset-0">
-          <defs>
-            <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path
-                d="M 60 0 L 0 0 0 60"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                className="text-vrin-charcoal dark:text-vrin-cream"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-      {/* Elegant gradient overlay with sage accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#8DAA9D]/5 dark:to-[#083C5E]/10" />
+    <section className="relative py-20 md:py-28 overflow-hidden rounded-b-[3rem] md:rounded-b-[4rem]">
+      {/* Clean white background */}
+      <div className="absolute inset-0 bg-[#FFFFFF] dark:bg-vrin-charcoal" />
 
       <div className="container relative z-10">
         <div className="max-w-7xl mx-auto">

@@ -15,7 +15,7 @@ import {
   MessageSquare,
   Send,
 } from "lucide-react"
-import { DEMO_QUERIES, type DemoQuery } from "@/lib/playground/demo-data"
+import { SCENARIOS, type DemoQuery, type DemoScenario } from "@/lib/playground/demo-data"
 import { QueryPanel } from "@/components/playground/query-panel"
 import { ResultPanel } from "@/components/playground/result-panel"
 import { StatsComparison } from "@/components/playground/stats-comparison"
@@ -57,6 +57,7 @@ export interface QueryResult {
 export type QueryState = "idle" | "loading" | "done" | "error"
 
 export default function PlaygroundPage() {
+  const [activeScenario, setActiveScenario] = useState<DemoScenario>(SCENARIOS[0])
   const [selectedQuery, setSelectedQuery] = useState<DemoQuery | null>(null)
   const [customQuery, setCustomQuery] = useState("")
   const [ragState, setRagState] = useState<QueryState>("idle")
@@ -284,16 +285,46 @@ export default function PlaygroundPage() {
           </h1>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
             Same question. Same documents. Different architecture.
-            Watch what happens when a query requires connecting facts across 6 documents.
+            Watch what happens when a query requires connecting facts across multiple documents.
           </p>
         </div>
       </section>
 
-      {/* Query Panel */}
+      {/* Scenario Selector + Query Panel */}
       <section className="px-6 pb-8">
         <div className="max-w-6xl mx-auto">
+          {/* Scenario tabs */}
+          <div className="flex gap-2 mb-6">
+            {SCENARIOS.map((scenario) => (
+              <button
+                key={scenario.id}
+                onClick={() => {
+                  if (scenario.id !== activeScenario.id && !isRunning) {
+                    setActiveScenario(scenario)
+                    setSelectedQuery(null)
+                    setCustomQuery("")
+                    setRagState("idle")
+                    setVrinState("idle")
+                    setRagResult(null)
+                    setVrinResult(null)
+                  }
+                }}
+                disabled={isRunning}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeScenario.id === scenario.id
+                    ? "bg-[#8DAA9D]/15 text-[#8DAA9D] border border-[#8DAA9D]/30"
+                    : "bg-white/[0.03] text-white/40 border border-white/10 hover:text-white/60 hover:border-white/20"
+                } ${isRunning ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                {scenario.name}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-xs text-white/30 mb-4">{activeScenario.description}</p>
+
           <QueryPanel
-            queries={DEMO_QUERIES}
+            queries={activeScenario.queries}
             selectedQuery={selectedQuery}
             customQuery={customQuery}
             onSelectQuery={handleDemoQuery}

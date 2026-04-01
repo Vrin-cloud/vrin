@@ -152,11 +152,18 @@ export function Header() {
         }`}
       >
         <div
-          className={`transition-all duration-500 ${
+          className={`transition-all duration-500 relative overflow-hidden ${
             isScrolled
-              ? "bg-[#64748B]/50 backdrop-blur-md rounded-full px-6 shadow-lg"
+              ? "rounded-full px-6 shadow-lg"
               : "bg-transparent"
           }`}
+          style={isScrolled ? {
+            backgroundImage: 'url(/assets/nav-bar-texture.svg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: 'rgba(120, 120, 120, 0.45)',
+            backdropFilter: 'blur(16px)',
+          } : undefined}
         >
           <div className={`flex items-center justify-between transition-all duration-500 ${
             isScrolled ? "h-14" : "h-20"
@@ -231,7 +238,6 @@ export function Header() {
                     Get Started
                   </Button>
                 </Link>
-                <ModeToggle />
               </div>
 
               <button
@@ -485,7 +491,6 @@ export function Header() {
                   Get Started
                 </Button>
               </Link>
-              <ModeToggle />
             </div>
           </div>
         </div>

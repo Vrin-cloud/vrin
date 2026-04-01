@@ -15,6 +15,7 @@ import { AnnouncementBar } from "@/components/announcement-bar"
 import { HowVrinWorks } from "@/components/how-vrin-works"
 import { ForAgentsSection } from "@/components/for-agents-section"
 import { WhyVrinSection } from "@/components/why-vrin-section"
+import { VrinGlowText } from "@/components/vrin-glow-text"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -26,7 +27,7 @@ export default function Home() {
   }
   return (
     <div className="flex flex-col">
-      <AnimatedBackground />
+      {/* Pure white background */}
       <AnnouncementBar
         badge="New"
         message="See how Vrin resolves complex support tickets faster"
@@ -85,7 +86,10 @@ export default function Home() {
 
       {/* Pricing Section */}
       <PricingSection openContactForm={openContactForm} />
-      
+
+      {/* Vrin Glow Text */}
+      <VrinGlowText />
+
       <Footer />
       
       {/* Contact Form Popup */}

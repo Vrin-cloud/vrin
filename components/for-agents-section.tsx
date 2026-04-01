@@ -32,7 +32,7 @@ export function ForAgentsSection() {
   });
 
   return (
-    <section className="py-24 bg-[#201E1E] relative overflow-hidden">
+    <section className="py-24 bg-black relative overflow-hidden rounded-[3rem] md:rounded-[4rem]">
       {/* Subtle background accent */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#8DAA9D]/[0.03] to-transparent" />
 

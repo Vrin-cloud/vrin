@@ -50,17 +50,25 @@ export function WhyVrinSection() {
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Dark background that covers the full scrollable area */}
-      <div className="absolute inset-0 bg-[#201E1E]" />
+      {/* Dark background */}
+      <div className="absolute inset-0 rounded-[3rem] md:rounded-[4rem] bg-black" />
 
       <div className="relative h-[200vh]">
-        <div className="sticky top-0 h-screen flex items-center justify-center">
-          <div className="max-w-4xl mx-auto px-6 flex flex-col items-center">
+        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+          {/* Sphere image — fixed in sticky frame, bottom-left */}
+          <img
+            src="/background-images/vision-background.png"
+            alt=""
+            loading="eager"
+            className="absolute bottom-0 left-0 w-[55%] md:w-[40%] h-auto pointer-events-none rounded-bl-[3rem] md:rounded-bl-[4rem]"
+          />
+
+          <div className="relative max-w-xl ml-auto mr-[8%] md:mr-[12%] px-6 flex flex-col items-center">
             <span className="mb-10 text-xs font-medium tracking-widest uppercase text-[#8DAA9D]">
               Why Vrin
             </span>
 
-            <p className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed md:leading-relaxed lg:leading-relaxed tracking-tight text-center">
+            <p className="text-lg md:text-xl lg:text-2xl font-light leading-relaxed md:leading-relaxed lg:leading-relaxed tracking-tight text-center">
               {words.map((word, i) => {
                 const start = i / words.length;
                 const end = Math.min((i + 1) / words.length, 1);

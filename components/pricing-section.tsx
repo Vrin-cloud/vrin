@@ -105,7 +105,7 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
   }
 
   return (
-    <section id="pricing" className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
+    <section id="pricing" className="pt-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
       <div className="container">
         <div className="text-center max-w-4xl mx-auto mb-20">
           <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">

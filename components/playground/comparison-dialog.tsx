@@ -103,6 +103,54 @@ const QUERY_INSIGHTS: Record<string, {
       'Found the proposed policy fix (15% cap) that connects legal, finance, and customer success',
     ],
   },
+  // Banking Compliance scenario
+  'acme-edd-risk-rating': {
+    summary: 'Standard RAG found the Acme risk assessment showing the 40% volume increase. Vrin connected this to the internal BSA policy (which has a specific 30% EDD trigger) and FFIEC guidance requiring beneficial ownership reverification when ownership exceeds 25%.',
+    ragMissed: [
+      'Internal BSA policy 30% threshold trigger for mandatory EDD review',
+      'FFIEC beneficial ownership reverification requirement for ownership changes exceeding 25%',
+      'James Wu (new 60% owner) based in Vancouver, BC triggers high-risk geography considerations',
+      'The 5 business day BSA Officer review timeline under Margaret Chen',
+    ],
+    vrinFound: [
+      'Connected Acme 40% increase to the specific 30% policy threshold that mandates EDD',
+      'Traced ownership change to FFIEC beneficial ownership rules (25% threshold, Section 3.2)',
+      'Linked Vancouver BC geography to the policy high-risk jurisdiction trigger',
+    ],
+  },
+  'ai-model-compliance-gaps': {
+    summary: 'Standard RAG found the board report listing AI tools or the OCC guidance, but not both in context. Vrin cross-referenced all four regulatory frameworks to identify specific compliance gaps for each tool.',
+    ragMissed: [
+      'LendAssist overdue validation (Feb 2024) violates SR 11-7 annual requirement',
+      'BankBot meets the SR 11-7 definition of a "model" but was never classified as one',
+      'AlertPro thresholds stale since 2023 means structuring detection may be compromised',
+      'LendAssist adverse action codes may violate CFPB ECOA/Reg B specificity requirements',
+      'FFIEC technology risk standards apply to all three tools as examination targets',
+    ],
+    vrinFound: [
+      'Mapped each AI tool from the board report against specific SR 11-7 requirements',
+      'Connected the OCC exam finding (MRIA on LendAssist) to the remediation timeline gap',
+      'Linked BankBot customer guidance to CFPB fair lending implications',
+      'Found that AlertPro threshold staleness undermines BSA/AML monitoring effectiveness',
+    ],
+  },
+  'acme-sar-filing-decision': {
+    summary: 'Standard RAG found the Acme customer profile but could not connect it to the Global Trade Dynamics SAR typology. Vrin traced the pattern match across five documents to build a complete SAR filing recommendation with regulatory citations.',
+    ragMissed: [
+      'Global Trade Dynamics SAR typology: structured deposits followed by rapid international wires',
+      'Acme pattern similarity: transaction volume spike coinciding with new international wire activity',
+      'Internal BSA policy requires comparing new activity against prior SAR typologies (Section 6)',
+      'FFIEC structuring indicators specifically cite deposits designed to evade CTR requirements',
+      'FinCEN 30-day filing deadline from date of detection and narrative requirements',
+      'Margaret Chen must review within 5 business days per internal escalation procedures',
+    ],
+    vrinFound: [
+      'Matched Acme international wire pattern to the Global Trade Dynamics layering typology',
+      'Connected the ownership change + volume increase + new international payees as compounding risk indicators',
+      'Traced the complete decision chain: customer profile to prior SAR to policy triggers to FFIEC guidance to FinCEN filing requirements',
+      'Built the regulatory evidence chain needed for a defensible SAR filing decision',
+    ],
+  },
 }
 
 export function ComparisonDialog({

@@ -45,7 +45,7 @@ export function CoreFeatures() {
   });
 
   return (
-    <section className="py-20 bg-[#201E1E] relative overflow-hidden">
+    <section className="py-20 bg-black relative overflow-hidden rounded-[3rem] md:rounded-[4rem]">
       {/* Sophisticated corner accents */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Corner dots */}

@@ -5,8 +5,8 @@ import Image from "next/image"
 
 export function Footer() {
   return (
-    <footer className="bg-[#201E1E] border-t border-[#FFFFFF]/10">
-      <div className="container py-20">
+    <footer className="px-2 md:px-3 pb-2 md:pb-3">
+      <div className="bg-black rounded-[2rem] md:rounded-[3rem] mx-auto px-8 md:px-16 py-20">
         <div className="grid md:grid-cols-4 gap-12">
           {/* Brand Section */}
           <div className="md:col-span-1">
@@ -15,8 +15,8 @@ export function Footer() {
                 <Image src="/dark-icon.svg" alt="Vrin" width={48} height={48} />
               </Link>
             </div>
-            <p className="text-sm text-[#FFFFFF]/60 font-light leading-relaxed">
-              Knowledge Reasoning Infrastructure for AI Agents.
+            <p className="text-sm text-white font-light leading-relaxed">
+              Knowledge Reasoning Infrastructure<br />for AI Agents.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/auth"
-                  className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200"
+                  className="text-white hover:text-[#8DAA9D] transition-colors duration-200"
                 >
                   Try VRIN
                 </Link>
@@ -35,7 +35,7 @@ export function Footer() {
               <li>
                 <a
                   href="#industries"
-                  className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
+                  className="text-white hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     document.getElementById('industries')?.scrollIntoView({ behavior: 'smooth' });
@@ -45,7 +45,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/dashboard" className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200">
+                <Link href="/dashboard" className="text-white hover:text-[#8DAA9D] transition-colors duration-200">
                   Dashboard
                 </Link>
               </li>
@@ -57,12 +57,12 @@ export function Footer() {
             <h3 className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-6">Platform</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="/auth" className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200">
+                <Link href="/auth" className="text-white hover:text-[#8DAA9D] transition-colors duration-200">
                   Get Started
                 </Link>
               </li>
               <li>
-                <Link href="/enterprise" className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200">
+                <Link href="/enterprise" className="text-white hover:text-[#8DAA9D] transition-colors duration-200">
                   Enterprise
                 </Link>
               </li>
@@ -78,7 +78,7 @@ export function Footer() {
                   href="https://calendly.com/vedant-vrin/15-minute-meeting"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#FFFFFF]/60 hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
+                  className="text-white hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"
                 >
                   Contact
                 </a>
