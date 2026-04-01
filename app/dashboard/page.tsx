@@ -429,7 +429,7 @@ export default function Dashboard() {
                   className="flex items-center flex-1"
                 >
                   <Image
-                    src="/og-image.png"
+                    src="/vrin-text-logo.png"
                     alt="VRiN"
                     width={80}
                     height={28}

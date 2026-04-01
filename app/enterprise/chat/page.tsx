@@ -448,7 +448,7 @@ export default function EnterpriseChatPage() {
             {(!isSidebarCollapsed || isMobileSidebarOpen) && (
               <div className="flex items-center gap-2">
                 <Image
-                  src="/og-image.png"
+                  src="/vrin-text-logo.png"
                   alt="VRIN"
                   width={80}
                   height={28}

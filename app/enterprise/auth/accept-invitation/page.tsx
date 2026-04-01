@@ -227,7 +227,7 @@ function AcceptInvitationContent() {
       >
         <div className="text-center mb-8">
           <Image
-            src="/og-image.png"
+            src="/vrin-text-logo.png"
             alt="VRiN"
             width={120}
             height={42}

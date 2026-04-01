@@ -808,7 +808,7 @@ export default function ChatPage() {
                 <>
                   <div className="flex flex-col gap-0.5">
                     <Image
-                      src="/og-image.png"
+                      src="/vrin-text-logo.png"
                       alt="VRIN"
                       width={80}
                       height={28}

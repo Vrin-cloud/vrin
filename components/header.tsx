@@ -179,7 +179,7 @@ export function Header() {
                   className="flex-shrink-0 transition-all duration-300 hidden dark:block"
                 />
                 <Image
-                  src="/og-image.png"
+                  src="/vrin-text-logo.png"
                   alt="VRiN"
                   width={isScrolled ? 70 : 85}
                   height={isScrolled ? 20 : 24}

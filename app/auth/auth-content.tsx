@@ -236,7 +236,7 @@ export default function AuthContent() {
                 unoptimized
               />
               <Image
-                src="/og-image.png"
+                src="/vrin-text-logo.png"
                 alt="VRiN"
                 width={160}
                 height={53}
@@ -302,7 +302,7 @@ export default function AuthContent() {
               unoptimized
             />
             <Image
-              src="/og-image.png"
+              src="/vrin-text-logo.png"
               alt="VRiN"
               width={160}
               height={53}
@@ -333,7 +333,7 @@ export default function AuthContent() {
                 unoptimized
               />
               <Image
-                src="/og-image.png"
+                src="/vrin-text-logo.png"
                 alt="VRiN"
                 width={120}
                 height={40}

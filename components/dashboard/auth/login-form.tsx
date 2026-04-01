@@ -114,7 +114,7 @@ export function LoginForm() {
               unoptimized
             />
             <Image
-              src="/og-image.png"
+              src="/vrin-text-logo.png"
               alt="VRiN"
               width={160}
               height={53}

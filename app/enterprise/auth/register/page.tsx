@@ -253,7 +253,7 @@ export default function EnterpriseRegisterPage() {
           >
             <div className="flex items-center justify-center gap-4 mb-6">
               <Image src={vrinIcon} alt="VRiN Icon" width={56} height={56} unoptimized />
-              <Image src="/og-image.png" alt="VRiN" width={160} height={53} priority />
+              <Image src="/vrin-text-logo.png" alt="VRiN" width={160} height={53} priority />
             </div>
             <p className="text-gray-600 text-lg">Enterprise Knowledge Platform</p>
           </motion.div>
@@ -290,7 +290,7 @@ export default function EnterpriseRegisterPage() {
         >
           <div className="flex items-center justify-center gap-4 mb-6">
             <Image src={vrinIcon} alt="VRiN Icon" width={56} height={56} unoptimized />
-            <Image src="/og-image.png" alt="VRiN" width={160} height={53} priority />
+            <Image src="/vrin-text-logo.png" alt="VRiN" width={160} height={53} priority />
           </div>
           <p className="text-gray-600 text-lg">Enterprise Knowledge Platform</p>
         </motion.div>
@@ -307,7 +307,7 @@ export default function EnterpriseRegisterPage() {
           <div className="lg:hidden text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Image src={vrinIcon} alt="VRiN" width={48} height={48} unoptimized />
-              <Image src="/og-image.png" alt="VRiN" width={120} height={40} priority />
+              <Image src="/vrin-text-logo.png" alt="VRiN" width={120} height={40} priority />
             </div>
             <p className="text-gray-600">Enterprise Knowledge Platform</p>
           </div>
