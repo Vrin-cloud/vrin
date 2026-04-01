@@ -58,6 +58,11 @@ const menuItems = {
     hasDropdown: false,
     href: "/for-agents"
   },
+  playground: {
+    label: "Playground",
+    hasDropdown: false,
+    href: "/playground"
+  },
   pricing: {
     label: "Pricing",
     hasDropdown: false,
@@ -438,6 +443,17 @@ export function Header() {
 
             {/* Direct Links */}
             <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+              <Link
+                href="/playground"
+                className={`block text-base font-normal py-2 transition-colors ${
+                  isScrolled
+                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
+                    : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Playground
+              </Link>
               <Link
                 href="/#pricing"
                 className={`block text-base font-normal py-2 transition-colors ${

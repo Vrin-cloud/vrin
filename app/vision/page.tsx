@@ -122,7 +122,7 @@ export default function VisionPage() {
               The reasoning layer<br />AI agents are missing
             </h1>
             <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light max-w-2xl mx-auto">
-              Pre-inference context reasoning. The overlooked layer between your data and your AI.
+              Context reasoning at the retrieval layer. The overlooked layer between your data and your AI.
             </p>
           </motion.div>
         </div>
@@ -136,7 +136,7 @@ export default function VisionPage() {
               The Problem
             </span>
             <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-8">
-              Pre-inference context reasoning is overlooked
+              Retrieval-time reasoning is overlooked
             </h2>
             <div className="space-y-6 text-lg text-[#201E1E]/70 dark:text-white/70 font-light leading-relaxed">
               <p>
@@ -208,7 +208,7 @@ export default function VisionPage() {
               What We&apos;re Building
             </span>
             <h2 className="text-3xl md:text-4xl font-light text-white mb-8">
-              Pre-inference context reasoning
+              Retrieval-time reasoning
             </h2>
             <div className="space-y-6 text-lg text-white/70 font-light leading-relaxed">
               <p>
@@ -356,7 +356,7 @@ export default function VisionPage() {
               Give your AI agents the ability to reason
             </h2>
             <p className="text-lg text-white/60 font-light mb-10 max-w-xl mx-auto">
-              Start free. See the difference pre-inference reasoning makes.
+              Start free. See the difference retrieval-time reasoning makes.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button

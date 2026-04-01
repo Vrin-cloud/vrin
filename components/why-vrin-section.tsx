@@ -11,7 +11,7 @@ const paragraph =
   "The bottleneck was never the model. It's what you feed it. " +
   "Most enterprise decisions require connecting insights across departments, timelines, and document types. " +
   "3+ hop reasoning that transformer architecture can't do natively and vector search doesn't even attempt. " +
-  "Vrin adds the missing layer: pre-inference context reasoning. " +
+  "Vrin adds the missing layer: context reasoning at the retrieval layer." +
   "Not retrieval. Not recall. " +
   "A structured reasoning chain that understands the crux of what you're asking, " +
   "pulls insights from domains you never mentioned, " +

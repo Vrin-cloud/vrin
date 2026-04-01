@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams, notFound } from "next/navigation"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -15,12 +16,63 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { AnimatedBackground } from "@/components/animated-background"
 import { getPostBySlug, getAllPosts } from "@/lib/blog/posts"
-import { Calendar, Clock, ArrowLeft, Share2, Twitter, Linkedin, Link as LinkIcon } from "lucide-react"
+import { Calendar, Clock, Share2, Twitter, Linkedin, Link as LinkIcon } from "lucide-react"
+
+// Extract h2 headings from markdown content for table of contents
+function extractHeadings(content: string): { id: string; text: string }[] {
+  const headingRegex = /^## (.+)$/gm
+  const headings: { id: string; text: string }[] = []
+  let match
+  while ((match = headingRegex.exec(content)) !== null) {
+    const text = match[1].replace(/\*\*/g, '').replace(/`/g, '').trim()
+    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    headings.push({ id, text })
+  }
+  return headings
+}
 
 export default function BlogPostPage() {
   const params = useParams()
   const slug = params?.slug as string
   const post = getPostBySlug(slug)
+  const [activeHeading, setActiveHeading] = useState<string>('')
+  const [showSidebars, setShowSidebars] = useState(true)
+
+  const headings = post ? extractHeadings(post.content) : []
+
+  // Track which heading is currently in view
+  useEffect(() => {
+    if (headings.length === 0) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveHeading(entry.target.id)
+          }
+        })
+      },
+      { rootMargin: '-80px 0px -70% 0px', threshold: 0 }
+    )
+    headings.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [headings])
+
+  // Hide sidebars when footer comes into view
+  useEffect(() => {
+    const handleScroll = () => {
+      const footer = document.querySelector('footer')
+      if (!footer) return
+      const rect = footer.getBoundingClientRect()
+      // Hide when footer top enters the viewport
+      setShowSidebars(rect.top > window.innerHeight)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   if (!post) {
     notFound()
@@ -43,86 +95,126 @@ export default function BlogPostPage() {
       <AnimatedBackground />
       <Header />
 
-      {/* Article Header */}
+      {/* Article Header — Center-aligned */}
       <article className="pt-32 pb-8 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-[680px]">
+        <div className="container max-w-[720px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="text-center"
           >
-            {/* Back Link */}
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Blog
-            </Link>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {post.tags.map(tag => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="text-xs bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 text-[#083C5E] dark:text-[#8DAA9D] border-0"
-                >
-                  {tag}
-                </Badge>
-              ))}
+            {/* Date + Category */}
+            <div className="flex items-center justify-center gap-3 text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50 mb-6">
+              <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span className="text-[#201E1E]/20 dark:text-[#FFFFFF]/20">|</span>
+              <span className="capitalize">{post.category}</span>
             </div>
 
-            {/* Title */}
+            {/* Title — center */}
             <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-medium tracking-tight mb-6 text-[#201E1E] dark:text-[#FFFFFF] leading-[1.1]">
               {post.title}
             </h1>
 
-            {/* Meta */}
-            <div className="flex flex-wrap items-center gap-6 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
-              <div className="flex items-center gap-3">
-                {post.author.avatar ? (
-                  <Image
-                    src={post.author.avatar}
-                    alt={post.author.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+            {/* Description — center */}
+            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto mb-8">
+              {post.description}
+            </p>
+
+            {/* Author — center */}
+            <div className="flex items-center justify-center gap-3 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+              {post.author.avatar ? (
+                <Image
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-[#083C5E] dark:text-[#8DAA9D] font-medium text-sm">
+                  {post.author.name.split(' ').map(n => n[0]).join('')}
+                </div>
+              )}
+              <div className="text-sm">
+                {post.author.linkedin ? (
+                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                    {post.author.name}
+                  </a>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-[#083C5E] dark:text-[#8DAA9D] font-medium">
-                    {post.author.name.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]">{post.author.name}</span>
                 )}
-                <div>
-                  {post.author.linkedin ? (
-                    <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
-                      {post.author.name}
-                    </a>
-                  ) : (
-                    <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF]">{post.author.name}</p>
-                  )}
-                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">{post.author.role}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  <span>{post.readingTime}</span>
-                </div>
+                <span className="text-[#201E1E]/40 dark:text-[#FFFFFF]/40 mx-2">·</span>
+                <span className="text-[#201E1E]/50 dark:text-[#FFFFFF]/50">{post.readingTime}</span>
               </div>
             </div>
           </motion.div>
         </div>
       </article>
 
-      {/* Article Content */}
-      <section className="py-12 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-[680px]">
+      {/* Article Content with Left Sidebar (Recent) + Right Sidebar (TOC) */}
+      <section id="article-content" className="py-12 bg-[#FFFFFF] dark:bg-[#201E1E]">
+        {/* Left sidebar — All Posts link + Recent posts, pinned to left edge */}
+        <div className={`hidden lg:block fixed left-8 top-32 w-48 z-10 transition-opacity duration-300 ${showSidebars ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <Link
+            href="/blog"
+            className="text-sm font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors mb-6 block"
+          >
+            ← All Posts
+          </Link>
+          <div className="mb-4">
+            <p className="text-xs font-medium uppercase tracking-widest text-[#201E1E]/40 dark:text-[#FFFFFF]/40 mb-3">Recent</p>
+            <ul className="space-y-3">
+              {getAllPosts()
+                .filter(p => p.slug !== slug)
+                .slice(0, 5)
+                .map(recentPost => (
+                  <li key={recentPost.slug}>
+                    <Link
+                      href={`/blog/${recentPost.slug}`}
+                      className={`block text-[13px] leading-snug transition-colors duration-200 ${
+                        recentPost.slug === slug
+                          ? 'text-[#201E1E] dark:text-[#FFFFFF] font-medium'
+                          : 'text-[#201E1E]/40 dark:text-[#FFFFFF]/40 hover:text-[#201E1E]/70 dark:hover:text-[#FFFFFF]/70'
+                      }`}
+                    >
+                      {recentPost.title.length > 50 ? recentPost.title.slice(0, 50) + '...' : recentPost.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Right sidebar — TOC, pinned to right edge */}
+        {headings.length > 2 && (
+          <div className={`hidden lg:block fixed right-8 top-32 w-48 z-10 transition-opacity duration-300 ${showSidebars ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <nav>
+              <ul className="space-y-3 border-l border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+                {headings.map(({ id, text }) => (
+                  <li key={id}>
+                    <a
+                      href={`#${id}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                      className={`block pl-4 text-[13px] leading-snug transition-colors duration-200 ${
+                        activeHeading === id
+                          ? 'text-[#201E1E] dark:text-[#FFFFFF] border-l-2 border-[#083C5E] dark:border-[#8DAA9D] -ml-px font-medium'
+                          : 'text-[#201E1E]/35 dark:text-[#FFFFFF]/35 hover:text-[#201E1E]/60 dark:hover:text-[#FFFFFF]/60'
+                      }`}
+                    >
+                      {text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        )}
+
+        <div id="article-prose" className="max-w-[860px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -150,6 +242,11 @@ export default function BlogPostPage() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                h2({ node, children, ...props }) {
+                  const text = String(children).replace(/\*\*/g, '').replace(/`/g, '').trim()
+                  const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+                  return <h2 id={id} {...props}>{children}</h2>
+                },
                 p({ node, children, ...props }) {
                   // If a paragraph contains only an image, render as div to avoid
                   // invalid <p><figure>...</figure></p> nesting
@@ -291,30 +388,11 @@ export default function BlogPostPage() {
                 )}
                 <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-3">{post.author.role}</p>
                 <p className="text-[#201E1E]/70 dark:text-[#FFFFFF]/70">
-                  Building the next generation of enterprise AI memory at VRIN. We believe in transparent research and open benchmarks.
+                  Building knowledge reasoning infrastructure for enterprise AI at VRIN. We believe in transparent research and open benchmarks.
                 </p>
               </div>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Related Posts */}
-      <section className="py-16 bg-[#201E1E]/5 dark:bg-[#FFFFFF]/5">
-        <div className="container max-w-[680px]">
-          <h2 className="text-2xl font-light mb-8 text-[#201E1E] dark:text-[#FFFFFF]">
-            More from VRIN
-          </h2>
-          <div className="text-center py-8">
-            <p className="text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-4">
-              More articles coming soon. Subscribe to get notified.
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/blog">
-                View all articles
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 

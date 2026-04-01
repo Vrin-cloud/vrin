@@ -59,9 +59,15 @@ export const metadata: Metadata = {
     siteName: "Vrin",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.vrin.cloud/og-image.png",
         width: 1200,
         height: 630,
+        alt: "Vrin - Cognitive Reasoning for AI Agents",
+      },
+      {
+        url: "https://www.vrin.cloud/og-image-square.png",
+        width: 400,
+        height: 400,
         alt: "Vrin - Cognitive Reasoning for AI Agents",
       },
     ],
@@ -72,7 +78,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vrin - Cognitive Reasoning for AI Agents",
     description: "The knowledge reasoning engine for enterprise. Multi-hop reasoning over your company's knowledge with source-backed answers.",
-    images: ["/og-image.png"],
+    images: ["https://www.vrin.cloud/og-image.png"],
     creator: "@vaborvrin",
     site: "@vaborvrin",
   },
