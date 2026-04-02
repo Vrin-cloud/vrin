@@ -55,15 +55,6 @@ export function ResultPanel({
           <h3 className="font-semibold text-white/90">{title}</h3>
           <p className="text-xs text-white/40">{subtitle}</p>
         </div>
-        {state === "done" && result?.searchTime && (
-          <Badge
-            variant="outline"
-            className="ml-auto text-xs"
-            style={{ color: accentColor, borderColor: `${accentColor}40` }}
-          >
-            {result.searchTime}
-          </Badge>
-        )}
       </div>
 
       {/* Progress / reasoning chain */}
@@ -254,7 +245,7 @@ export function ResultPanel({
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="w-3.5 h-3.5 text-red-400/60" />
                   <span className="text-xs text-white/50">
-                    Showing {Math.min(result.chunks.length, 10)} of {result.totalChunks} chunks retrieved by similarity
+                    Showing {Math.min(result.chunks.length, 10)} of {result.totalChunks} chunks retrieved by hybrid search + reranking
                   </span>
                 </div>
                 {result.chunks.length > 0 ? (

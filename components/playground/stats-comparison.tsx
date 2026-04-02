@@ -93,9 +93,9 @@ export function StatsComparison({
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard
-          label="Facts Connected"
+          label="Structured Facts Found"
           ragValue={ragResult ? String(ragResult.totalFacts) : "--"}
           vrinValue={vrinResult ? String(vrinResult.totalFacts) : "--"}
           ragLoading={ragLoading}
@@ -109,14 +109,7 @@ export function StatsComparison({
           }
         />
         <StatCard
-          label="Chunks Retrieved"
-          ragValue={ragResult ? String(ragResult.totalChunks) : "--"}
-          vrinValue={vrinResult ? String(vrinResult.totalChunks) : "--"}
-          ragLoading={ragLoading}
-          vrinLoading={vrinLoading}
-        />
-        <StatCard
-          label="Docs Connected"
+          label="Documents Reasoned Across"
           ragValue="0"
           vrinValue={
             vrinResult
@@ -128,11 +121,12 @@ export function StatsComparison({
           highlight="vrin"
         />
         <StatCard
-          label="Response Time"
-          ragValue={ragResult?.searchTime || "--"}
-          vrinValue={vrinResult?.searchTime || "--"}
+          label="Reasoning Depth"
+          ragValue="Single-pass"
+          vrinValue={vrinResult ? "Multi-step" : "--"}
           ragLoading={ragLoading}
           vrinLoading={vrinLoading}
+          highlight="vrin"
         />
       </div>
 

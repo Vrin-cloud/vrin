@@ -19,7 +19,7 @@ import { SCENARIOS, type DemoQuery, type DemoScenario } from "@/lib/playground/d
 import { QueryPanel } from "@/components/playground/query-panel"
 import { ResultPanel } from "@/components/playground/result-panel"
 import { StatsComparison } from "@/components/playground/stats-comparison"
-import { ComparisonDialog } from "@/components/playground/comparison-dialog"
+import { ComparisonInline } from "@/components/playground/comparison-inline"
 
 export interface ProgressStep {
   stage: string
@@ -52,6 +52,8 @@ export interface QueryResult {
   searchTime: string
   confidence?: number
   retrievalMode: string
+  contextTokens?: number
+  promptTokens?: number
 }
 
 export type QueryState = "idle" | "loading" | "done" | "error"
@@ -68,7 +70,6 @@ export default function PlaygroundPage() {
   const [vrinProgress, setVrinProgress] = useState<ProgressStep[]>([])
   const [ragStreamingAnswer, setRagStreamingAnswer] = useState("")
   const [vrinStreamingAnswer, setVrinStreamingAnswer] = useState("")
-  const [showComparison, setShowComparison] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const parseSSEStream = useCallback(
@@ -105,6 +106,7 @@ export default function PlaygroundPage() {
         let fullAnswer = ""
         let finalResult: any = null
         let metadataEvent: any = null
+        let doneEvent: any = null
         const startTime = Date.now()
 
         while (true) {
@@ -139,6 +141,8 @@ export default function PlaygroundPage() {
                 onAnswerChunk(fullAnswer)
               } else if (event.type === "metadata") {
                 metadataEvent = event.data
+              } else if (event.type === "done") {
+                doneEvent = event.data
               } else if (event.type === "complete" || event.type === "result") {
                 finalResult = event.data
               } else if (event.type === "error") {
@@ -174,6 +178,8 @@ export default function PlaygroundPage() {
               : `${((Date.now() - startTime) / 1000).toFixed(1)}s`),
           confidence: metadataEvent?.retrieval_confidence?.overall || finalResult?.confidence_score,
           retrievalMode,
+          contextTokens: doneEvent?.context_tokens || finalResult?.pipeline_trace?.context_tokens || metadataEvent?.pipeline_trace?.context_tokens,
+          promptTokens: doneEvent?.prompt_tokens || finalResult?.pipeline_trace?.prompt_tokens || metadataEvent?.pipeline_trace?.prompt_tokens,
         }
         onComplete(result)
       } catch (error: any) {
@@ -253,14 +259,6 @@ export default function PlaygroundPage() {
   const bothDone = ragState === "done" && vrinState === "done"
 
   return (
-    <>
-    <ComparisonDialog
-      isOpen={showComparison}
-      onClose={() => setShowComparison(false)}
-      selectedQuery={selectedQuery}
-      ragResult={ragResult}
-      vrinResult={vrinResult}
-    />
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Minimal header */}
       <header className="border-b border-white/10 px-6 py-4">
@@ -284,9 +282,37 @@ export default function PlaygroundPage() {
             See Why Retrieval Is Not Reasoning
           </h1>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
-            Same question. Same documents. Different architecture.
-            Watch what happens when a query requires connecting facts across multiple documents.
+            Simple lookups work fine with standard search. But when a question requires reasoning across
+            multiple documents, connecting facts that no single document contains, standard retrieval falls apart.
+            That&apos;s where Vrin starts.
           </p>
+
+          {/* Positioning statement */}
+          <div className="mt-8 max-w-2xl mx-auto px-6 py-4 rounded-xl bg-white/[0.02] border border-white/5">
+            <p className="text-sm text-white/50 leading-relaxed">
+              Vrin is not a better search engine. Standard RAG with hybrid BM25 and reranking handles
+              single-document lookups well. Vrin is built for the questions those systems cannot answer:
+              complex, strategic questions that require connecting evidence across departments, timelines,
+              and document types to reach a conclusion. The kind of thinking that takes a senior expert
+              hours of cross-referencing, delivered in seconds.
+            </p>
+          </div>
+
+          {/* Outcome cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto">
+            <div className="px-4 py-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-2xl font-bold text-[#8DAA9D]">One query</p>
+              <p className="text-xs text-white/40 mt-1">Gets the answer that takes 5 follow-up questions with standard RAG</p>
+            </div>
+            <div className="px-4 py-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-2xl font-bold text-[#8DAA9D]">Cross-document</p>
+              <p className="text-xs text-white/40 mt-1">Finds connections across documents that keyword search structurally cannot</p>
+            </div>
+            <div className="px-4 py-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-2xl font-bold text-[#8DAA9D]">Audit-ready</p>
+              <p className="text-xs text-white/40 mt-1">Names, deadlines, section references, and evidence chains in every answer</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -360,7 +386,7 @@ export default function PlaygroundPage() {
                   {/* Standard RAG */}
                   <ResultPanel
                     title="Standard RAG"
-                    subtitle="Vector similarity search"
+                    subtitle="Hybrid BM25 + vector search + reranking"
                     icon={<Search className="w-5 h-5" />}
                     accentColor="#ef4444"
                     state={ragState}
@@ -384,22 +410,13 @@ export default function PlaygroundPage() {
                   />
                 </div>
 
-                {/* "Why is Vrin better?" button — shown when both done for pre-loaded queries */}
+                {/* Inline comparison section — no click needed */}
                 {bothDone && selectedQuery && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-6 text-center"
-                  >
-                    <Button
-                      onClick={() => setShowComparison(true)}
-                      variant="outline"
-                      className="border-[#8DAA9D]/30 text-[#8DAA9D] hover:bg-[#8DAA9D]/10 px-6"
-                    >
-                      Why is Vrin&apos;s answer better?
-                    </Button>
-                  </motion.div>
+                  <ComparisonInline
+                    selectedQuery={selectedQuery}
+                    ragResult={ragResult}
+                    vrinResult={vrinResult}
+                  />
                 )}
               </div>
             </motion.section>
@@ -421,8 +438,8 @@ export default function PlaygroundPage() {
                 Start Free
               </Button>
             </Link>
-            <Link href="https://cal.com/vedant-patel-vrin/30min">
-              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6">
+            <Link href="https://calendly.com/vedant-vrin/15-minute-meeting">
+              <Button variant="outline" className="border-white/20 text-black bg-white hover:bg-white/90 px-6">
                 Talk to Us
               </Button>
             </Link>
@@ -430,6 +447,5 @@ export default function PlaygroundPage() {
         </div>
       </section>
     </div>
-    </>
   )
 }
