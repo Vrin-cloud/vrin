@@ -26,10 +26,10 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li>
                 <Link
-                  href="/auth"
+                  href="/waitlist"
                   className="text-white hover:text-[#8DAA9D] transition-colors duration-200"
                 >
-                  Try VRIN
+                  Join Waitlist
                 </Link>
               </li>
               <li>
@@ -57,8 +57,8 @@ export function Footer() {
             <h3 className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-6">Platform</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="/auth" className="text-white hover:text-[#8DAA9D] transition-colors duration-200">
-                  Get Started
+                <Link href="/waitlist" className="text-white hover:text-[#8DAA9D] transition-colors duration-200">
+                  Join Waitlist
                 </Link>
               </li>
               <li>
@@ -75,7 +75,7 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li>
                 <a
-                  href="https://calendly.com/vedant-vrin/15-minute-meeting"
+                  href="https://cal.com/vedant-vrin/book-a-demo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white hover:text-[#8DAA9D] transition-colors duration-200 cursor-pointer"

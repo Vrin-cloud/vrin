@@ -92,10 +92,10 @@ export default function PricingPage() {
             </div>
 
             <Link
-              href="/auth"
+              href="/waitlist"
               className="block w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-900 text-center font-semibold rounded-xl transition-all mb-8"
             >
-              Get Started
+              Join Waitlist
             </Link>
 
             <ul className="space-y-4">
@@ -156,12 +156,11 @@ export default function PricingPage() {
 
             <button
               onClick={() => {
-                // TODO: Integrate with Stripe checkout
-                window.location.href = '/auth?plan=pro'
+                window.location.href = '/waitlist'
               }}
               className="block w-full py-3 px-4 bg-teal-500 hover:bg-teal-400 text-gray-900 text-center font-semibold rounded-xl transition-all mb-8"
             >
-              Get Pro
+              Join Waitlist
             </button>
 
             <ul className="space-y-4">
@@ -215,7 +214,7 @@ export default function PricingPage() {
           <p className="text-gray-600">
             Questions about our plans?{' '}
             <a
-              href="https://calendly.com/vedant-vrin/15-minute-meeting"
+              href="https://cal.com/vedant-vrin/book-a-demo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-teal-600 hover:underline"

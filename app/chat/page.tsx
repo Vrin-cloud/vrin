@@ -768,10 +768,10 @@ export default function ChatPage() {
           </div>
           <div className="text-center">
             <a
-              href="/auth"
+              href="/waitlist"
               className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200"
             >
-              Go to Login
+              Join the Waitlist
             </a>
           </div>
         </div>
@@ -2108,12 +2108,11 @@ export default function ChatPage() {
               {/* CTA Button */}
               <button
                 onClick={() => {
-                  // TODO: Integrate with Stripe checkout
-                  window.location.href = '/auth?plan=pro'
+                  window.location.href = '/waitlist'
                 }}
                 className="w-full py-3 px-4 bg-teal-500 hover:bg-teal-400 text-gray-900 font-semibold rounded-xl transition-all mb-6"
               >
-                Get Pro
+                Join Waitlist
               </button>
 
               {/* Features List */}

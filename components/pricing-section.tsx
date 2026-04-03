@@ -96,11 +96,10 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
 
   const handleAction = (action: string, planName: string) => {
     if (action === "signup") {
-      // Redirect to auth page for free plan
-      window.location.href = "/auth"
+      window.location.href = "/waitlist"
     } else {
       // Redirect to Calendly for paid plans
-      window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")
+      window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")
     }
   }
 
@@ -238,26 +237,6 @@ export function PricingSection({ openContactForm }: PricingSectionProps) {
                 </div>
               </div>
 
-              <div className="mt-10 text-center">
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-6">
-                  Questions about pricing or need a custom solution?
-                </p>
-                <div className="flex justify-center gap-4">
-                  <Button
-                    onClick={() => openContactForm("Pricing Questions")}
-                    variant="outline"
-                    className="border-[#201E1E]/30 dark:border-[#FFFFFF]/30 hover:bg-[#8DAA9D]/10 dark:hover:bg-[#083C5E]/20 rounded-full px-6"
-                  >
-                    Ask About Pricing
-                  </Button>
-                  <Button
-                    onClick={() => openContactForm("Custom Enterprise Solution")}
-                    className="bg-[#201E1E] hover:bg-[#083C5E] text-[#FFFFFF] dark:bg-[#FFFFFF] dark:text-[#201E1E] dark:hover:bg-[#8DAA9D] rounded-full px-6"
-                  >
-                    Custom Solution
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </motion.div>

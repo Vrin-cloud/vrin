@@ -105,16 +105,16 @@ export function HeroSection() {
                 <Button
                   size="lg"
                   className="bg-vrin-charcoal hover:bg-vrin-blue text-vrin-cream dark:bg-vrin-cream dark:text-vrin-charcoal dark:hover:bg-vrin-sage px-8 py-6 text-base font-medium rounded-full transition-all duration-300 shadow-lg shadow-vrin-charcoal/10 hover:shadow-xl hover:shadow-vrin-blue/20"
-                  onClick={() => window.location.href = '/auth'}
+                  onClick={() => window.location.href = '/waitlist'}
                 >
-                  Get Started
+                  Join the Waitlist
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="px-8 py-6 text-base font-medium border-2 border-vrin-charcoal/20 dark:border-vrin-cream/20 text-vrin-charcoal dark:text-vrin-cream hover:bg-vrin-sage/10 dark:hover:bg-vrin-blue/10 rounded-full transition-all duration-300"
-                  onClick={() => window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")}
+                  onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
                 >
                   <Calendar className="mr-2 h-5 w-5" />
                   Schedule Demo

@@ -1,351 +1,286 @@
-'use client'
+"use client"
 
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
 import {
   Shield,
   Cloud,
-  Database,
   Lock,
   Users,
-  BarChart3,
-  CheckCircle,
   ArrowRight,
-  Building,
-  Globe,
-  Zap,
-  Award
-} from 'lucide-react'
-import Link from 'next/link'
+  Check,
+  Loader2,
+  Calendar,
+} from "lucide-react"
 
 const features = [
   {
+    icon: Lock,
+    title: "Data Sovereignty",
+    desc: "Your data never leaves your cloud. Deploy VRIN in your own AWS, Azure, or GCP account.",
+  },
+  {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'End-to-end encryption, secure data handling, and comprehensive audit trails for enterprise peace of mind.',
-    color: 'text-blue-600'
+    title: "SSO / SAML",
+    desc: "Integrate with your existing identity provider. Active Directory, Okta, and more.",
   },
   {
     icon: Cloud,
-    title: 'Multi-Cloud Deployment',
-    description: 'Deploy on AWS, Azure, GCP, or on-premise with identical functionality and performance.',
-    color: 'text-purple-600'
-  },
-  {
-    icon: Database,
-    title: 'Private Infrastructure',
-    description: 'Your data never leaves your infrastructure. Complete control over knowledge graphs and AI processing.',
-    color: 'text-green-600'
-  },
-  {
-    icon: Lock,
-    title: 'Air-Gapped Options',
-    description: 'Completely isolated deployments for maximum security and data sovereignty requirements.',
-    color: 'text-red-600'
+    title: "Hybrid Cloud Deployment",
+    desc: "VPC-isolated, air-gapped, or hybrid explicit routing based on data sensitivity.",
   },
   {
     icon: Users,
-    title: 'SSO Integration',
-    description: 'Seamless integration with your existing identity providers (SAML, OIDC, Active Directory).',
-    color: 'text-indigo-600'
+    title: "Dedicated Support & SLAs",
+    desc: "24/7 engineering support, 99.9% uptime SLA, and a dedicated account team.",
   },
-  {
-    icon: BarChart3,
-    title: 'Advanced Analytics',
-    description: 'Comprehensive monitoring, usage analytics, and cost optimization recommendations.',
-    color: 'text-orange-600'
-  }
 ]
 
-const deploymentOptions = [
-  {
-    name: 'VPC Isolated',
-    description: 'Deploy within your private VPC with network-level isolation',
-    features: ['Private subnets only', 'VPN/DirectConnect', 'Security groups', 'Network monitoring'],
-    recommended: 'Most Popular',
-    estimatedTime: '30 minutes'
-  },
-  {
-    name: 'Air-Gapped',
-    description: 'Completely isolated deployment with no internet connectivity',
-    features: ['Zero internet access', 'Offline operation', 'Custom registries', 'Physical isolation'],
-    recommended: 'Maximum Security',
-    estimatedTime: '45 minutes'
-  },
-  {
-    name: 'Hybrid Explicit',
-    description: 'Smart data routing based on sensitivity classification',
-    features: ['Automatic classification', 'Policy-based routing', 'Cost optimization', 'Flexible deployment'],
-    recommended: 'Most Flexible',
-    estimatedTime: '25 minutes'
+const companySizes = ["1-50", "51-200", "201-1000", "1000+"]
+
+export default function EnterprisePage() {
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: "",
+    role: "",
+    companySize: "",
+    useCase: "",
+  })
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [message, setMessage] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus("loading")
+
+    try {
+      const res = await fetch("/api/enterprise-inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setStatus("success")
+        setMessage(data.message || "We'll be in touch!")
+      } else {
+        setStatus("error")
+        setMessage(data.error || "Something went wrong.")
+      }
+    } catch {
+      setStatus("error")
+      setMessage("Network error. Please try again.")
+    }
   }
-]
 
-
-export default function EnterpriseLandingPage() {
+  const updateField = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Database className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">VRIN</h1>
-                  <p className="text-xs text-gray-500">Enterprise</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
-                <Button variant="outline">Contact Sales</Button>
-              </Link>
-              <Link href="/enterprise/auth/login">
-                <Button variant="default">Get Started</Button>
-              </Link>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Header */}
+      <header className="px-6 py-6 border-b border-white/5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
+            <Image src="/dark-icon.svg" alt="Vrin" width={28} height={28} />
+            <span className="font-semibold text-white/80">Vrin</span>
+            <span className="text-white/30 mx-1">/</span>
+            <span className="text-white/50">Enterprise</span>
+          </Link>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Main content — two columns */}
+      <main className="max-w-6xl mx-auto px-6 py-16 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          {/* Left column — Value prop */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <Badge variant="secondary" className="mb-6">
-              <Award className="w-4 h-4 mr-2" />
-              Enterprise-Grade AI Infrastructure
-            </Badge>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Deploy VRIN in Your
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8DAA9D]/10 border border-[#8DAA9D]/20 text-[#8DAA9D] text-xs font-medium mb-6">
+              Enterprise
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+              Knowledge Reasoning
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Private Infrastructure
-              </span>
+              <span className="text-[#8DAA9D]">in Your Cloud</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Enterprise-grade knowledge reasoning system with complete data sovereignty,
-              compliance frameworks, and user-defined AI specialization. 
-              Deploy in minutes, control everything.
+
+            <p className="text-lg text-white/50 leading-relaxed mb-10">
+              Deploy VRIN in your own infrastructure with complete data sovereignty.
+              Your documents, your knowledge graph, your cloud &mdash; we never see your data.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/enterprise/auth/login">
-                <Button size="lg" variant="default" className="min-w-[200px]">
-                  Start Deployment
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="/enterprise/demo">
-                <Button size="lg" variant="outline" className="min-w-[200px]">
-                  View Demo
-                </Button>
-              </Link>
+
+            {/* Feature list */}
+            <div className="space-y-5 mb-10">
+              {features.map((f, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.08 }}
+                  className="flex gap-4"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-[#8DAA9D]/10 flex items-center justify-center flex-shrink-0">
+                    <f.icon className="w-5 h-5 text-[#8DAA9D]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white/80">{f.title}</p>
+                    <p className="text-sm text-white/40 mt-0.5">{f.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-            <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                30-minute setup
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                99.9% uptime SLA
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                24/7 support
-              </div>
+
+            {/* Or schedule directly */}
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+              <p className="text-sm text-white/40 mb-3">Prefer to talk first?</p>
+              <a
+                href="https://cal.com/vedant-vrin/book-a-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#8DAA9D] hover:text-[#a3bfb2] text-sm font-medium transition-colors"
+              >
+                <Calendar className="w-4 h-4" />
+                Schedule a call with the Founder
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
             </div>
           </motion.div>
-        </div>
-      </section>
 
-      {/* Features Grid */}
-      <section className="py-20 bg-white w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Enterprise-Ready from Day One
-            </h2>
-            <p className="text-lg text-gray-600">
-              Built for organizations that need complete control over their AI infrastructure
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className={`w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mb-4`}>
-                      <feature.icon className={`w-6 h-6 ${feature.color}`} />
-                    </div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Deployment Options */}
-      <section className="py-20 bg-slate-50 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Choose Your Deployment Model
-            </h2>
-            <p className="text-lg text-gray-600">
-              Select the deployment option that best fits your security and compliance requirements
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-            {deploymentOptions.map((option, index) => (
-              <motion.div
-                key={option.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow relative">
-                  {option.recommended && (
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute -top-2 left-1/2 transform -translate-x-1/2"
-                    >
-                      {option.recommended}
-                    </Badge>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-xl flex items-center justify-between">
-                      {option.name}
-                      <Badge variant="outline" className="text-xs">
-                        <Zap className="w-3 h-3 mr-1" />
-                        {option.estimatedTime}
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>{option.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {option.features.map((feature) => (
-                        <li key={feature} className="flex items-center text-sm">
-                          <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          {/* Right column — Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <h2 className="text-4xl font-bold mb-6">
-              Ready to Deploy Your Private VRIN Infrastructure?
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Start with our guided setup wizard and have your enterprise AI infrastructure 
-              running in under 30 minutes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/enterprise/auth/login">
-                <Button size="lg" variant="secondary" className="min-w-[200px]">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
-                <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white hover:text-blue-600">
-                  Contact Sales
-                </Button>
-              </Link>
+            <div className="p-8 rounded-2xl bg-white/[0.03] border border-white/10">
+              {status === "success" ? (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 rounded-full bg-[#8DAA9D]/20 flex items-center justify-center mx-auto mb-5">
+                    <Check className="w-7 h-7 text-[#8DAA9D]" />
+                  </div>
+                  <h2 className="text-2xl font-semibold mb-2">{message}</h2>
+                  <p className="text-white/50 text-sm mb-6">
+                    In the meantime, you can schedule a call to get started faster.
+                  </p>
+                  <a
+                    href="https://cal.com/vedant-vrin/book-a-demo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#8DAA9D] text-[#0a0a0a] font-semibold rounded-xl hover:bg-[#7d9d8f] transition-all"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Schedule a Call
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <h2 className="text-xl font-semibold mb-1">Request a Demo</h2>
+                  <p className="text-sm text-white/40 mb-6">
+                    We typically respond within 1 business day.
+                  </p>
+
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="First name"
+                        value={form.firstName}
+                        onChange={(e) => updateField("firstName", e.target.value)}
+                        required
+                        className="px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Last name"
+                        value={form.lastName}
+                        onChange={(e) => updateField("lastName", e.target.value)}
+                        required
+                        className="px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm"
+                      />
+                    </div>
+
+                    <input
+                      type="email"
+                      placeholder="Work email"
+                      value={form.email}
+                      onChange={(e) => updateField("email", e.target.value)}
+                      required
+                      className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Company"
+                      value={form.company}
+                      onChange={(e) => updateField("company", e.target.value)}
+                      required
+                      className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm"
+                    />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Role / Title"
+                        value={form.role}
+                        onChange={(e) => updateField("role", e.target.value)}
+                        className="px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm"
+                      />
+                      <select
+                        value={form.companySize}
+                        onChange={(e) => updateField("companySize", e.target.value)}
+                        className="px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm appearance-none"
+                      >
+                        <option value="" className="bg-[#1a1a1a] text-white/50">Company size</option>
+                        {companySizes.map((s) => (
+                          <option key={s} value={s} className="bg-[#1a1a1a]">{s} employees</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <textarea
+                      placeholder="What's your primary use case? (optional)"
+                      value={form.useCase}
+                      onChange={(e) => updateField("useCase", e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-[#8DAA9D]/50 focus:ring-1 focus:ring-[#8DAA9D]/30 transition-all text-sm resize-none"
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={status === "loading"}
+                      className="w-full py-3.5 bg-[#8DAA9D] hover:bg-[#7d9d8f] text-[#0a0a0a] font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {status === "loading" ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>
+                          Request a Demo
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    {status === "error" && (
+                      <p className="text-red-400 text-sm text-center">{message}</p>
+                    )}
+                  </form>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Database className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold">VRIN Enterprise</h1>
-                </div>
-              </div>
-              <p className="text-gray-400 mb-4">
-                Enterprise-grade AI infrastructure with complete data sovereignty and compliance.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/enterprise/features" className="hover:text-white">Features</Link></li>
-                <li><Link href="/enterprise/pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/enterprise/security" className="hover:text-white">Security</Link></li>
-                <li><Link href="/enterprise/compliance" className="hover:text-white">Compliance</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/enterprise/docs" className="hover:text-white">Documentation</Link></li>
-                <li><Link href="/enterprise/support" className="hover:text-white">Support</Link></li>
-                <li><Link href="/enterprise/status" className="hover:text-white">Status</Link></li>
-                <li><Link href="/enterprise/changelog" className="hover:text-white">Changelog</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 VRIN Enterprise. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      </main>
     </div>
   )
 }

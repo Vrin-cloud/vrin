@@ -362,16 +362,16 @@ export default function VisionPage() {
               <Button
                 size="lg"
                 className="px-8 py-6 text-base font-medium bg-[#083C5E] hover:bg-[#083C5E]/90 text-white rounded-full"
-                onClick={() => window.open("https://vrin.cloud/auth", "_blank")}
+                onClick={() => window.open("https://vrin.cloud/waitlist", "_blank")}
               >
-                Get Started
+                Join Waitlist
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="px-8 py-6 text-base font-medium border-2 border-white/20 text-[#201E1E] bg-white hover:bg-white/90 rounded-full"
-                onClick={() => window.open("https://calendly.com/vedant-vrin/15-minute-meeting", "_blank")}
+                onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
               >
                 <Calendar className="mr-2 h-5 w-5" />
                 Schedule Demo

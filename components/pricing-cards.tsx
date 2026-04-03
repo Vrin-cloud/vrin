@@ -154,7 +154,7 @@ export function PricingCards() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank" className="w-full">
+            <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank" className="w-full">
               <Button variant="outline" className="w-full bg-transparent">
                 Contact Sales
               </Button>
@@ -165,7 +165,7 @@ export function PricingCards() {
 
       <p className="text-sm text-muted-foreground mt-8 text-center max-w-xl">
         All plans include HIPAA compliance, data encryption, and basic support. Need a custom plan?{" "}
-        <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank" className="text-primary hover:underline">
+        <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank" className="text-primary hover:underline">
           Contact our sales team
         </Link>
         .

@@ -245,7 +245,7 @@ export default function CustomerSupportPage() {
                   <Play className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
+              <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank">
                 <Button size="lg" variant="outline" className="rounded-full px-8 border-[#201E1E]/20 dark:border-[#FFFFFF]/20">
                   Book a 15-min Call
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -336,7 +336,7 @@ export default function CustomerSupportPage() {
               See Vrin bring evidence-backed context into every support ticket
             </p>
             <div className="flex justify-center mt-6">
-              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
+              <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank">
                 <Button size="lg" className="rounded-full px-8 bg-[#083C5E] hover:bg-[#083C5E]/90 dark:bg-[#8DAA9D] dark:hover:bg-[#8DAA9D]/90 dark:text-[#201E1E]">
                   Schedule a Workflow Review
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -699,7 +699,7 @@ export default function CustomerSupportPage() {
                   <Play className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="https://calendly.com/vedant-vrin/15-minute-meeting" target="_blank">
+              <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank">
                 <Button size="lg" variant="outline" className="rounded-full px-8 border-white text-white hover:bg-white/10">
                   Book a 15-min Workflow Review
                   <ArrowRight className="ml-2 w-5 h-5" />

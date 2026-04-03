@@ -433,12 +433,12 @@ export default function PlaygroundPage() {
             Every answer is traceable back to source facts.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/auth/signup">
+            <Link href="/waitlist">
               <Button className="bg-[#8DAA9D] text-black hover:bg-[#8DAA9D]/90 font-semibold px-6">
-                Start Free
+                Join the Waitlist
               </Button>
             </Link>
-            <Link href="https://calendly.com/vedant-vrin/15-minute-meeting">
+            <Link href="https://cal.com/vedant-vrin/book-a-demo">
               <Button variant="outline" className="border-white/20 text-black bg-white hover:bg-white/90 px-6">
                 Talk to Us
               </Button>

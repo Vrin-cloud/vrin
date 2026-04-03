@@ -128,10 +128,10 @@ export default function VCReadyCTA() {
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold px-10 py-6 text-xl rounded-full shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 transform hover:scale-105"
-                onClick={() => window.location.href = '/auth'}
+                onClick={() => window.location.href = '/waitlist'}
               >
                 <Rocket className="mr-3 h-6 w-6" />
-                Start Building Now
+                Join the Waitlist
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
               

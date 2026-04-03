@@ -226,7 +226,7 @@ export function Header() {
             {/* Right: Actions */}
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex items-center gap-4">
-                <Link href="/auth">
+                <Link href="/waitlist">
                   <Button
                     size="sm"
                     className={`rounded-full px-5 font-medium transition-all duration-300 ${
@@ -235,7 +235,7 @@ export function Header() {
                         : "bg-vrin-charcoal text-vrin-cream hover:bg-vrin-blue dark:bg-vrin-cream dark:text-vrin-charcoal dark:hover:bg-vrin-sage"
                     }`}
                   >
-                    Get Started
+                    Join Waitlist
                   </Button>
                 </Link>
               </div>
@@ -479,7 +479,7 @@ export function Header() {
                 ? "border-[#FFFFFF]/10"
                 : "border-vrin-charcoal/10 dark:border-vrin-cream/10"
             }`}>
-              <Link href="/auth" className="flex-1">
+              <Link href="/waitlist" className="flex-1">
                 <Button
                   size="sm"
                   className={`w-full rounded-full font-medium ${
@@ -488,7 +488,7 @@ export function Header() {
                       : "bg-vrin-charcoal text-vrin-cream dark:bg-vrin-cream dark:text-vrin-charcoal"
                   }`}
                 >
-                  Get Started
+                  Join Waitlist
                 </Button>
               </Link>
             </div>

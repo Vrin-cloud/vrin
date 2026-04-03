@@ -140,7 +140,7 @@ export default function SalesPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="https://calendly.com/vedant-vrin/15-minute-meeting"
+                href="https://cal.com/vedant-vrin/book-a-demo"
                 target="_blank"
               >
                 <Button
@@ -478,7 +478,7 @@ export default function SalesPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="https://calendly.com/vedant-vrin/15-minute-meeting"
+                href="https://cal.com/vedant-vrin/book-a-demo"
                 target="_blank"
               >
                 <Button
