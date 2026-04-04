@@ -25,14 +25,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/enterprise', request.url))
   }
 
-  // Block dashboard — redirect to waitlist
-  if (pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/waitlist', request.url))
-  }
-
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/auth/:path*', '/enterprise/auth/:path*', '/dashboard/:path*'],
+  matcher: ['/auth/:path*', '/enterprise/auth/:path*'],
 }
