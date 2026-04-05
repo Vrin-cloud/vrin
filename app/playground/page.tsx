@@ -347,7 +347,8 @@ export default function PlaygroundPage() {
             ))}
           </div>
 
-          <p className="text-xs text-white/30 mb-4">{activeScenario.description}</p>
+          <p className="text-xs text-white/30 mb-2">{activeScenario.description}</p>
+          <p className="text-[11px] text-white/20 italic mb-4">All names, organizations, and events in this demo are fictional. The data was created solely to demonstrate Vrin&apos;s reasoning capabilities.</p>
 
           <QueryPanel
             queries={activeScenario.queries}
