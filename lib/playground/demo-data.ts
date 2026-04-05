@@ -145,6 +145,54 @@ export const SCENARIOS: DemoScenario[] = [
       },
     ],
   },
+  {
+    id: 'congressional-intelligence',
+    name: 'Congressional Intelligence',
+    description: 'Congressional hearings, member positions, and legislative intelligence across committees and sessions.',
+    queries: [
+      {
+        id: 'cross-hearing-insulin',
+        question: 'Which senators discussed insulin pricing across both Finance and HELP committee hearings this session, and how did their positions compare?',
+        description: 'Cross-committee, cross-hearing position synthesis',
+        hopCount: 4,
+        whyRagFails: 'Vector search retrieves fragments from individual hearings but cannot track the same senator\'s statements across committees or synthesize evolving positions into a coherent picture.',
+        documentChain: [
+          'Finance Hearing Mar 2026',
+          'HELP Hearing Jan 2026',
+          'Member Profile — Whitfield',
+          'HELP Markup Mar 2026',
+        ],
+      },
+      {
+        id: 'nakamura-position-evolution',
+        question: 'How has Senator Nakamura\'s position on drug pricing regulation evolved from June 2025 to March 2026, and what factors may have influenced the shift?',
+        description: 'Temporal position tracking + influence analysis',
+        hopCount: 5,
+        whyRagFails: 'Standard search returns Nakamura\'s most recent statements but misses the arc from opposition to softening. It cannot connect lobbying disclosures to the timeline of position changes.',
+        documentChain: [
+          'Finance Hearing Jun 2025',
+          'Finance Hearing Nov 2025',
+          'Finance Hearing Mar 2026',
+          'PhRMA Lobbying Disclosure',
+          'Member Profile — Nakamura',
+        ],
+      },
+      {
+        id: 'insulin-cap-landscape',
+        question: 'What is the current legislative landscape for the Insulin Price Cap Act, including committee support, CBO scoring, and potential opposition from industry stakeholders?',
+        description: 'Full legislative intelligence briefing across document types',
+        hopCount: 5,
+        whyRagFails: 'Each document type (bill text, CBO report, hearing testimony, lobbying filings) lives in a separate silo. Vector search returns the bill summary but misses the CBO scoring context, committee vote signals, and industry opposition dynamics.',
+        documentChain: [
+          'Bill Summary S.1847',
+          'CBO Cost Estimate',
+          'HELP Markup Mar 2026',
+          'PhRMA Lobbying Disclosure',
+          'Client Memo Q1 2026',
+        ],
+      },
+    ],
+  },
 ];
 
 /** Backward compat — default to first scenario */

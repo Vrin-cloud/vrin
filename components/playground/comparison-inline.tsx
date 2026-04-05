@@ -210,6 +210,52 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
     ],
     expertGap: 'Connecting a current customer profile to a previous SAR typology requires an investigator who remembers (or can find) the prior case, recognizes the pattern similarity, then maps it through policy and regulatory requirements. That is senior investigator work — typically 4-8 hours of research. Vrin delivers the complete evidence chain in seconds.',
   },
+  // === Congressional Intelligence ===
+  'cross-hearing-insulin': {
+    headline: 'Standard RAG returned fragments from one hearing. Vrin tracked three senators across Finance and HELP committee hearings, synthesized their positions, and identified where they agree and diverge on insulin pricing.',
+    metrics: [
+      { label: 'Hearings connected', rag: 1, vrin: 4 },
+      { label: 'Members tracked', rag: 1, vrin: 3 },
+      { label: 'Position nuances captured', rag: 1, vrin: 5 },
+      { label: 'Committee crossovers found', rag: 0, vrin: 2 },
+    ],
+    missed: [
+      { detail: 'Whitfield\'s PBM reform argument from HELP hearing directly supports her insulin cap rationale in Finance — she sees PBM middlemen as the root cause', impact: 'Without connecting both hearings, your client brief misses her legislative strategy. She is building a two-bill approach (S.1847 + S.892) that is stronger together.' },
+      { detail: 'Delgado\'s bipartisan substitute amendment passed HELP markup 15-7 with Republican support', impact: 'The compromise framework has bipartisan momentum. Your client needs to know the bill that reaches the floor will look different from the original text.' },
+      { detail: 'Nakamura attended the Finance hearing with a noticeably softened tone — "constituent concerns" language replacing his earlier "free market" framing', impact: 'A swing vote is in play. If your client is lobbying Finance Committee members, Nakamura\'s shift changes the vote math.' },
+    ],
+    expertGap: 'A government affairs associate would need to watch or read 4 separate hearing transcripts, cross-reference each senator\'s statements, and build a position matrix. At 2-3 hours per hearing, that is a full day of work — and most firms only cover the marquee hearings, missing the HELP markup entirely.',
+  },
+  'nakamura-position-evolution': {
+    headline: 'Standard RAG returned Nakamura\'s most recent statement. Vrin traced a 9-month arc from strong opposition to cautious openness, and connected the shift to PhRMA lobbying patterns and a constituent visit.',
+    metrics: [
+      { label: 'Hearings in timeline', rag: 1, vrin: 4 },
+      { label: 'Position stages documented', rag: 1, vrin: 4 },
+      { label: 'Influence factors identified', rag: 0, vrin: 3 },
+      { label: 'Lobbying connections found', rag: 0, vrin: 2 },
+    ],
+    missed: [
+      { detail: 'PhRMA\'s strategic memo listed "maintain Sen. Nakamura\'s opposition" as a priority — but their $85K in contributions and 4 meetings in Q4 coincide with his position softening, not hardening', impact: 'The lobbying investment is not working as intended. If your client is PhRMA, this is a red flag. If your client opposes PhRMA, this is an opportunity.' },
+      { detail: 'Nakamura visited Hawaii Community Health Centers between the November and March hearings, meeting insulin-dependent patients', impact: 'This constituent interaction is the likely catalyst for his language change. It tells you what is actually moving him — not industry arguments, but patient stories.' },
+      { detail: 'His language evolved from "government has no business setting prices" (June 2025) to "I cannot ignore what I heard from families in Honolulu" (March 2026)', impact: 'The specific quotes document a clear evolution. In a whip count, this trajectory suggests he is persuadable on a compromise bill.' },
+    ],
+    expertGap: 'Tracking a senator\'s position evolution requires reading every hearing transcript they participated in over 9 months, cross-referencing lobbying disclosures, and monitoring their public schedule. Senior government affairs directors do this for 3-5 key senators — it is their full-time job. Vrin gives every user that capability.',
+  },
+  'insulin-cap-landscape': {
+    headline: 'Standard RAG returned the bill summary. Vrin assembled a complete legislative intelligence briefing: CBO scoring, committee vote signals, industry opposition strategy, and client risk assessment — from 5 different document types.',
+    metrics: [
+      { label: 'Document types synthesized', rag: 1, vrin: 5 },
+      { label: 'Stakeholder positions mapped', rag: 1, vrin: 6 },
+      { label: 'Risk factors identified', rag: 0, vrin: 4 },
+      { label: 'Action items surfaced', rag: 0, vrin: 3 },
+    ],
+    missed: [
+      { detail: 'CBO scored S.1847 at $14.2B savings over 10 years — this strengthens the bill\'s budget reconciliation pathway', impact: 'A favorable CBO score changes the legislative math. If S.1847 qualifies for reconciliation, it needs only 51 votes, not 60. That changes every lobbying strategy.' },
+      { detail: 'Archer & Hollis memo reveals Novo Nordisk is considering a preemptive voluntary $35 cap to undercut the legislation', impact: 'If a major manufacturer voluntarily caps prices, the political case for the bill weakens — but your client still faces competitive pressure. The memo is forward-looking intelligence you would not find in hearing transcripts.' },
+      { detail: 'PhRMA lobbied Finance Committee members 4 times in Q4 2025 while publicly opposing only the price cap provisions — they actually support the PBM transparency sections', impact: 'The industry position is nuanced. Knowing which provisions they support vs. oppose lets your client find common ground or exploit splits.' },
+    ],
+    expertGap: 'Building a full legislative landscape briefing requires pulling the bill text, CBO estimate, hearing transcripts, lobbying disclosures, and client intelligence — then synthesizing them into a single narrative. This is the deliverable a $500/hour government affairs consultant produces. Vrin generates a comparable briefing from a single query.',
+  },
 }
 
 export function ComparisonInline({
