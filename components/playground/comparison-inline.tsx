@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Clock, ShieldAlert } from "lucide-react"
+import { Clock, ShieldAlert, MessageSquare, DollarSign } from "lucide-react"
 import type { DemoQuery } from "@/lib/playground/demo-data"
 import type { QueryResult } from "@/app/playground/page"
 
@@ -26,6 +26,7 @@ interface QueryInsight {
     impact: string
   }>
   expertGap: string
+  followUpQueries?: string[]
 }
 
 function ComparisonBar({
@@ -225,6 +226,12 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'The bill requires a GAO report evaluating effects on prices, access, R&D investment, insurance premiums, and PBM practices — a built-in review mechanism', impact: 'This sunset/review provision is a key selling point for persuadable Republicans. If your client is lobbying swing votes, this is the "safety valve" argument.' },
     ],
     expertGap: 'Both systems got the right answer (Whitfield is the only cross-committee senator). The difference is depth of evidence. RAG gives you a summary you could have written from memory. Vrin gives you the cost data, historical context, and bill mechanics that make a client brief actionable.',
+    followUpQueries: [
+      'What is the average out-of-pocket cost trajectory for insulin over the past 7 years, for both insured and uninsured patients?',
+      'How old is insulin as a drug, and have the original R&D costs been recouped?',
+      'Does S.1847 include a GAO review mechanism, and what does it evaluate?',
+      'Which expert witnesses testified in Finance vs HELP, and what were their key arguments?',
+    ],
   },
   'nakamura-position-evolution': {
     headline: 'RAG identified the general direction but got the conclusion wrong — calling it a softening toward regulation. Vrin traced the nuance: Nakamura hardened his opposition to price caps specifically while staying open on competition reforms, backed by 4,200+ constituent contacts and specific bill provisions.',
@@ -240,6 +247,12 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'RAG concluded Nakamura was softening toward accepting regulation. Vrin correctly identified the opposite: he hardened his opposition to price caps while remaining engaged on competition reforms', impact: 'Getting the direction wrong is worse than having no analysis. If your client acts on "Nakamura is softening," they misallocate lobbying resources on a senator who is actually digging in on the cap issue.' },
     ],
     expertGap: 'Tracking a senator\'s position evolution requires reading every hearing transcript they participated in over 9 months, cross-referencing bill provisions, and quantifying constituent pressure. Senior government affairs directors do this for 3-5 key senators — it is their full-time job. Vrin gives every user that capability.',
+    followUpQueries: [
+      'How many constituent contacts did Nakamura receive on drug pricing, and in what forms?',
+      'What are the specific provisions of S.1847 — copayment cap start date, PBM disclosure requirements, manufacturer rebate floor?',
+      'Is there a House companion bill to S.1847?',
+      'What was the CBO breakdown by program — Medicare Part D savings, Medicaid savings, revenue impact?',
+    ],
   },
   'insulin-cap-landscape': {
     headline: 'Both systems found the bill status and CBO score. Vrin went deeper: the actual HELP vote count (16-6), named senator positions (Morrison opposes, Nakamura uncommitted), specific enforcement penalties, CBO budget line breakdown, and provisions RAG didn\'t surface like the anti-cost-shifting prohibition and sunset clause.',
@@ -255,6 +268,13 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'Anti-cost-shifting provision prohibits insurers from raising non-insulin premiums to offset the cap, plus a HHS monitoring program to detect cost-shifting', impact: 'This preempts the insurance industry\'s main objection. If your client is an insurer, this provision directly constrains their pricing. If your client supports the bill, this is a talking point that neutralizes opposition.' },
     ],
     expertGap: 'Both systems produced reasonable landscape summaries. The difference is between a briefing a junior analyst could draft from public sources and one that a senior director with committee access would produce — specific vote counts, named positions, enforcement details, and budget line items that change how your client acts.',
+    followUpQueries: [
+      'What was the exact HELP Committee vote count on S.1847, and how many Republicans voted yes?',
+      'Which specific senators oppose, support, or are uncommitted on S.1847 in Finance?',
+      'What are the CBO savings by program — Medicare Part D, Medicaid, and tax revenue separately?',
+      'What enforcement penalties does the bill include for PBMs and manufacturers specifically?',
+      'Does the bill have anti-cost-shifting provisions to prevent insurers from raising other premiums?',
+    ],
   },
   'whitfield-legislative-strategy': {
     headline: 'Both systems identified the two-committee pathway. Vrin uncovered the full strategy: a three-year phase-in and five-year sunset as deliberate compromise tools, anti-cost-shifting guardrails, PBM transparency mandates, and enforcement mechanisms — the complete architecture of how Whitfield designed the bill to survive opposition.',
@@ -270,6 +290,12 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'Whitfield is running a two-bill strategy: S.1847 (price cap) paired with S.892 (PBM Transparency Act) — she frames drug pricing and PBM reform as "two faces of the same coin"', impact: 'Tracking S.1847 alone misses half the strategy. S.892 could pass independently even if the cap stalls, and together they address both demand and supply-side pricing.' },
     ],
     expertGap: 'RAG found the committee pathway. Vrin found the legislative architecture — the specific provisions Whitfield designed to neutralize opposition, the enforcement teeth that make the bill credible, and the multi-bill strategy that gives her fallback positions. That is the difference between a committee tracker and a legislative strategist.',
+    followUpQueries: [
+      'Does S.1847 include a sunset clause, and what is its purpose strategically?',
+      'Are there anti-cost-shifting provisions in the bill, and how are they enforced?',
+      'Is Whitfield pursuing related legislation beyond S.1847, and how do the bills work together?',
+      'What are the specific enforcement penalties for PBM and manufacturer noncompliance?',
+    ],
   },
   'pharma-lobbying-effectiveness': {
     headline: 'RAG concluded lobbying "didn\'t work" because the bill advanced. Vrin gave the nuanced answer: mixed success. PhRMA has kept Finance Committee outcome "trending unfavorable" but hasn\'t stopped the bill. Vrin found the committee math, PhRMA\'s white paper, and the specific dynamics RAG missed.',
@@ -285,6 +311,12 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'RAG\'s conclusion was binary: lobbying failed because the bill moved. Vrin\'s conclusion was nuanced: lobbying has kept the Finance outcome uncertain and "trending unfavorable" while not being able to collapse support entirely', impact: 'The difference between "lobbying failed" and "lobbying partially succeeded" changes every strategic recommendation. Your client\'s next move depends on which assessment is right.' },
     ],
     expertGap: 'RAG gave a pass/fail assessment. Vrin gave a strategic assessment — specific committee math, named PhRMA tactics, and a nuanced effectiveness evaluation. That is the difference between a news summary and a lobbying firm\'s quarterly report.',
+    followUpQueries: [
+      'What is the Finance Committee member breakdown by party, and how many votes are needed to report?',
+      'Has PhRMA published any specific counter-arguments or white papers against S.1847?',
+      'Which specific Finance Committee members has PhRMA lobbied, and what were the outcomes?',
+      'What is the current Finance Committee outlook — is it trending favorable or unfavorable for the bill?',
+    ],
   },
   'bipartisan-compromise-path': {
     headline: 'RAG found the cap structure and named the sponsors but couldn\'t identify any Republican drivers or the compromise mechanics. Vrin mapped Delgado\'s three-pillar framework (affordability + PBM transparency + innovation protection), the specific R&D tax credit definition, small manufacturer exemption, and the phased uninsured discount.',
@@ -300,6 +332,12 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
       { detail: 'RAG could not name a single Republican driving the compromise. Vrin identified specific members, their committee positions, and their stances — the actual coalition map, not just "bipartisan sponsorship"', impact: 'Knowing WHO the Republican supporters are is the difference between a press statement and a whip count. Your client needs names to allocate lobbying resources.' },
     ],
     expertGap: 'RAG described a bipartisan bill. Vrin described a bipartisan deal — the specific provisions each side traded to get to 16-6 in HELP, and the innovation protections that make the price cap politically survivable. That is the difference between reading a press release and understanding the negotiation.',
+    followUpQueries: [
+      'What specific R&D tax credit is included in the compromise, and what qualifies as eligible R&D?',
+      'Are small insulin manufacturers exempt from the price cap, and what is the revenue threshold?',
+      'Which Republican members voted for the bill in the HELP markup?',
+      'How is the uninsured discount program phased in — what are the year-by-year caps?',
+    ],
   },
 }
 
@@ -364,6 +402,46 @@ export function ComparisonInline({
           </motion.div>
         ))}
       </div>
+
+      {/* Follow-up queries an expert would need */}
+      {insight.followUpQueries && insight.followUpQueries.length > 0 && (
+        <div className="px-6 py-5 space-y-3 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-3.5 h-3.5 text-red-400/60" />
+            <p className="text-xs text-white/30 uppercase tracking-wider font-medium">
+              Follow-up queries an expert would need to match Vrin&apos;s response
+            </p>
+          </div>
+          <div className="space-y-2">
+            {insight.followUpQueries.map((q, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 + i * 0.1 }}
+                className="flex gap-2.5 items-start"
+              >
+                <span className="text-[10px] text-red-400/40 font-mono mt-0.5 flex-shrink-0">Q{i + 1}</span>
+                <p className="text-xs text-white/50 leading-relaxed italic">&ldquo;{q}&rdquo;</p>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 }}
+            className="mt-3 flex items-start gap-2.5 p-3 rounded-lg bg-[#8DAA9D]/5 border border-[#8DAA9D]/10"
+          >
+            <DollarSign className="w-3.5 h-3.5 text-[#8DAA9D]/60 mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-white/50 leading-relaxed">
+              <span className="text-[#8DAA9D] font-medium">Cost comparison: </span>
+              Standard RAG would need {insight.followUpQueries.length + 1} queries ({insight.followUpQueries.length} expert follow-ups) at ~$0.031 each = <span className="text-red-400/70 font-medium">${((insight.followUpQueries.length + 1) * 0.031).toFixed(3)}</span>.
+              {" "}Vrin answered in 1 query at <span className="text-[#8DAA9D] font-medium">$0.046</span>.
+              {" "}And that assumes an expert who already knows what to ask.
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Expert gap */}
       <div className="px-6 py-4 bg-white/[0.02] border-t border-white/5">
