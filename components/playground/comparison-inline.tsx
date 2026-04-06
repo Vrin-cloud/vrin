@@ -212,19 +212,19 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
   },
   // === Congressional Intelligence ===
   'cross-hearing-insulin': {
-    headline: 'Standard RAG returned fragments from one hearing. Vrin tracked three senators across Finance and HELP committee hearings, synthesized their positions, and identified where they agree and diverge on insulin pricing.',
+    headline: 'Both systems identified Whitfield as the only cross-committee senator. But Vrin backed the answer with specific cost data, historical context, bill provisions, and stakeholder mapping that RAG did not surface.',
     metrics: [
-      { label: 'Hearings connected', rag: 1, vrin: 4 },
-      { label: 'Members tracked', rag: 1, vrin: 3 },
-      { label: 'Position nuances captured', rag: 1, vrin: 5 },
-      { label: 'Committee crossovers found', rag: 0, vrin: 2 },
+      { label: 'Specific data points cited', rag: 4, vrin: 14 },
+      { label: 'Cost figures provided', rag: 1, vrin: 4 },
+      { label: 'Stakeholders mapped', rag: 1, vrin: 5 },
+      { label: 'Bill provisions detailed', rag: 2, vrin: 5 },
     ],
     missed: [
-      { detail: 'Whitfield\'s PBM reform argument from HELP hearing directly supports her insulin cap rationale in Finance — she sees PBM middlemen as the root cause', impact: 'Without connecting both hearings, your client brief misses her legislative strategy. She is building a two-bill approach (S.1847 + S.892) that is stronger together.' },
-      { detail: 'Delgado\'s bipartisan substitute amendment passed HELP markup 15-7 with Republican support', impact: 'The compromise framework has bipartisan momentum. Your client needs to know the bill that reaches the floor will look different from the original text.' },
-      { detail: 'Nakamura attended the Finance hearing with a noticeably softened tone — "constituent concerns" language replacing his earlier "free market" framing', impact: 'A swing vote is in play. If your client is lobbying Finance Committee members, Nakamura\'s shift changes the vote math.' },
+      { detail: 'Insulin cost trajectory: commercially insured patients went from $47/month (2018) to $112/month (2025). Uninsured patients average $387/month', impact: 'These numbers are what make the case to a client. Without the cost trajectory, your brief says "prices are high" — with it, you show the acceleration that makes legislation inevitable.' },
+      { detail: 'Insulin is over 100 years old (Banting and Best), R&D costs were recouped decades ago, and newest analogs have been on market 15-20 years', impact: 'This undercuts the industry\'s main argument (R&D costs justify prices). A lobbyist armed with this historical context can preempt PhRMA\'s talking points.' },
+      { detail: 'The bill requires a GAO report evaluating effects on prices, access, R&D investment, insurance premiums, and PBM practices — a built-in review mechanism', impact: 'This sunset/review provision is a key selling point for persuadable Republicans. If your client is lobbying swing votes, this is the "safety valve" argument.' },
     ],
-    expertGap: 'A government affairs associate would need to watch or read 4 separate hearing transcripts, cross-reference each senator\'s statements, and build a position matrix. At 2-3 hours per hearing, that is a full day of work — and most firms only cover the marquee hearings, missing the HELP markup entirely.',
+    expertGap: 'Both systems got the right answer (Whitfield is the only cross-committee senator). The difference is depth of evidence. RAG gives you a summary you could have written from memory. Vrin gives you the cost data, historical context, and bill mechanics that make a client brief actionable.',
   },
   'nakamura-position-evolution': {
     headline: 'RAG identified the general direction but got the conclusion wrong — calling it a softening toward regulation. Vrin traced the nuance: Nakamura hardened his opposition to price caps specifically while staying open on competition reforms, backed by 4,200+ constituent contacts and specific bill provisions.',
