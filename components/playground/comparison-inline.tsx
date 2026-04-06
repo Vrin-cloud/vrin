@@ -256,6 +256,51 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
     ],
     expertGap: 'Building a full legislative landscape briefing requires pulling the bill text, CBO estimate, hearing transcripts, lobbying disclosures, and client intelligence — then synthesizing them into a single narrative. This is the deliverable a $500/hour government affairs consultant produces. Vrin generates a comparable briefing from a single query.',
   },
+  'whitfield-legislative-strategy': {
+    headline: 'Standard RAG returned Whitfield\'s most prominent hearing statement. Vrin mapped her coordinated two-bill, two-chamber strategy — connecting her PBM reform argument in HELP to her price cap push in Finance and her cross-chamber alliance with Rep. Okafor.',
+    metrics: [
+      { label: 'Legislative initiatives connected', rag: 1, vrin: 3 },
+      { label: 'Cross-chamber links found', rag: 0, vrin: 2 },
+      { label: 'Strategic moves identified', rag: 1, vrin: 5 },
+      { label: 'Coalition members mapped', rag: 1, vrin: 4 },
+    ],
+    missed: [
+      { detail: 'Whitfield is running a coordinated two-bill strategy: S.1847 (price cap) + S.892 (PBM transparency) designed to address both demand and supply-side pricing', impact: 'If your client only tracks S.1847, they miss half the legislative strategy. The PBM bill could pass independently even if the price cap stalls.' },
+      { detail: 'Rep. Okafor\'s PBM hearing in Energy & Commerce directly references Whitfield\'s HELP framework — a cross-chamber coordination that signals broader momentum', impact: 'House and Senate are moving in parallel. This is not a single-committee effort; it is a coordinated campaign across chambers.' },
+      { detail: 'Delgado\'s bipartisan substitute in HELP markup was designed to be acceptable to Finance Committee Republicans — a deliberate bridge strategy', impact: 'The compromise is not accidental. It was engineered to clear the Finance Committee where Nakamura and other swing votes sit.' },
+    ],
+    expertGap: 'Mapping a senator\'s full legislative strategy requires tracking their activity across multiple committees, both chambers, and related legislation. Most government affairs teams assign this to a senior director who manually monitors 3-4 committees. Vrin surfaces the complete strategy map in one query.',
+  },
+  'pharma-lobbying-effectiveness': {
+    headline: 'Standard RAG returned PhRMA\'s spending totals. Vrin cross-referenced the lobbying strategy against actual senator behavior over 9 months — revealing that PhRMA\'s $85K investment in Nakamura is failing to hold his opposition.',
+    metrics: [
+      { label: 'Lobbying-to-behavior links', rag: 0, vrin: 4 },
+      { label: 'Timeline depth', rag: 1, vrin: 4 },
+      { label: 'Strategy gaps identified', rag: 0, vrin: 3 },
+      { label: 'Documents cross-referenced', rag: 2, vrin: 5 },
+    ],
+    missed: [
+      { detail: 'PhRMA\'s internal strategic memo prioritized "maintain Nakamura\'s opposition" — but his March 2026 hearing language directly contradicts this goal', impact: 'The lobbying strategy is failing on its primary target. This is actionable intelligence for anyone on either side of the issue.' },
+      { detail: 'Whitfield declined all but one PhRMA meeting and took $0 in contributions — her immunity to lobbying pressure is a data point, not just an absence', impact: 'Knowing who cannot be influenced is as valuable as knowing who can. It changes where lobbying resources should be allocated.' },
+      { detail: 'The Archer & Hollis client memo independently confirms Nakamura\'s shift, suggesting it is visible beyond PhRMA\'s own assessment', impact: 'When third-party analysts are flagging the same shift, it is not speculation — it is market consensus. Your client needs to plan for Nakamura voting yes.' },
+    ],
+    expertGap: 'Evaluating lobbying effectiveness requires correlating spending data with behavioral outcomes over time — something no single document contains. Lobby firms do this analysis quarterly for premium clients at $10K+ per report. Vrin does it from the source data in seconds.',
+  },
+  'bipartisan-compromise-path': {
+    headline: 'Standard RAG found mentions of "bipartisan" in transcripts. Vrin mapped the actual coalition: Delgado\'s framework in HELP, Okafor\'s Republican support in Energy & Commerce, and Nakamura\'s evolving openness in Finance — a coordinated path across three committees.',
+    metrics: [
+      { label: 'Committees connected', rag: 1, vrin: 3 },
+      { label: 'Coalition members identified', rag: 1, vrin: 5 },
+      { label: 'Compromise provisions mapped', rag: 0, vrin: 4 },
+      { label: 'Vote signals found', rag: 0, vrin: 3 },
+    ],
+    missed: [
+      { detail: 'Delgado\'s substitute amendment has three specific compromises — phased implementation, R&D tax credit, and sunset clause — each designed to address a specific Republican objection', impact: 'These are not generic "bipartisan" gestures. Each provision maps to a named objection from a specific senator. Your client can lobby on each provision separately.' },
+      { detail: 'The HELP markup passed 16-6 with 4 Republican votes — a concrete bipartisan signal, not just rhetoric', impact: 'This is a vote count, not a quote. It tells you the compromise framework has real support, not just talk.' },
+      { detail: 'Nakamura\'s staff attended the HELP markup as observers — signaling Finance Committee interest in the compromise framework before it arrives for their consideration', impact: 'Staff observation is a leading indicator. If Nakamura\'s health policy director is watching the HELP compromise, Finance Committee action is being prepared.' },
+    ],
+    expertGap: 'Tracking a bipartisan coalition across three committees in two chambers requires monitoring hearings, markups, staff movements, and vote counts simultaneously. Most firms assign 2-3 analysts to cover a single major bill. Vrin connects all the signals into one coherent coalition map.',
+  },
 }
 
 export function ComparisonInline({

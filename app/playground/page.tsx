@@ -20,6 +20,7 @@ import { QueryPanel } from "@/components/playground/query-panel"
 import { ResultPanel } from "@/components/playground/result-panel"
 import { StatsComparison } from "@/components/playground/stats-comparison"
 import { ComparisonInline } from "@/components/playground/comparison-inline"
+import { ReasoningPath } from "@/components/playground/reasoning-path"
 
 export interface ProgressStep {
   stage: string
@@ -410,6 +411,11 @@ export default function PlaygroundPage() {
                     isVrin={true}
                   />
                 </div>
+
+                {/* Reasoning path visualization */}
+                {bothDone && selectedQuery && (
+                  <ReasoningPath selectedQuery={selectedQuery} />
+                )}
 
                 {/* Inline comparison section — no click needed */}
                 {bothDone && selectedQuery && (
