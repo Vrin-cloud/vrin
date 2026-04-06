@@ -87,7 +87,7 @@ export function ReasoningPath({ selectedQuery }: ReasoningPathProps) {
           {/* Graph traversal pipeline */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <div className="px-2.5 py-1.5 rounded-md bg-[#8DAA9D]/10 border border-[#8DAA9D]/15 text-[11px] text-[#8DAA9D]/80 font-medium">
-              Query
+              Analyze Query
             </div>
             <ArrowRight className="w-3 h-3 text-white/15" />
             <div className="px-2.5 py-1.5 rounded-md bg-[#8DAA9D]/5 border border-[#8DAA9D]/10 text-[11px] text-[#8DAA9D]/60">
@@ -95,11 +95,15 @@ export function ReasoningPath({ selectedQuery }: ReasoningPathProps) {
             </div>
             <ArrowRight className="w-3 h-3 text-white/15" />
             <div className="px-2.5 py-1.5 rounded-md bg-[#8DAA9D]/5 border border-[#8DAA9D]/10 text-[11px] text-[#8DAA9D]/60">
-              Traverse Graph
+              Graph + Vector Retrieval
             </div>
             <ArrowRight className="w-3 h-3 text-white/15" />
             <div className="px-2.5 py-1.5 rounded-md bg-[#8DAA9D]/5 border border-[#8DAA9D]/10 text-[11px] text-[#8DAA9D]/60">
-              Reason
+              Score &amp; Fuse
+            </div>
+            <ArrowRight className="w-3 h-3 text-white/15" />
+            <div className="px-2.5 py-1.5 rounded-md bg-[#8DAA9D]/5 border border-[#8DAA9D]/10 text-[11px] text-[#8DAA9D]/60">
+              Generate
             </div>
           </div>
 
