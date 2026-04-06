@@ -227,19 +227,19 @@ const QUERY_INSIGHTS: Record<string, QueryInsight> = {
     expertGap: 'A government affairs associate would need to watch or read 4 separate hearing transcripts, cross-reference each senator\'s statements, and build a position matrix. At 2-3 hours per hearing, that is a full day of work — and most firms only cover the marquee hearings, missing the HELP markup entirely.',
   },
   'nakamura-position-evolution': {
-    headline: 'Standard RAG returned Nakamura\'s most recent statement. Vrin traced a 9-month arc from strong opposition to cautious openness, and connected the shift to PhRMA lobbying patterns and a constituent visit.',
+    headline: 'RAG identified the general direction but got the conclusion wrong — calling it a softening toward regulation. Vrin traced the nuance: Nakamura hardened his opposition to price caps specifically while staying open on competition reforms, backed by 4,200+ constituent contacts and specific bill provisions.',
     metrics: [
-      { label: 'Hearings in timeline', rag: 1, vrin: 4 },
-      { label: 'Position stages documented', rag: 1, vrin: 4 },
-      { label: 'Influence factors identified', rag: 0, vrin: 3 },
-      { label: 'Lobbying connections found', rag: 0, vrin: 2 },
+      { label: 'Specific data points cited', rag: 3, vrin: 12 },
+      { label: 'Bill provisions identified', rag: 0, vrin: 4 },
+      { label: 'Constituent pressure quantified', rag: 0, vrin: 1 },
+      { label: 'Related legislation connected', rag: 1, vrin: 3 },
     ],
     missed: [
-      { detail: 'PhRMA\'s strategic memo listed "maintain Sen. Nakamura\'s opposition" as a priority — but their $85K in contributions and 4 meetings in Q4 coincide with his position softening, not hardening', impact: 'The lobbying investment is not working as intended. If your client is PhRMA, this is a red flag. If your client opposes PhRMA, this is an opportunity.' },
-      { detail: 'Nakamura visited Hawaii Community Health Centers between the November and March hearings, meeting insulin-dependent patients', impact: 'This constituent interaction is the likely catalyst for his language change. It tells you what is actually moving him — not industry arguments, but patient stories.' },
-      { detail: 'His language evolved from "government has no business setting prices" (June 2025) to "I cannot ignore what I heard from families in Honolulu" (March 2026)', impact: 'The specific quotes document a clear evolution. In a whip count, this trajectory suggests he is persuadable on a compromise bill.' },
+      { detail: '4,200+ constituent letters, emails, and phone calls forcing Nakamura to take a clearer public position', impact: 'This is the single most important pressure point. Constituent volume at this level forces a senator to commit — and it tells your lobbying team exactly what lever is working.' },
+      { detail: 'S.1847\'s specific provisions: copayment cap starting January 1, 2027, PBM disclosure requirements, manufacturer rebate floor — and projected 72-85% out-of-pocket cost reductions', impact: 'Without knowing the specific mechanisms, your client cannot lobby on individual provisions. Nakamura may support the PBM disclosures while opposing the cap — that is actionable intelligence.' },
+      { detail: 'RAG concluded Nakamura was softening toward accepting regulation. Vrin correctly identified the opposite: he hardened his opposition to price caps while remaining engaged on competition reforms', impact: 'Getting the direction wrong is worse than having no analysis. If your client acts on "Nakamura is softening," they misallocate lobbying resources on a senator who is actually digging in on the cap issue.' },
     ],
-    expertGap: 'Tracking a senator\'s position evolution requires reading every hearing transcript they participated in over 9 months, cross-referencing lobbying disclosures, and monitoring their public schedule. Senior government affairs directors do this for 3-5 key senators — it is their full-time job. Vrin gives every user that capability.',
+    expertGap: 'Tracking a senator\'s position evolution requires reading every hearing transcript they participated in over 9 months, cross-referencing bill provisions, and quantifying constituent pressure. Senior government affairs directors do this for 3-5 key senators — it is their full-time job. Vrin gives every user that capability.',
   },
   'insulin-cap-landscape': {
     headline: 'Standard RAG returned the bill summary. Vrin assembled a complete legislative intelligence briefing: CBO scoring, committee vote signals, industry opposition strategy, and client risk assessment — from 5 different document types.',
