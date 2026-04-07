@@ -76,27 +76,35 @@ export function HeroSection() {
             >
               {/* Main Headline with Rotating Text - Elegant Typography */}
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight">
-                  <span className="text-vrin-charcoal dark:text-vrin-cream">Knowledge Reasoning</span>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[1.1] tracking-tight">
+                  <span className="text-vrin-charcoal dark:text-vrin-cream">Cognitive Infrastructure</span>
                   <br />
-                  <span className="text-vrin-charcoal dark:text-vrin-cream">for </span>
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={currentTextIndex}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5 }}
-                      className="font-medium text-vrin-blue dark:text-vrin-sage inline-block"
-                    >
-                      {rotatingTexts[currentTextIndex]}
-                    </motion.span>
-                  </AnimatePresence>
+                  <span className="text-vrin-charcoal dark:text-vrin-cream">for the </span>
+                  <span className="font-medium text-vrin-blue dark:text-vrin-sage">Agentic Era</span>
                 </h1>
 
-                {/* Subheadline - Refined typography */}
-                <p className="text-base md:text-lg text-vrin-charcoal/60 dark:text-vrin-cream/60 font-normal mt-6 max-w-xl">
-                  The knowledge infrastructure layer that enables deep reasoning across your documents &amp; apps, for your teams and your AI agents
+                {/* Subheadline with rotating text */}
+                <div className="mt-5">
+                  <p className="text-2xl md:text-3xl text-vrin-charcoal/70 dark:text-vrin-cream/70 font-normal max-w-2xl whitespace-nowrap">
+                    <span>Structured intelligence for </span>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={currentTextIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.4 }}
+                        className="font-medium text-vrin-blue dark:text-vrin-sage inline-block"
+                      >
+                        {rotatingTexts[currentTextIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </p>
+                </div>
+
+                {/* Positioning line */}
+                <p className="text-base md:text-lg text-vrin-charcoal/40 dark:text-vrin-cream/40 font-normal mt-3 max-w-2xl">
+                  Retrieval-time reasoning. Context that&apos;s thought through, not looked up.
                 </p>
               </div>
 
