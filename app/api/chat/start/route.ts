@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying chat start request');
-
     const response = await fetch(`${API_CONFIG.CHAT_BASE_URL}/chat/start`, {
       method: 'POST',
       headers: {
@@ -30,7 +28,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Chat start proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

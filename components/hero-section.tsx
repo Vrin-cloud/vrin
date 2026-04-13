@@ -141,7 +141,7 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Social Proof - Elegant minimal styling */}
+          {/* Social Proof - Uncomment when we have enough customers to display
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,7 +150,6 @@ export function HeroSection() {
           >
             <p className="text-xs text-vrin-charcoal/50 dark:text-vrin-cream/50 uppercase tracking-widest mb-6">Trusted by developers at</p>
             <div className="flex items-center justify-center space-x-8">
-              {/* UC Davis Logo */}
               <div className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-500">
                 <img
                   src="/UC Davis logo.png"
@@ -160,6 +159,7 @@ export function HeroSection() {
               </div>
             </div>
           </motion.div>
+          */}
         </div>
       </div>
 

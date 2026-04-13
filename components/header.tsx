@@ -53,6 +53,16 @@ const menuItems = {
       hasVideo: false
     }
   },
+  research: {
+    label: "Research",
+    hasDropdown: false,
+    href: "/research"
+  },
+  manifesto: {
+    label: "Manifesto",
+    hasDropdown: false,
+    href: "/manifesto"
+  },
   forAgents: {
     label: "For AI Agents",
     hasDropdown: false,
@@ -148,7 +158,7 @@ export function Header() {
       {/* Main header container */}
       <div
         className={`mx-auto transition-all duration-500 ${
-          isScrolled ? "max-w-5xl px-2" : "container"
+          isScrolled ? "max-w-6xl px-2" : "container"
         }`}
       >
         <div
@@ -449,6 +459,28 @@ export function Header() {
 
             {/* Direct Links */}
             <div className="py-2 border-t border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+              <Link
+                href="/research"
+                className={`block text-base font-normal py-2 transition-colors ${
+                  isScrolled
+                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
+                    : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Research
+              </Link>
+              <Link
+                href="/manifesto"
+                className={`block text-base font-normal py-2 transition-colors ${
+                  isScrolled
+                    ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
+                    : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Manifesto
+              </Link>
               <Link
                 href="/playground"
                 className={`block text-base font-normal py-2 transition-colors ${

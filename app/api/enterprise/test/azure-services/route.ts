@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Testing ${type} Azure service connection to ${endpoint}`)
-
     // Handle different Azure service types
     switch (type.toLowerCase()) {
       case 'key_vault':
@@ -34,7 +32,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('Azure service test error:', error)
     return NextResponse.json(
       { error: error.message || 'Azure service connection test failed' },
       { status: 500 }
@@ -61,8 +58,6 @@ async function testAzureKeyVault(endpoint: string, authToken?: string) {
     }
 
     // Test Key Vault connectivity
-    console.log(`Testing Azure Key Vault connection to: ${keyVaultUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 
@@ -173,8 +168,6 @@ async function testAzureFunctions(endpoint: string, authToken?: string) {
     if (!functionsUrl.startsWith('https://')) {
       functionsUrl = `https://${functionsUrl.replace(/^https?:\/\//, '')}`
     }
-
-    console.log(`Testing Azure Functions connection to: ${functionsUrl}`)
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
@@ -287,8 +280,6 @@ async function testAzureStorage(endpoint: string, authToken?: string) {
     if (!storageUrl.startsWith('https://')) {
       storageUrl = `https://${storageUrl.replace(/^https?:\/\//, '')}`
     }
-
-    console.log(`Testing Azure Storage connection to: ${storageUrl}`)
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)

@@ -15,7 +15,7 @@ import {
   MessageSquare,
   Send,
 } from "lucide-react"
-import { SCENARIOS, type DemoQuery, type DemoScenario } from "@/lib/playground/demo-data"
+import { SCENARIOS, type DemoQuery, type DemoScenario, type PatientProfile } from "@/lib/playground/demo-data"
 import { QueryPanel } from "@/components/playground/query-panel"
 import { ResultPanel } from "@/components/playground/result-panel"
 import { StatsComparison } from "@/components/playground/stats-comparison"
@@ -61,6 +61,7 @@ export type QueryState = "idle" | "loading" | "done" | "error"
 
 export default function PlaygroundPage() {
   const [activeScenario, setActiveScenario] = useState<DemoScenario>(SCENARIOS[0])
+  const [activePatient, setActivePatient] = useState<PatientProfile | null>(null)
   const [selectedQuery, setSelectedQuery] = useState<DemoQuery | null>(null)
   const [customQuery, setCustomQuery] = useState("")
   const [ragState, setRagState] = useState<QueryState>("idle")
@@ -259,6 +260,10 @@ export default function PlaygroundPage() {
   const hasResults = ragState !== "idle" || vrinState !== "idle"
   const bothDone = ragState === "done" && vrinState === "done"
 
+  // Derive active queries from patient profile or scenario directly
+  const activeQueries = activePatient ? activePatient.queries : activeScenario.queries
+  const hasPatients = Boolean(activeScenario.patients?.length)
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Minimal header */}
@@ -328,6 +333,7 @@ export default function PlaygroundPage() {
                 onClick={() => {
                   if (scenario.id !== activeScenario.id && !isRunning) {
                     setActiveScenario(scenario)
+                    setActivePatient(scenario.patients?.[0] ?? null)
                     setSelectedQuery(null)
                     setCustomQuery("")
                     setRagState("idle")
@@ -351,8 +357,55 @@ export default function PlaygroundPage() {
           <p className="text-xs text-white/30 mb-2">{activeScenario.description}</p>
           <p className="text-[11px] text-white/20 italic mb-4">All names, organizations, and events in this demo are fictional. The data was created solely to demonstrate Vrin&apos;s reasoning capabilities.</p>
 
+          {/* Patient sub-tabs (only for scenarios with patient profiles) */}
+          {hasPatients && activeScenario.patients && (
+            <div className="mb-6">
+              <p className="text-xs text-white/40 uppercase tracking-wider mb-3 font-medium">
+                Select a patient profile
+              </p>
+              <div className="flex gap-2 mb-4">
+                {activeScenario.patients.map((patient) => (
+                  <button
+                    key={patient.id}
+                    onClick={() => {
+                      if (patient.id !== activePatient?.id && !isRunning) {
+                        setActivePatient(patient)
+                        setSelectedQuery(null)
+                        setCustomQuery("")
+                        setRagState("idle")
+                        setVrinState("idle")
+                        setRagResult(null)
+                        setVrinResult(null)
+                      }
+                    }}
+                    disabled={isRunning}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activePatient?.id === patient.id
+                        ? "bg-[#8DAA9D]/15 text-[#8DAA9D] border border-[#8DAA9D]/30"
+                        : "bg-white/[0.03] text-white/40 border border-white/10 hover:text-white/60 hover:border-white/20"
+                    } ${isRunning ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {patient.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Patient context card */}
+              {activePatient && (
+                <div className="px-5 py-4 rounded-xl bg-white/[0.03] border border-white/10 mb-4">
+                  <p className="text-xs text-[#8DAA9D] uppercase tracking-wider font-medium mb-2">
+                    Patient History
+                  </p>
+                  <p className="text-sm text-white/60 leading-relaxed">
+                    {activePatient.context}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <QueryPanel
-            queries={activeScenario.queries}
+            queries={activeQueries}
             selectedQuery={selectedQuery}
             customQuery={customQuery}
             onSelectQuery={handleDemoQuery}

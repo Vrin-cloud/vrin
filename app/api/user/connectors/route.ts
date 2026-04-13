@@ -29,8 +29,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[API] Backend error:', response.status, errorText)
-
       // Return empty connectors if unauthorized or not found
       if (response.status === 401 || response.status === 404) {
         return NextResponse.json({
@@ -45,7 +43,6 @@ export async function GET(request: NextRequest) {
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error('[API] Error fetching connectors:', error)
     // Return empty list on error to prevent UI breaking
     return NextResponse.json({
       connectors: [],

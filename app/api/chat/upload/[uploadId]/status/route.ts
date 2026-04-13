@@ -14,8 +14,6 @@ export async function GET(
       return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying upload status check for:', uploadId);
-
     const response = await fetch(`${API_CONFIG.CHAT_BASE_URL}/upload/${uploadId}/status`, {
       method: 'GET',
       headers: {
@@ -32,7 +30,6 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Upload status proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

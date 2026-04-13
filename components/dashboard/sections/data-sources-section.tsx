@@ -71,6 +71,7 @@ interface ConnectorState {
   last_sync_at?: string
   documents_synced?: number
   error_message?: string
+  nango_connection_id?: string
 }
 
 interface DataSourcesSectionProps {
@@ -138,6 +139,11 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
 
     try {
       // Step 1: Get a session token from our backend
+      // If already connected, pass the existing connection ID so Nango
+      // updates the existing connection instead of creating a duplicate
+      const existingState = connectorStates[connectorId]
+      const existingConnectionId = existingState?.nango_connection_id
+
       const sessionResponse = await fetch('/api/connectors/session', {
         method: 'POST',
         headers: {
@@ -147,7 +153,8 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
         body: JSON.stringify({
           userId,
           userEmail,
-          allowedIntegrations: [connectorId], // Only show this specific connector
+          allowedIntegrations: [connectorId],
+          existingConnectionId: existingConnectionId || undefined,
         }),
       })
 
@@ -495,6 +502,7 @@ export function DataSourcesSection({ apiKey, userId, userEmail }: DataSourcesSec
                 onConnect={() => handleConnect(connector.id)}
                 onDisconnect={() => handleDisconnect(connector.id)}
                 onSync={() => handleSync(connector.id)}
+                onManagePages={() => handleConnect(connector.id)}
               />
             )
           })}

@@ -56,8 +56,6 @@ export async function POST(
       )
     }
 
-    console.log(`[API] Registering connector connection: ${type} -> ${connectionId}`)
-
     // TODO: Call backend API to register the connection
     // const response = await fetch(`${BACKEND_URL}/user/connectors/${type}/connect`, {
     //   method: 'POST',
@@ -82,7 +80,6 @@ export async function POST(
       message: 'Connection registered. Backend integration pending for full sync.'
     })
   } catch (error) {
-    console.error('[API] Error registering connector:', error)
     return NextResponse.json(
       { error: 'Failed to register connector connection' },
       { status: 500 }

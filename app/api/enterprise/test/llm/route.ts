@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Testing ${provider} LLM connection (model: ${model})`)
-
     // Handle different LLM providers
     switch (provider.toLowerCase()) {
       case 'openai':
@@ -33,7 +31,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('LLM test error:', error)
     return NextResponse.json(
       { error: error.message || 'LLM connection test failed' },
       { status: 500 }
@@ -46,8 +43,6 @@ async function testOpenAI(model: string = 'gpt-4', endpoint?: string) {
     const openaiEndpoint = endpoint || 'https://api.openai.com/v1'
     const modelsUrl = `${openaiEndpoint}/models`
     
-    console.log(`Testing OpenAI connection to: ${modelsUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 
@@ -154,8 +149,6 @@ async function testAzureOpenAI(model: string = 'gpt-4', endpoint?: string) {
 
     // Test basic connectivity - Azure OpenAI doesn't have a public models endpoint
     // We'll test the base URL
-    console.log(`Testing Azure OpenAI connection to: ${azureEndpoint}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 

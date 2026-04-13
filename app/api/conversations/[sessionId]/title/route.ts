@@ -19,8 +19,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    console.log('Proxying update conversation title:', sessionId);
-
     // Correct path from SAM template: /conversations/{session_id}/title (NOT /chat/conversations)
     const response = await fetch(
       `https://rthl3rcg2b.execute-api.us-east-1.amazonaws.com/dev/conversations/${sessionId}/title`,
@@ -35,7 +33,6 @@ export async function PUT(
     );
 
     const data = await response.json();
-    console.log('Update title response:', data);
 
     if (!response.ok) {
       return NextResponse.json({ error: data.error || data.message || 'Failed to update title' }, { status: response.status });
@@ -43,7 +40,6 @@ export async function PUT(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Update title proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

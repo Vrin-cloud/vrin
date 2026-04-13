@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('VRIN backend specialization error:', response.status, errorText);
       return NextResponse.json(
         { success: false, error: `Backend error: ${response.status}` },
         { status: response.status }
@@ -41,7 +40,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('Specialization API route error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -72,7 +70,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'No specialization configured' }, { status: 404 });
       }
       const errorText = await response.text();
-      console.error('VRIN backend get specialization error:', response.status, errorText);
       return NextResponse.json(
         { success: false, error: `Backend error: ${response.status}` },
         { status: response.status }
@@ -83,7 +80,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('Get specialization API route error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

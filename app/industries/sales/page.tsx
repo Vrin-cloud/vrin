@@ -184,7 +184,7 @@ export default function SalesPage() {
       {/* ================================================================ */}
       {/* Pillar 1: Knowledge Reasoning — video + copy                     */}
       {/* ================================================================ */}
-      <section className="py-20 md:py-28 bg-[#201E1E] dark:bg-[#FFFFFF]">
+      <section className="py-20 md:py-28 bg-black dark:bg-[#FFFFFF] rounded-[3rem] md:rounded-[4rem]">
         <div className="container max-w-[90rem] px-8 md:px-16">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left — autoplay video */}
@@ -336,7 +336,7 @@ export default function SalesPage() {
       {/* ================================================================ */}
       {/* Section C: What changes — universe blur image + outcomes         */}
       {/* ================================================================ */}
-      <section className="py-20 md:py-28 bg-[#201E1E] dark:bg-[#FFFFFF]">
+      <section className="py-20 md:py-28 bg-black dark:bg-[#FFFFFF] rounded-[3rem] md:rounded-[4rem]">
         <div className="container max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — aesthetic image */}
@@ -462,19 +462,19 @@ export default function SalesPage() {
       {/* ================================================================ */}
       {/* Final CTA                                                        */}
       {/* ================================================================ */}
-      <section className="py-20 bg-gradient-to-br from-[#083C5E] to-[#083C5E]/80 dark:from-[#083C5E]/90 dark:to-[#8DAA9D]/20">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-6 text-white">
+            <h2 className="text-3xl md:text-4xl font-light mb-6 text-[#201E1E] dark:text-white">
               Stop asking around. Start closing.
             </h2>
-            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-              Your team&apos;s knowledge, reasoned across and ready to use&mdash;on
-              every call, in every deal, for every rep.
+            <p className="text-lg text-[#201E1E]/60 dark:text-white/80 mb-8 max-w-2xl mx-auto">
+              Your team&apos;s knowledge, reasoned across and ready to use,
+              on every call, in every deal, for every rep.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -483,14 +483,14 @@ export default function SalesPage() {
               >
                 <Button
                   size="lg"
-                  className="rounded-full px-8 bg-white text-[#083C5E] hover:bg-white/90"
+                  className="rounded-full px-8 bg-[#083C5E] text-white hover:bg-[#083C5E]/90"
                 >
                   Book a 15-min Call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-white/70 flex-wrap">
+            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-[#201E1E]/50 dark:text-white/70 flex-wrap">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
                 <span>Auto-syncs from your tools</span>

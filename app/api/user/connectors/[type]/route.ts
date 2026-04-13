@@ -55,8 +55,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[API] Backend error:', response.status, errorText)
-
       // Return disconnected status if not found
       if (response.status === 404) {
         return NextResponse.json({
@@ -71,7 +69,6 @@ export async function GET(
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error('[API] Error fetching connector status:', error)
     return NextResponse.json(
       { error: 'Failed to fetch connector status' },
       { status: 500 }
@@ -105,8 +102,6 @@ export async function DELETE(
       )
     }
 
-    console.log(`[API] Disconnecting connector: ${type}`)
-
     // Call backend Lambda to disconnect
     const response = await fetch(`${CONNECTOR_API_URL}/connectors/${type}`, {
       method: 'DELETE',
@@ -118,14 +113,12 @@ export async function DELETE(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[API] Backend error:', response.status, errorText)
       throw new Error(`Backend error: ${response.status}`)
     }
 
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error('[API] Error disconnecting connector:', error)
     return NextResponse.json(
       { error: 'Failed to disconnect connector' },
       { status: 500 }

@@ -88,10 +88,10 @@ export function WhyVrinSection() {
               className="mt-10"
             >
               <Link
-                href="/vision"
+                href="/manifesto"
                 className="inline-flex items-center gap-2 text-[#8DAA9D] hover:text-white text-sm font-medium transition-colors duration-300"
               >
-                Our Vision
+                Our Manifesto
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>

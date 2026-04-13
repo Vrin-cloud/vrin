@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
     try {
       stytch = getStytchServerClient();
     } catch (initErr: any) {
-      console.error('[Password Auth] Stytch client init failed:', initErr?.message);
       return NextResponse.json(
         { success: false, error: 'Authentication service unavailable. Please try again later.' },
         { status: 503 }
@@ -55,7 +54,7 @@ export async function POST(request: NextRequest) {
         existingOrgId = searchResult.organizations[0].organization_id;
       }
     } catch (emailSearchErr: any) {
-      console.error('[Password Auth] Org search by email failed:', emailSearchErr?.message);
+      // Error handled silently
     }
 
     if (!existingOrgId) {
@@ -70,7 +69,7 @@ export async function POST(request: NextRequest) {
           existingOrgId = slugResult.organizations[0].organization_id;
         }
       } catch (slugSearchErr: any) {
-        console.error('[Password Auth] Org search by slug failed:', slugSearchErr?.message);
+        // Error handled silently
       }
     }
 
@@ -110,7 +109,6 @@ export async function POST(request: NextRequest) {
 
         const isNotFound = errorType.includes('not_found') || authErr.status_code === 404;
         if (!isNotFound) {
-          console.error(`[Password Auth] Unexpected error: ${errorType} (${authErr.status_code})`);
           return NextResponse.json(
             { success: false, error: 'Authentication failed. Please try again.' },
             { status: 500 }
@@ -155,14 +153,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.error(`[Password Auth] Signup failed: ${signupErr.error_type} (${signupErr.status_code})`);
       return NextResponse.json(
         { success: false, error: 'Failed to create account. Please try again.' },
         { status: 500 }
       );
     }
   } catch (error: any) {
-    console.error('[Password Auth] Unexpected error:', error?.message || error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

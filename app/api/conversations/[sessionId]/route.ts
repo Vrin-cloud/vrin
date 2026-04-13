@@ -13,8 +13,6 @@ export async function GET(
       return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying get conversation:', sessionId);
-
     // Proxy to backend conversation history API
     // Using /Stage to match frontend config (API_CONFIG.CONVERSATION_BASE_URL)
     const response = await fetch(
@@ -30,8 +28,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Get conversation error:', response.status, errorText);
-
       let errorData;
       try {
         errorData = JSON.parse(errorText);
@@ -43,11 +39,8 @@ export async function GET(
     }
 
     const data = await response.json();
-    console.log('✅ Loaded conversation:', sessionId, 'with', data.messages?.length || 0, 'messages');
-
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Get conversation proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -65,8 +58,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying delete conversation:', sessionId);
-
     // Correct path from SAM template: /conversations/{session_id} (NOT /chat/conversations)
     // Using /Stage to match frontend config (API_CONFIG.CONVERSATION_BASE_URL)
     const response = await fetch(
@@ -81,7 +72,6 @@ export async function DELETE(
     );
 
     const data = await response.json();
-    console.log('Delete conversation response:', data);
 
     if (!response.ok) {
       return NextResponse.json({ error: data.error || data.message || 'Failed to delete conversation' }, { status: response.status });
@@ -89,7 +79,6 @@ export async function DELETE(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Delete conversation proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

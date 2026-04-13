@@ -101,7 +101,7 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
   )
 }
 
-export default function VisionPage() {
+export default function ManifestoPage() {
   return (
     <div className="flex flex-col">
       <AnimatedBackground />
@@ -116,7 +116,7 @@ export default function VisionPage() {
             transition={{ duration: 0.6 }}
           >
             <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-              Our Vision
+              Our Manifesto
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#201E1E] dark:text-white leading-tight mb-8">
               The reasoning layer<br />AI agents are missing
@@ -201,7 +201,7 @@ export default function VisionPage() {
       </section>
 
       {/* What We&apos;re Building */}
-      <section className="py-24 bg-[#201E1E]">
+      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
         <div className="container max-w-3xl mx-auto px-6">
           <Section>
             <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
@@ -349,13 +349,13 @@ export default function VisionPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 bg-[#201E1E]">
+      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-3xl mx-auto px-6 text-center">
           <Section>
-            <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-4">
               Give your AI agents the ability to reason
             </h2>
-            <p className="text-lg text-white/60 font-light mb-10 max-w-xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light mb-10 max-w-xl mx-auto">
               Start free. See the difference retrieval-time reasoning makes.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -370,7 +370,7 @@ export default function VisionPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 text-base font-medium border-2 border-white/20 text-[#201E1E] bg-white hover:bg-white/90 rounded-full"
+                className="px-8 py-6 text-base font-medium border-2 border-[#201E1E]/20 dark:border-white/20 text-white dark:text-[#201E1E] bg-[#201E1E] dark:bg-white hover:bg-[#201E1E]/90 dark:hover:bg-white/90 rounded-full"
                 onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
               >
                 <Calendar className="mr-2 h-5 w-5" />

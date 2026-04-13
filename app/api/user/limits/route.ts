@@ -12,8 +12,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying user limits request to backend');
-
     // Proxy to backend auth handler /api/user/limits endpoint
     const response = await fetch(
       `${API_CONFIG.AUTH_BASE_URL}/api/user/limits`,
@@ -28,8 +26,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('User limits fetch error:', response.status, errorText);
-
       let errorData;
       try {
         errorData = JSON.parse(errorText);
@@ -41,11 +37,8 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('User limits fetched:', data.plan, data.success);
-
     return NextResponse.json(data);
   } catch (error) {
-    console.error('User limits proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying insert request for content length:', content?.length);
-
     const response = await fetch('https://thuiu23t0c.execute-api.us-east-1.amazonaws.com/dev/insert', {
       method: 'POST',
       headers: {
@@ -23,7 +21,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
-    console.log('RAG insert response:', data);
 
     if (!response.ok) {
       return NextResponse.json({ success: false, error: data.message || 'Insert failed' }, { status: response.status });
@@ -31,7 +28,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Insert proxy error:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -30,6 +30,7 @@ import {
 import { AuthService, VRINService } from '../../lib/services/vrin-service';
 import { ModernApiKeysSection } from '../../components/dashboard/sections/modern-api-keys';
 import { ModernGraph } from '../../components/dashboard/knowledge-graph/modern-graph';
+import { CosmosGraph } from '../../components/dashboard/knowledge-graph/cosmos-graph';
 import { ModernDocumentationSection } from '../../components/dashboard/sections/modern-documentation';
 import { AISpecializationSection } from '../../components/dashboard/sections/ai-specialization';
 import { MCPSection } from '../../components/dashboard/sections/mcp-section';
@@ -92,7 +93,7 @@ export default function Dashboard() {
     hasApiKey,
     refetch: refetchGraph
   } = useAccountKnowledgeGraph({
-    limit: usePerformanceMode ? (graphLimit || 100) : undefined
+    limit: 2000  // Fetch up to 2K nodes — Sigma.js handles this easily, prevents backend timeout
   });
 
   useEffect(() => {
@@ -328,14 +329,11 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <div className="h-[700px] bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
-              <ModernGraph 
-                data={graphData || undefined} 
-                selectedProject="Default Project"
+            <div className="h-[700px] rounded-xl border border-white/10 overflow-hidden relative">
+              <CosmosGraph
+                data={graphData || undefined}
                 isLoading={isGraphLoading}
                 error={actualGraphError}
-                onNodeSelect={handleNodeSelect}
-                onEdgeSelect={handleEdgeSelect}
               />
             </div>
           </div>

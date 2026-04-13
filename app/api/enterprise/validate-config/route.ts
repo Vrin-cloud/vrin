@@ -8,9 +8,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const authHeader = request.headers.get('Authorization')
     
-    console.log('🔑 Auth header received:', authHeader ? 'Bearer token present' : 'No auth header')
-    console.log('📦 Request body:', JSON.stringify(body, null, 2))
-    
     if (!authHeader) {
       return NextResponse.json(
         { error: 'Authorization header is required' },
@@ -19,7 +16,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the actual enterprise API
-    console.log('🚀 Forwarding to:', `${ENTERPRISE_API_BASE}/enterprise/validate-config`)
     const response = await fetch(`${ENTERPRISE_API_BASE}/enterprise/validate-config`, {
       method: 'POST',
       headers: {
@@ -29,22 +25,19 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body)
     })
 
-    console.log('📡 Backend response status:', response.status)
     const data = await response.json()
-    console.log('📡 Backend response data:', data)
 
     // Return the response with proper CORS headers
     return NextResponse.json(data, {
       status: response.status,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'https://vrin.cloud',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       }
     })
 
   } catch (error) {
-    console.error('Error proxying request:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -56,7 +49,7 @@ export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'https://vrin.cloud',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400',

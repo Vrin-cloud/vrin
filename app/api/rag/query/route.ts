@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Authorization required' }, { status: 401 });
     }
 
-    console.log('Proxying query request for:', query);
-
     // NEW: Lambda Function URL (replaces API Gateway)
     // No 30-second timeout, supports up to 15 minutes
     const response = await fetch('https://ludeelasqiubh3fxmhtjdzwsou0uundi.lambda-url.us-east-1.on.aws/', {
@@ -25,7 +23,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
-    console.log('RAG query response:', data);
 
     if (!response.ok) {
       return NextResponse.json({ success: false, error: data.message || 'Query failed' }, { status: response.status });
@@ -33,7 +30,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Query proxy error:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

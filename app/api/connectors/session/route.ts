@@ -4,15 +4,13 @@ import { NextRequest, NextResponse } from 'next/server'
  * POST /api/connectors/session
  *
  * Creates a Nango connect session for the authenticated user.
- * Returns a session token that the frontend uses to open the Nango Connect UI.
+ * If the user already has a connection for the requested integration,
+ * creates a RECONNECT session (updates existing connection) instead of
+ * a new one — prevents duplicate connections in Nango.
  */
 export async function POST(request: NextRequest) {
-  console.log('[Connectors] Session API called')
-
   try {
-    // Get the authorization header (user's API key or session token)
     const authHeader = request.headers.get('authorization')
-    console.log('[Connectors] Auth header present:', !!authHeader)
 
     if (!authHeader) {
       return NextResponse.json(
@@ -21,10 +19,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse request body
     const body = await request.json()
-    const { userId, userEmail, allowedIntegrations } = body
-    console.log('[Connectors] Request body:', { userId, userEmail, allowedIntegrations })
+    const { userId, userEmail, allowedIntegrations, existingConnectionId } = body
 
     if (!userId) {
       return NextResponse.json(
@@ -33,19 +29,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get Nango secret key from environment
     const nangoSecretKey = process.env.NANGO_SECRET_KEY
-    console.log('[Connectors] Nango secret key present:', !!nangoSecretKey, 'length:', nangoSecretKey?.length)
 
     if (!nangoSecretKey) {
-      console.error('NANGO_SECRET_KEY not configured')
       return NextResponse.json(
         { error: 'Connector service not configured' },
         { status: 500 }
       )
     }
 
-    // Create connect session with Nango
+    // If an existing connection_id was provided, use the reconnect endpoint
+    // to update that connection instead of creating a duplicate
+    if (existingConnectionId) {
+      const integration = allowedIntegrations?.[0] || 'notion'
+      const reconnectResponse = await fetch('https://api.nango.dev/connect/sessions/reconnect', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${nangoSecretKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          connection_id: existingConnectionId,
+          integration_id: integration,
+        }),
+      })
+
+      if (!reconnectResponse.ok) {
+        const errorText = await reconnectResponse.text()
+        // Fall through to create a new session if reconnect fails
+      } else {
+        const data = await reconnectResponse.json()
+        const sessionToken = data.data?.token || data.token || data.session_token
+
+        if (sessionToken) {
+          return NextResponse.json({ sessionToken, reconnect: true })
+        }
+      }
+    }
+
+    // Create a new connect session (first-time connection)
     const nangoRequestBody = {
       end_user: {
         id: userId,
@@ -62,7 +84,6 @@ export async function POST(request: NextRequest) {
         'dropbox',
       ],
     }
-    console.log('[Connectors] Nango request body:', JSON.stringify(nangoRequestBody))
 
     const nangoResponse = await fetch('https://api.nango.dev/connect/sessions', {
       method: 'POST',
@@ -73,11 +94,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(nangoRequestBody),
     })
 
-    console.log('[Connectors] Nango response status:', nangoResponse.status)
-
     if (!nangoResponse.ok) {
       const errorText = await nangoResponse.text()
-      console.error(`[Connectors] Nango session creation failed: ${nangoResponse.status} - ${errorText}`)
       return NextResponse.json(
         { error: 'Failed to create connector session', details: errorText },
         { status: nangoResponse.status }
@@ -85,27 +103,18 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await nangoResponse.json()
-    console.log('[Connectors] Nango session response:', JSON.stringify(data))
-
-    // Nango wraps the response in a 'data' object: { data: { token: '...' } }
     const sessionToken = data.data?.token || data.token || data.session_token
 
     if (!sessionToken) {
-      console.error('[Connectors] No token in Nango response:', data)
       return NextResponse.json(
         { error: 'Invalid session response from Nango' },
         { status: 500 }
       )
     }
 
-    console.log('[Connectors] Returning session token, length:', sessionToken?.length)
-
-    return NextResponse.json({
-      sessionToken: sessionToken,
-    })
+    return NextResponse.json({ sessionToken, reconnect: false })
 
   } catch (error) {
-    console.error('[Connectors] Session error:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: String(error) },
       { status: 500 }

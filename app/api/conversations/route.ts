@@ -13,8 +13,6 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') || '50';
     const offset = searchParams.get('offset') || '0';
 
-    console.log('Proxying get conversations list with limit:', limit);
-
     // Proxy to backend conversation history API
     // Using /Stage to match frontend config (API_CONFIG.CONVERSATION_BASE_URL)
     const response = await fetch(
@@ -30,8 +28,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Get conversations error:', response.status, errorText);
-
       let errorData;
       try {
         errorData = JSON.parse(errorText);
@@ -43,11 +39,8 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('✅ Loaded', data.total || 0, 'conversations');
-
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Get conversations proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

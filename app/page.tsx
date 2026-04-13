@@ -15,6 +15,7 @@ import { AnnouncementBar } from "@/components/announcement-bar"
 import { HowVrinWorks } from "@/components/how-vrin-works"
 import { ForAgentsSection } from "@/components/for-agents-section"
 import { WhyVrinSection } from "@/components/why-vrin-section"
+import { OutcomesBar } from "@/components/outcomes-bar"
 import { VrinGlowText } from "@/components/vrin-glow-text"
 
 export default function Home() {
@@ -38,6 +39,9 @@ export default function Home() {
       
             {/* Enhanced Hero Section */}
       <HeroSection />
+
+      {/* Outcome Metrics Bar */}
+      <OutcomesBar />
 
       {/* Why VRIN — Explainer for cold visitors */}
       <WhyVrinSection />

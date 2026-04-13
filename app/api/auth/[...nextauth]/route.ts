@@ -69,10 +69,8 @@ const handler = NextAuth({
           }
 
           // If OAuth endpoint doesn't exist, try regular signup/login flow
-          console.log('OAuth endpoint not available, using fallback')
           return true
         } catch (error) {
-          console.error('Google sign-in backend sync failed:', error)
           // Still allow sign-in, we'll handle missing API key in the app
           return true
         }

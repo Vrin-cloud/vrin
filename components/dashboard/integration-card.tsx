@@ -59,6 +59,7 @@ export interface IntegrationCardProps {
   onConnect: () => Promise<void>
   onDisconnect: () => Promise<void>
   onSync: () => Promise<void>
+  onManagePages?: () => Promise<void>
 }
 
 export function IntegrationCard({
@@ -73,7 +74,8 @@ export function IntegrationCard({
   apiKey,
   onConnect,
   onDisconnect,
-  onSync
+  onSync,
+  onManagePages
 }: IntegrationCardProps) {
   const [loading, setLoading] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -250,6 +252,27 @@ export function IntegrationCard({
                       <RefreshCw className={`w-4 h-4 ${status === 'syncing' ? 'animate-spin' : ''}`} />
                       Sync Now
                     </button>
+                    {onManagePages && (
+                      <button
+                        onClick={async () => {
+                          setShowMenu(false)
+                          setLoading(true)
+                          try {
+                            await onManagePages()
+                          } catch (error) {
+                            console.error(`Failed to manage ${name} pages:`, error)
+                          } finally {
+                            setLoading(false)
+                          }
+                        }}
+                        disabled={loading}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Manage Pages
+                      </button>
+                    )}
+                    <div className="border-t border-gray-100 my-1" />
                     <button
                       onClick={handleDisconnect}
                       disabled={loading}

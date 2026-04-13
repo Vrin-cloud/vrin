@@ -33,8 +33,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[API] Backend error:', response.status, errorText)
-
       if (response.status === 404) {
         return NextResponse.json(
           { error: 'Connector not found' },
@@ -48,7 +46,6 @@ export async function GET(
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error('[API] Error fetching records:', error)
     return NextResponse.json(
       { error: 'Failed to fetch records' },
       { status: 500 }

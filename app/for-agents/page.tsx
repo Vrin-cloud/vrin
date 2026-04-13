@@ -271,7 +271,7 @@ export default function ForAgentsPage() {
       </section>
 
       {/* Problems Section */}
-      <section className="py-24 bg-[#201E1E]">
+      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
         <div className="container">
           <motion.div
             ref={problemsRef}
@@ -410,7 +410,7 @@ export default function ForAgentsPage() {
       </section>
 
       {/* Integration Code Examples */}
-      <section className="py-24 bg-[#201E1E]">
+      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
         <div className="container">
           <motion.div
             ref={codeRef}
@@ -555,19 +555,19 @@ export default function ForAgentsPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-[#201E1E]">
+      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#FFFFFF] mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
               Give your agents the reasoning they deserve
             </h2>
-            <p className="text-base text-[#FFFFFF]/60 mb-10 max-w-xl mx-auto">
+            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-10 max-w-xl mx-auto">
               Start with the free tier. Integrate in minutes. Scale to hundreds of enterprise deployments.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-[#FFFFFF] text-[#201E1E] hover:bg-[#8DAA9D] px-8 py-6 text-base font-medium rounded-full transition-all duration-300"
+                className="bg-[#201E1E] dark:bg-[#FFFFFF] text-[#FFFFFF] dark:text-[#201E1E] hover:bg-[#083C5E] dark:hover:bg-[#8DAA9D] px-8 py-6 text-base font-medium rounded-full transition-all duration-300"
                 onClick={() => window.location.href = '/waitlist'}
               >
                 Join Waitlist
@@ -576,7 +576,7 @@ export default function ForAgentsPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 text-base font-medium border-2 border-[#FFFFFF]/20 text-[#FFFFFF] hover:bg-[#FFFFFF]/10 rounded-full transition-all duration-300"
+                className="px-8 py-6 text-base font-medium border-2 border-[#201E1E]/20 dark:border-[#FFFFFF]/20 text-[#201E1E] dark:text-[#FFFFFF] hover:bg-[#201E1E]/5 dark:hover:bg-[#FFFFFF]/10 rounded-full transition-all duration-300"
                 onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
               >
                 <Calendar className="mr-2 h-5 w-5" />

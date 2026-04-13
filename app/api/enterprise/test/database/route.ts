@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Testing ${type} database connection to ${endpoint}:${port}`)
-
     // Handle different database types
     switch (type.toLowerCase()) {
       case 'cosmos_db':
@@ -31,7 +29,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('Database test error:', error)
     return NextResponse.json(
       { error: error.message || 'Database connection test failed' },
       { status: 500 }
@@ -54,8 +51,6 @@ async function testCosmosDB(endpoint: string, port: number = 443, ssl: boolean =
       // Assume it's just the account name
       cosmosEndpoint = `wss://${endpoint}.gremlin.cosmos.azure.com:443/gremlin`
     }
-
-    console.log(`Testing Cosmos DB connection to: ${cosmosEndpoint}`)
 
     // For Cosmos DB, we'll do a basic connectivity test
     // In a real implementation, you'd use the Gremlin client
@@ -144,8 +139,6 @@ async function testNeptune(endpoint: string, port: number = 8182, ssl: boolean =
     const protocol = ssl ? 'wss' : 'ws'
     const neptuneUrl = `${protocol}://${endpoint}:${port}/gremlin`
     
-    console.log(`Testing Neptune connection to: ${neptuneUrl}`)
-
     // For Neptune, test HTTPS endpoint first
     const testUrl = `https://${endpoint}:${port}/status`
     
@@ -208,8 +201,6 @@ async function testJanusGraph(endpoint: string, port: number = 8182, username?: 
     const protocol = ssl ? 'wss' : 'ws'
     const janusUrl = `${protocol}://${endpoint}:${port}/gremlin`
     
-    console.log(`Testing JanusGraph connection to: ${janusUrl}`)
-
     // Basic connectivity test
     const testUrl = `http${ssl ? 's' : ''}://${endpoint}:${port}/`
     

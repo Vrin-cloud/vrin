@@ -38,7 +38,6 @@ export async function DELETE(
 
     return NextResponse.json(data, { status: response.status })
   } catch (error: any) {
-    console.error('Error in /api/enterprise/users/invitations/[id]:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

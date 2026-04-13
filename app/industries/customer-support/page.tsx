@@ -679,34 +679,34 @@ export default function CustomerSupportPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-[#083C5E] to-[#083C5E]/80 dark:from-[#083C5E]/90 dark:to-[#8DAA9D]/20">
+      <section className="py-20 bg-[#FFFFFF] dark:bg-[#201E1E]">
         <div className="container max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-light mb-6 text-white">
+            <h2 className="text-3xl md:text-4xl font-light mb-6 text-[#201E1E] dark:text-white">
               See Vrin inside your support workflow
             </h2>
-            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-[#201E1E]/60 dark:text-white/80 mb-8 max-w-2xl mx-auto">
               Watch the demo, then we&apos;ll map Vrin to one of your queues and show exactly where it cuts time and escalations.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="#demo">
-                <Button size="lg" className="rounded-full px-8 bg-white text-[#083C5E] hover:bg-white/90">
+                <Button size="lg" className="rounded-full px-8 bg-[#083C5E] text-white hover:bg-[#083C5E]/90">
                   Watch Demo
                   <Play className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link href="https://cal.com/vedant-vrin/book-a-demo" target="_blank">
-                <Button size="lg" variant="outline" className="rounded-full px-8 border-white text-white hover:bg-white/10">
+                <Button size="lg" variant="outline" className="rounded-full px-8 border-[#201E1E]/20 dark:border-white/20 text-[#201E1E] dark:text-white hover:bg-[#201E1E]/5 dark:hover:bg-white/10">
                   Book a 15-min Workflow Review
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-white/70 flex-wrap">
+            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-[#201E1E]/50 dark:text-white/70 flex-wrap">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
                 <span>Works with Zendesk, Intercom & more</span>

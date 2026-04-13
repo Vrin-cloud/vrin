@@ -23,14 +23,6 @@ export async function POST(request: NextRequest) {
 
     // Use RAG Lambda Function URL with /query endpoint
     const backendUrl = `${API_CONFIG.RAG_BASE_URL}/query`;
-    console.log('🌐 Proxying chat request to Lambda Function URL:', {
-      url: backendUrl,
-      streaming: isStreaming,
-      hasSession: !!body.session_id,
-      query: body.query?.substring(0, 50),
-      userId: body.user_id
-    });
-
     // Proxy to chat backend (no retry - fast processing means docs are ready)
     const response = await fetch(backendUrl, {
       method: 'POST',
@@ -43,12 +35,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('❌ Chat backend error:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: backendUrl
-      });
-
       let errorData;
       try {
         errorData = await response.json();
@@ -62,7 +48,6 @@ export async function POST(request: NextRequest) {
         };
       }
 
-      console.error('Error details:', errorData);
       return new Response(JSON.stringify(errorData), {
         status: response.status,
         headers: { 'Content-Type': 'application/json' }
@@ -71,8 +56,6 @@ export async function POST(request: NextRequest) {
 
     // If streaming, pass through the FastAPI stream directly
     if (isStreaming && response.body) {
-      console.log('✅ Streaming mode detected - passing through FastAPI stream');
-
       // With Lambda Web Adapter + FastAPI, the response is truly streaming!
       // No buffering - just pass it through directly to the client
       return new Response(response.body, {
@@ -87,14 +70,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Non-streaming: return JSON as before
-    console.log('📦 Non-streaming mode - returning full response');
     const data = await response.json();
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('💥 Chat proxy error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

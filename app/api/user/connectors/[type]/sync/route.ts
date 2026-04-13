@@ -44,8 +44,6 @@ export async function POST(
       )
     }
 
-    console.log(`[API] Triggering manual sync for: ${type}`)
-
     // TODO: Call backend API to trigger sync
     // This would:
     // 1. Tell Nango to start a sync for this connection
@@ -69,7 +67,6 @@ export async function POST(
       message: 'Sync initiated. Backend integration pending.'
     })
   } catch (error) {
-    console.error('[API] Error triggering sync:', error)
     return NextResponse.json(
       { error: 'Failed to trigger sync' },
       { status: 500 }
@@ -115,7 +112,6 @@ export async function GET(
       message: 'Sync history API ready. Backend integration pending.'
     })
   } catch (error) {
-    console.error('[API] Error fetching sync history:', error)
     return NextResponse.json(
       { error: 'Failed to fetch sync history' },
       { status: 500 }

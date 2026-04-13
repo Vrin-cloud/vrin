@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Testing ${type} vector store connection to ${endpoint}`)
-
     // Handle different vector store types
     switch (type.toLowerCase()) {
       case 'azure_search':
@@ -33,7 +31,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('Vector store test error:', error)
     return NextResponse.json(
       { error: error.message || 'Vector store connection test failed' },
       { status: 500 }
@@ -62,8 +59,6 @@ async function testAzureCognitiveSearch(endpoint: string, authToken?: string, in
     // Test basic service health
     const healthUrl = `${searchEndpoint}/indexes?api-version=2023-11-01`
     
-    console.log(`Testing Azure Cognitive Search connection to: ${healthUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
 
@@ -174,8 +169,6 @@ async function testOpenSearch(endpoint: string, authToken?: string, index: strin
 
     const healthUrl = `${searchEndpoint}/_cluster/health`
     
-    console.log(`Testing OpenSearch connection to: ${healthUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 
@@ -265,8 +258,6 @@ async function testElasticsearch(endpoint: string, authToken?: string, index: st
 
     const healthUrl = `${searchEndpoint}/_cluster/health`
     
-    console.log(`Testing Elasticsearch connection to: ${healthUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 
@@ -345,8 +336,6 @@ async function testPinecone(endpoint: string, authToken?: string, index: string 
     // Pinecone has a different API structure
     const healthUrl = `${endpoint}/describe_index_stats`
     
-    console.log(`Testing Pinecone connection to: ${healthUrl}`)
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 

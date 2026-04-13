@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
     // Demo API key — server-side only, never exposed to client
     const demoApiKey = process.env.DEMO_VRIN_API_KEY;
     if (!demoApiKey) {
-      console.error('DEMO_VRIN_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'Playground not configured' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -78,7 +77,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('Playground backend error:', response.status, response.statusText);
       return new Response(
         JSON.stringify({ error: 'Backend query failed' }),
         { status: response.status, headers: { 'Content-Type': 'application/json' } }
@@ -103,7 +101,6 @@ export async function POST(request: NextRequest) {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Playground query error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
