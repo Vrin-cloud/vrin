@@ -91,6 +91,38 @@ function ComparisonBar({
 }
 
 const QUERY_INSIGHTS: Record<string, QueryInsight> = {
+  'research-blind-spot': {
+    headline: 'Standard RAG identified the gap in 4 papers. Vrin connected 7 — including a vector search engine and a reasoning paper — and proposed a research direction that spans databases, APIs, and graphs, not just text search.',
+    metrics: [
+      { label: 'Papers connected to the blind spot', rag: 4, vrin: 7 },
+      { label: 'Distinct research directions proposed', rag: 1, vrin: 3 },
+      { label: 'Cross-domain connections made', rag: 0, vrin: 4 },
+      { label: 'Actionable research ideas', rag: 2, vrin: 5 },
+    ],
+    missed: [
+      {
+        detail: 'Standard RAG says the gap is: "make your text search smarter — retrieve better, correct bad retrieval, decide when to search." Vrin says the gap is bigger: "your AI doesn\'t just search text. It also queries databases, calls APIs, reads knowledge graphs. Nobody\'s built the brain that coordinates all of them together." Vrin pulled this from entities across the papers that standard RAG ignored entirely — SQL queries, HTTP responses, data pipelines. Same blind spot, but a much bigger version of it.',
+        impact: 'A researcher reading the standard RAG answer builds a better retriever. A researcher reading Vrin\'s answer builds a multi-backend orchestration layer. Different research program entirely.',
+      },
+      {
+        detail: 'Standard RAG found the pattern in 4 papers (Adaptive-RAG, CRAG, iterative retrieval, graph retrieval). Vrin found it in 7 — and connected papers you wouldn\'t expect. It pulled in Qdrant (a vector search engine) and showed that even state-of-the-art search technology has this blind spot. It pulled in STaR (a reasoning paper) and showed the same gap from the opposite side. More dots connected = a stronger thesis.',
+        impact: 'Standard RAG never mentions specific search technologies. Vrin proves the gap exists even in cutting-edge tools — it\'s not a retrieval quality problem, it\'s a control problem.',
+      },
+      {
+        detail: 'Standard RAG\'s proposed direction: pick a strategy (simple, medium, complex) based on how hard the question looks, then execute. Vrin caught a nuance: that\'s not enough. It specifically identified that Adaptive-RAG picks strategy once at the start, but what if your first search result changes everything? Vrin\'s proposed direction: adapt at every step as you learn new information.',
+        impact: 'Adapting once means your first wrong result locks you in. Adapting per-step means the system recovers and course-corrects. Small difference in phrasing, big difference in the research program.',
+      },
+      {
+        detail: 'Standard RAG proposes training a controller with feedback signals. Vrin went further: connect STaR\'s self-improvement idea specifically to search decisions. The system should generate "search rationales" — why it chose to look here and not there — and learn from successful search paths. It\'s the difference between "train a better searcher" and "build a searcher that teaches itself."',
+        impact: 'One is a model you train once. The other is a system that improves with every query it runs. That\'s a fundamentally different research agenda.',
+      },
+      {
+        detail: 'Standard RAG mentions hallucination as a general risk. Vrin identified a specific failure mode that standard RAG missed: AI can build perfectly logical arguments on unchecked facts — "self-consistent but ungrounded" — and never know to verify them. Your AI sounds smart. Its logic is flawless. But it\'s reasoning on top of facts it never bothered to double-check.',
+        impact: 'Knowing the general risk ("hallucination") doesn\'t help you fix it. Knowing the specific mechanism — confident reasoning over unverified facts — tells you exactly where to add guardrails.',
+      },
+    ],
+    expertGap: 'Standard RAG tells you the blind spot exists. Vrin tells you what to do about it — across text, databases, graphs, and APIs — with concrete components (working memory, action space, verification layer) that a research team could start building tomorrow.',
+  },
   'leadership-transition': {
     headline: 'Standard RAG found the CEO change. Vrin found how it reshaped pricing, partnerships, headcount, and revenue across 6 departments.',
     metrics: [

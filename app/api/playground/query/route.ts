@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { query, retrieval_mode = 'full' } = body;
+    const { query, retrieval_mode = 'full', scenario_id } = body;
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return new Response(
@@ -49,8 +49,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Demo API key — server-side only, never exposed to client
-    const demoApiKey = process.env.DEMO_VRIN_API_KEY;
+    // Per-scenario API key routing — server-side only, never exposed to client
+    const scenarioApiKeys: Record<string, string | undefined> = {
+      'ai-research': process.env.AI_RESEARCH_VRIN_API_KEY,
+    };
+    const demoApiKey = scenarioApiKeys[scenario_id as string] || process.env.DEMO_VRIN_API_KEY;
     if (!demoApiKey) {
       return new Response(
         JSON.stringify({ error: 'Playground not configured' }),

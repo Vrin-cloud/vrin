@@ -17,6 +17,15 @@ export interface PatientProfile {
   queries: DemoQuery[];
 }
 
+export interface KnowledgeDocument {
+  title: string;
+  authors?: string;
+  type: 'paper' | 'blog';
+  year: number;
+  /** Optional link to the paper/blog */
+  url?: string;
+}
+
 export interface DemoScenario {
   id: string;
   name: string;
@@ -24,6 +33,8 @@ export interface DemoScenario {
   queries: DemoQuery[];
   /** Optional patient profiles — when present, UI shows patient sub-tabs */
   patients?: PatientProfile[];
+  /** Optional knowledge corpus — when present, UI shows a toggle listing ingested documents */
+  corpus?: KnowledgeDocument[];
 }
 
 export const SCENARIOS: DemoScenario[] = [
@@ -427,6 +438,54 @@ export const SCENARIOS: DemoScenario[] = [
               'Admission #3 (Apr 2026)',
             ],
           },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'ai-research',
+    name: 'AI Research',
+    description: 'Cross-paper synthesis across 20+ AI research papers — connecting findings, identifying gaps, and surfacing research directions that no single paper contains.',
+    corpus: [
+      { title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks', authors: 'Lewis et al.', type: 'paper', year: 2020 },
+      { title: 'Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection', authors: 'Asai et al.', type: 'paper', year: 2023 },
+      { title: 'Corrective RAG (CRAG)', authors: 'Yan et al.', type: 'paper', year: 2024 },
+      { title: 'Adaptive-RAG: Learning to Adapt Retrieval-Augmented Large Language Models', authors: 'Jeong et al.', type: 'paper', year: 2024 },
+      { title: 'CO-RAG: Chain-of-Retrieval Augmented Generation', authors: 'Zhu et al.', type: 'paper', year: 2024 },
+      { title: 'RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval', authors: 'Sarthi et al.', type: 'paper', year: 2024 },
+      { title: 'Graph RAG: A Comprehensive Survey', authors: 'Peng et al.', type: 'paper', year: 2024 },
+      { title: 'GraphRAG: Unlocking LLM Discovery on Narrative Private Data', authors: 'Microsoft Research', type: 'paper', year: 2024 },
+      { title: 'HippoRAG 2: Knowledge Graph-Augmented Retrieval', authors: 'Gutiérrez et al.', type: 'paper', year: 2024 },
+      { title: 'LightRAG: Simple and Fast Retrieval-Augmented Generation', authors: 'Guo et al.', type: 'paper', year: 2024 },
+      { title: 'Modular RAG: Transforming RAG Systems into LEGO-like Modules', authors: 'Gao et al.', type: 'paper', year: 2024 },
+      { title: 'Agentic RAG: A Survey on Agentic Retrieval-Augmented Generation', authors: 'Singh et al.', type: 'paper', year: 2024 },
+      { title: 'Agent-as-a-Judge: Evaluate Agents with Agents', authors: 'Zhuge et al. (Meta AI + KAUST)', type: 'paper', year: 2024 },
+      { title: 'Mixture-of-Agents Enhances Large Language Model Capabilities', authors: 'Wang et al.', type: 'paper', year: 2024 },
+      { title: 'The AI Scientist: Towards Fully Automated Scientific Discovery', authors: 'Lu et al.', type: 'paper', year: 2024 },
+      { title: 'DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via RL', authors: 'DeepSeek-AI', type: 'paper', year: 2025 },
+      { title: 'Scaling LLM Test-Time Compute Optimally', authors: 'Snell et al.', type: 'paper', year: 2024 },
+      { title: 'CRAG Benchmark: Comprehensive RAG Benchmark', authors: 'Yang et al. (Meta)', type: 'paper', year: 2024 },
+      { title: 'Infinite Attention: Extending Context Length', authors: 'Munkhdalai et al.', type: 'paper', year: 2024 },
+      { title: 'The Prompt Report: A Systematic Survey of Prompting Techniques', authors: 'Schulhoff et al.', type: 'paper', year: 2024 },
+      { title: 'Building Effective Agents', authors: 'Anthropic (Schluntz & Zhang)', type: 'blog', year: 2024 },
+      { title: 'The Shift from Models to Compound AI Systems', authors: 'BAIR (Zaharia et al.)', type: 'blog', year: 2024 },
+      { title: 'Contextual Retrieval', authors: 'Anthropic', type: 'blog', year: 2024 },
+      { title: 'The Claude Model Spec', authors: 'Anthropic', type: 'blog', year: 2024 },
+    ],
+    queries: [
+      {
+        id: 'research-blind-spot',
+        question: 'Looking across all of these papers, each one identifies limitations in current retrieval and reasoning systems. What unsolved problem or missing capability appears as a recurring theme across multiple papers, something that no single paper fully addresses but multiple papers would benefit from? What would a new research direction look like that tackles this shared blind spot?',
+        description: 'Forces cross-paper synthesis: identify patterns in limitations across independent research, then propose a direction none of them explicitly suggest.',
+        hopCount: 6,
+        whyRagFails: 'Vector search retrieves chunks from individual papers that mention "limitations" but cannot synthesize a shared pattern across papers or connect approaches from unrelated domains (e.g., vector search engines and reasoning bootstrappers) to the same blind spot.',
+        documentChain: [
+          'Adaptive-RAG (routing strategies)',
+          'CRAG (retrieval correction)',
+          'Self-RAG (retrieval triggering)',
+          'Graph RAG Survey (structural retrieval)',
+          'Test-Time Compute (reasoning scaling)',
+          'Compound AI Systems (BAIR)',
         ],
       },
     ],

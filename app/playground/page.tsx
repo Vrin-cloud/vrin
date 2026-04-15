@@ -14,8 +14,11 @@ import {
   FileText,
   MessageSquare,
   Send,
+  ChevronDown,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react"
-import { SCENARIOS, type DemoQuery, type DemoScenario, type PatientProfile } from "@/lib/playground/demo-data"
+import { SCENARIOS, type DemoQuery, type DemoScenario, type PatientProfile, type KnowledgeDocument } from "@/lib/playground/demo-data"
 import { QueryPanel } from "@/components/playground/query-panel"
 import { ResultPanel } from "@/components/playground/result-panel"
 import { StatsComparison } from "@/components/playground/stats-comparison"
@@ -72,6 +75,7 @@ export default function PlaygroundPage() {
   const [vrinProgress, setVrinProgress] = useState<ProgressStep[]>([])
   const [ragStreamingAnswer, setRagStreamingAnswer] = useState("")
   const [vrinStreamingAnswer, setVrinStreamingAnswer] = useState("")
+  const [corpusOpen, setCorpusOpen] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const parseSSEStream = useCallback(
@@ -87,7 +91,7 @@ export default function PlaygroundPage() {
         const response = await fetch("/api/playground/query", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, retrieval_mode: retrievalMode }),
+          body: JSON.stringify({ query, retrieval_mode: retrievalMode, scenario_id: activeScenario?.id }),
         })
 
         if (!response.ok) {
@@ -188,7 +192,7 @@ export default function PlaygroundPage() {
         onError(error.message || "Network error")
       }
     },
-    []
+    [activeScenario]
   )
 
   const runQuery = useCallback(
@@ -355,7 +359,60 @@ export default function PlaygroundPage() {
           </div>
 
           <p className="text-xs text-white/30 mb-2">{activeScenario.description}</p>
-          <p className="text-[11px] text-white/20 italic mb-4">All names, organizations, and events in this demo are fictional. The data was created solely to demonstrate Vrin&apos;s reasoning capabilities.</p>
+          {!activeScenario.corpus && (
+            <p className="text-[11px] text-white/20 italic mb-4">All names, organizations, and events in this demo are fictional. The data was created solely to demonstrate Vrin&apos;s reasoning capabilities.</p>
+          )}
+
+          {/* Knowledge corpus toggle (for scenarios with real documents) */}
+          {activeScenario.corpus && activeScenario.corpus.length > 0 && (
+            <div className="mb-4">
+              <button
+                onClick={() => setCorpusOpen(!corpusOpen)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all w-full text-left group"
+              >
+                <BookOpen className="w-4 h-4 text-[#8DAA9D]/70" />
+                <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors">
+                  Knowledge Base: {activeScenario.corpus.length} documents ingested
+                </span>
+                <span className="text-[10px] text-white/30 ml-1">
+                  ({activeScenario.corpus.filter(d => d.type === 'paper').length} papers, {activeScenario.corpus.filter(d => d.type === 'blog').length} blog posts)
+                </span>
+                <ChevronDown className={`w-4 h-4 text-white/30 ml-auto transition-transform ${corpusOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {corpusOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-2 px-4 py-4 rounded-lg bg-white/[0.02] border border-white/5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1.5">
+                      {activeScenario.corpus.map((doc, i) => (
+                        <div key={i} className="flex items-start gap-2 py-1">
+                          {doc.type === 'paper' ? (
+                            <GraduationCap className="w-3.5 h-3.5 text-[#8DAA9D]/50 mt-0.5 shrink-0" />
+                          ) : (
+                            <FileText className="w-3.5 h-3.5 text-blue-400/50 mt-0.5 shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-xs text-white/60 leading-relaxed truncate">{doc.title}</p>
+                            <p className="text-[10px] text-white/25">
+                              {doc.authors && <>{doc.authors} &middot; </>}{doc.year}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-white/20 italic mt-2 px-1">
+                      These are real research papers and blog posts. Ask any question that requires connecting insights across them.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* Patient sub-tabs (only for scenarios with patient profiles) */}
           {hasPatients && activeScenario.patients && (
