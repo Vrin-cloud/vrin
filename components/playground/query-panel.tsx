@@ -14,6 +14,15 @@ interface QueryPanelProps {
   onCustomQueryChange: (value: string) => void
   onSubmitCustomQuery: () => void
   isRunning: boolean
+  scenarioId?: string
+}
+
+const PLACEHOLDER_BY_SCENARIO: Record<string, string> = {
+  'enterprise-ops': 'Ask anything about Meridian Corp...',
+  'banking-compliance': 'Ask about compliance, risk assessments, or SAR filings...',
+  'congressional-intelligence': 'Ask about legislation, committee positions, or lobbying...',
+  'healthcare-cdi': 'Ask about patient history, diagnoses, or clinical documentation...',
+  'ai-research': 'Ask anything across these 20+ research papers...',
 }
 
 export function QueryPanel({
@@ -24,7 +33,9 @@ export function QueryPanel({
   onCustomQueryChange,
   onSubmitCustomQuery,
   isRunning,
+  scenarioId,
 }: QueryPanelProps) {
+  const placeholder = PLACEHOLDER_BY_SCENARIO[scenarioId || ''] || 'Ask a question...'
   return (
     <div className="space-y-6">
       {/* Pre-loaded example queries */}
@@ -72,7 +83,7 @@ export function QueryPanel({
             value={customQuery}
             onChange={(e) => onCustomQueryChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !isRunning && onSubmitCustomQuery()}
-            placeholder="Ask anything about Meridian Corp..."
+            placeholder={placeholder}
             disabled={isRunning}
             className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8DAA9D]/50 transition-colors disabled:opacity-60"
           />

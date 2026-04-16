@@ -469,6 +469,7 @@ export default function PlaygroundPage() {
             onCustomQueryChange={setCustomQuery}
             onSubmitCustomQuery={handleCustomQuery}
             isRunning={isRunning}
+            scenarioId={activeScenario.id}
           />
         </div>
       </section>
