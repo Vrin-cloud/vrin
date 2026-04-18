@@ -10,10 +10,10 @@ Routing table for work. Pick the skill that matches the user's intent.
 
 | If the user asks to… | Use |
 |---|---|
-| Ship a new UI component (shadcn/Radix-wrapped) | skill `ship-component` (PR 4) |
-| Wire a new TanStack Query hook to a backend endpoint | skill `wire-api-hook` (PR 4) |
-| Add a new enterprise portal page (auth guard + form + API wire) | skill `add-enterprise-page` (PR 4) |
-| Investigate a UI bug (blank screen, network error, SSE issue) | skill `investigate-ui-bug` (PR 4) |
+| Ship a new UI component (shadcn/Radix-wrapped) | skill `ship-component` |
+| Wire a new TanStack Query hook to a backend endpoint | skill `wire-api-hook` |
+| Add a new enterprise portal page (auth guard + form + API wire) | skill `add-enterprise-page` |
+| Investigate a UI bug (blank screen, network error, SSE issue) | skill `investigate-ui-bug` |
 | Investigate a file / module / concept and produce a report | skill `investigate` |
 | Diarize a session | skill `diarize` |
 | Codify a lesson as feedback memory | skill `codify` |
@@ -33,7 +33,7 @@ All file placement is governed by [`.claude/RESOLVER.md`](./.claude/RESOLVER.md)
 
 - **Next.js 15 App Router, React 19, TypeScript 5 strict.** Never mix with Pages Router.
 - **Every API call goes through `config/api.ts::apiCall()`.** Add endpoints to `API_CONFIG.ENDPOINTS` first — never hardcode a URL in a component or hook.
-- **Every `localStorage` key lives in `lib/storage-keys.ts`** (created in PR 4). Never string-literal `localStorage.getItem('vrin_foo')` in app code.
+- **Every `localStorage` key lives in `lib/storage-keys.ts`.** Import `STORAGE_KEYS` / `storage` — never string-literal `localStorage.getItem('vrin_foo')` in app code.
 - **Every `/enterprise/*` page** inherits from `app/enterprise/layout.tsx` which enforces Stytch auth. New enterprise routes live under that layout.
 - **Client-only code** marks `'use client'` at the top of the file. Browser-only libraries (Socket.IO, `window`, `localStorage`) are dynamic-imported where possible.
 - **Styling**: Tailwind + CVA for variant composition. Never inline hex colors. Use `cn()` from `@/lib/utils` for class merging.
