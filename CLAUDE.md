@@ -14,10 +14,10 @@ Routing table for work. Pick the skill that matches the user's intent.
 | Wire a new TanStack Query hook to a backend endpoint | skill `wire-api-hook` (PR 4) |
 | Add a new enterprise portal page (auth guard + form + API wire) | skill `add-enterprise-page` (PR 4) |
 | Investigate a UI bug (blank screen, network error, SSE issue) | skill `investigate-ui-bug` (PR 4) |
-| Investigate a file / module / concept and produce a report | skill `investigate` (PR 2) |
-| Diarize a session | skill `diarize` (PR 2) |
-| Codify a lesson as feedback memory | skill `codify` (PR 2) |
-| Propose improvements to a skill based on failure cases | skill `improve` (PR 2) |
+| Investigate a file / module / concept and produce a report | skill `investigate` |
+| Diarize a session | skill `diarize` |
+| Codify a lesson as feedback memory | skill `codify` |
+| Propose improvements to a skill based on failure cases | skill `improve` |
 | Audit resolver health | skill `check-resolvable` (PR 5) |
 | Run trigger-evals | skill `eval-triggers` (PR 5) |
 
