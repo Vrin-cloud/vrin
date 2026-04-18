@@ -27,12 +27,13 @@ export default function TestApiKeysPage() {
               use properly formatted keys that identify the deployment mode and security requirements.
             </p>
             
-            <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">Key Features:</h3>
+            <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">Key Features (v2 format):</h3>
             <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Mode-Specific Prefixes:</strong> Each deployment mode has a unique prefix</li>
-              <li><strong>32-Character Suffix:</strong> Cryptographically secure random string</li>
-              <li><strong>Format Validation:</strong> Prevents regular API keys from accessing enterprise infrastructure</li>
-              <li><strong>Deployment Tracking:</strong> Keys are tied to specific infrastructure configurations</li>
+              <li><strong>Compact discriminators:</strong> <code>vrin_ent_&lt;env&gt;&lt;deploy&gt;_&lt;32 chars&gt;</code> — env ∈ {`{l, d}`}, deploy ∈ {`{a, v, h}`}</li>
+              <li><strong>192-bit entropy:</strong> 32-char base62 suffix from cryptographically-secure random</li>
+              <li><strong>SHA-256 stored:</strong> Raw key shown once at creation; only the hash is persisted</li>
+              <li><strong>Format validation:</strong> Prevents standard VRIN keys from authenticating against enterprise infrastructure</li>
+              <li><strong>Deployment tracking:</strong> Keys are tied to specific infrastructure configurations</li>
             </ul>
 
             <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">Security Benefits:</h3>
