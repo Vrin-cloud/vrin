@@ -109,7 +109,7 @@ const howItWorks = [
 const codeExamples = {
   sdk: `from vrin import VRINClient
 
-client = VRINClient(api_key="vrin_your_api_key")
+client = VRINClient(api_key="vrin_live_your_api_key")
 
 # Your agent asks Vrin for reasoning
 result = client.query(
@@ -129,7 +129,7 @@ vrin_retrieve   → Get structured context for your own generation
 vrin_get_facts  → Retrieve specific facts about entities
 vrin_search_entities → Find entities in the knowledge graph`,
   api: `curl -X POST https://api.vrin.cloud/query \\
-  -H "Authorization: Bearer vrin_your_api_key" \\
+  -H "Authorization: Bearer vrin_live_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "Which suppliers had delivery delays in Q4?",

@@ -97,34 +97,22 @@ export function useApiKeys() {
         throw new Error('No API key available');
       }
 
-      try {
-        const response = await apiCall(
-          API_CONFIG.ENDPOINTS.CREATE_API_KEY,
-          {
-            method: 'POST',
-            body: JSON.stringify(request)
-          },
-          apiKey
-        );
+      const response = await apiCall(
+        API_CONFIG.ENDPOINTS.CREATE_API_KEY,
+        {
+          method: 'POST',
+          body: JSON.stringify(request),
+        },
+        apiKey
+      );
 
-        if (response.success) {
-          return response.api_key;
-        } else {
-          throw new Error(response.message || 'Failed to create API key');
-        }
-      } catch (error) {
-        // If the endpoint doesn't exist yet, create a mock API key
-        console.warn('Create API key endpoint not available, creating mock key:', error);
-        const mockKey: ApiKey = {
-          id: `mock_${Date.now()}`,
-          name: request.name,
-          key: `vrin_${Math.random().toString(36).substring(2, 15)}`,
-          created_at: new Date().toISOString(),
-          is_active: true,
-          permissions: request.permissions || ['full_access']
-        };
-        return mockKey;
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to create API key');
       }
+      // Backend returns the raw key ONCE at creation. Surface it so the UI
+      // can show a copy-once modal. Consumers must persist immediately —
+      // the backend never returns the raw key again.
+      return response.api_key;
     },
     onSuccess: (newApiKey) => {
       queryClient.setQueryData(['api-keys', apiKey], (oldData: ApiKey[] = []) => {
