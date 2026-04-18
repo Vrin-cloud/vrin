@@ -18,8 +18,8 @@ Routing table for work. Pick the skill that matches the user's intent.
 | Diarize a session | skill `diarize` |
 | Codify a lesson as feedback memory | skill `codify` |
 | Propose improvements to a skill based on failure cases | skill `improve` |
-| Audit resolver health | skill `check-resolvable` (PR 5) |
-| Run trigger-evals | skill `eval-triggers` (PR 5) |
+| Audit resolver health | skill `check-resolvable` |
+| Run trigger-evals | skill `eval-triggers` |
 
 If none match, answer directly. Do NOT force a skill to fire.
 
