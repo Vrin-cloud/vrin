@@ -1,32 +1,86 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-const outcomes = [
+type Outcome = {
+  prefix?: string;
+  value: number;
+  suffix: string;
+  label: string;
+  detail: string;
+};
+
+const outcomes: Outcome[] = [
   {
-    value: 'Up to 95%',
+    prefix: 'Up to ',
+    value: 95,
+    suffix: '%',
     label: 'First-response resolution',
     detail: 'Your agent lands the right answer on the first try.',
   },
   {
-    value: '80% fewer',
+    value: 80,
+    suffix: '% fewer',
     label: 'Follow-up questions needed',
     detail: 'Cited, complete context — less back-and-forth.',
   },
   {
-    value: '10× faster',
+    value: 10,
+    suffix: '× faster',
     label: 'Research time cut',
     detail: 'Weeks of reading collapsed into seconds of reasoning.',
   },
   {
-    value: '5× richer',
+    value: 5,
+    suffix: '× richer',
     label: 'Context for complex questions',
     detail: 'Multi-hop reasoning where vector search gives up.',
   },
 ];
+
+function CountUp({
+  to,
+  duration = 1600,
+  start,
+  delay = 0,
+}: {
+  to: number;
+  duration?: number;
+  start: boolean;
+  delay?: number;
+}) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!start) return;
+
+    const delayTimer = window.setTimeout(() => {
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - t0) / duration);
+        // ease-out-expo
+        const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+        setValue(Math.round(to * eased));
+        if (t < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        }
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }, delay);
+
+    return () => {
+      window.clearTimeout(delayTimer);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [start, to, duration, delay]);
+
+  return <>{value}</>;
+}
 
 export function OutcomesV2() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.25 });
@@ -62,9 +116,15 @@ export function OutcomesV2() {
                 {String(i + 1).padStart(2, '0')}
               </span>
 
-              <div className="flex items-baseline gap-3">
-                <span className="font-display text-[clamp(2.5rem,5vw,4.25rem)] leading-none tracking-[-0.03em] text-vrin-charcoal">
-                  {item.value}
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-[clamp(2.5rem,5vw,4.25rem)] leading-none tracking-[-0.03em] text-vrin-charcoal tabular-nums">
+                  {item.prefix}
+                  <CountUp
+                    to={item.value}
+                    start={inView}
+                    delay={200 + i * 120}
+                  />
+                  {item.suffix}
                 </span>
               </div>
 

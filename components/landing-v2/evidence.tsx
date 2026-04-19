@@ -30,7 +30,7 @@ const multihop: Leaderboard = {
   metric: 'metric: Semantic Accuracy (SA)',
   note: 'fig. bench · 2026 Q1',
   rows: [
-    { name: 'Vrin (HybridRAG)', value: 95.1, isVrin: true },
+    { name: 'Vrin', value: 95.1, isVrin: true },
     { name: 'ChatGPT 5.2 (Thinking) [Oracle Context]', value: 78.9 },
     { name: 'Multi-Meta RAG (GPT-4)', value: 63.0 },
     { name: 'Multi-Meta RAG (Google PaLM)', value: 61.0 },
