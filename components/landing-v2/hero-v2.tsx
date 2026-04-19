@@ -136,21 +136,25 @@ export function HeroV2() {
                 <Spline scene="https://prod.spline.design/13Kb3u5Y1XKm3Mrz/scene.splinecode" />
               </div>
 
-              {/* Ornamental tick-marked ring */}
-              <svg
-                className="absolute inset-0 m-auto w-[460px] h-[460px] pointer-events-none animate-slow-spin"
-                viewBox="0 0 460 460"
-                fill="none"
-              >
-                <circle
-                  cx="230"
-                  cy="230"
-                  r="225"
-                  stroke="#201E1E"
-                  strokeOpacity="0.12"
-                  strokeDasharray="2 8"
-                />
-              </svg>
+              {/* Ornamental tick-marked ring — positioned to hug the Spline orb */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-[440px] h-[440px] -translate-x-[34px] -translate-y-[6px]">
+                  <svg
+                    className="w-full h-full animate-slow-spin"
+                    viewBox="0 0 440 440"
+                    fill="none"
+                  >
+                    <circle
+                      cx="220"
+                      cy="220"
+                      r="215"
+                      stroke="#201E1E"
+                      strokeOpacity="0.12"
+                      strokeDasharray="2 8"
+                    />
+                  </svg>
+                </div>
+              </div>
 
               {/* Caption markers */}
               <div className="absolute top-4 left-2 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/40">
