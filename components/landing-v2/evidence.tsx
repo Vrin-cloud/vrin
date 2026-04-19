@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const ease = [0.16, 1, 0.3, 1] as const;
+const ROTATION_MS = 5000;
 
 type Row = {
   name: string;
@@ -57,22 +59,20 @@ const leaderboards: Leaderboard[] = [multihop, musique];
 function LeaderboardRow({
   row,
   i,
-  inView,
   maxTrack,
 }: {
   row: Row;
   i: number;
-  inView: boolean;
   maxTrack: number;
 }) {
   const width = Math.min(100, (row.value / maxTrack) * 100);
-  const delay = 0.1 * i;
+  const delay = 0.08 * i;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, delay, ease }}
       className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,2.4fr)_auto] items-center gap-5 py-3.5"
     >
       {/* Label */}
@@ -90,8 +90,8 @@ function LeaderboardRow({
       <div className="relative h-7 rounded-full bg-vrin-sand/60 overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
-          animate={inView ? { width: `${width}%` } : {}}
-          transition={{ duration: 1.2, delay: delay + 0.25, ease }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 1.1, delay: delay + 0.2, ease }}
           className={`absolute inset-y-0 left-0 rounded-full ${
             row.isVrin ? 'bg-vrin-blue' : 'bg-vrin-blue/30'
           }`}
@@ -110,62 +110,28 @@ function LeaderboardRow({
   );
 }
 
-function LeaderboardCard({ board }: { board: Leaderboard }) {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
-
-  return (
-    <div
-      ref={ref}
-      className="rounded-3xl border border-vrin-charcoal/10 bg-vrin-paper/80 p-8 md:p-12 relative overflow-hidden"
-    >
-      <div className="absolute inset-0 grid-faint opacity-40 pointer-events-none" />
-
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-end justify-between mb-10 pb-6 border-b border-vrin-charcoal/10 flex-wrap gap-3">
-          <div>
-            <p className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45 mb-2">
-              Leaderboard
-            </p>
-            <h3 className="font-display text-4xl md:text-5xl leading-none text-vrin-charcoal">
-              {board.title}
-            </h3>
-            <p className="mt-2 font-mono text-sm text-vrin-charcoal/55">
-              {board.metric}
-            </p>
-          </div>
-          {board.note && (
-            <div className="hidden md:flex flex-col items-end text-[11px] font-mono tracking-[0.12em] uppercase text-vrin-charcoal/40">
-              <span>{board.note}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Rows */}
-        <div>
-          {board.rows.map((r, i) => (
-            <LeaderboardRow
-              key={r.name}
-              row={r}
-              i={i}
-              inView={inView}
-              maxTrack={board.maxTrack}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function Evidence() {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [cardRef, cardInView] = useInView({ threshold: 0.2 });
+
+  // Auto-rotate only while card is in view; resets on manual tab click
+  useEffect(() => {
+    if (!cardInView) return;
+    const t = setTimeout(() => {
+      setActiveIdx((prev) => (prev + 1) % leaderboards.length);
+    }, ROTATION_MS);
+    return () => clearTimeout(t);
+  }, [activeIdx, cardInView]);
+
+  const board = leaderboards[activeIdx];
+
   return (
     <section className="relative bg-vrin-cream py-28 md:py-36 overflow-hidden">
       <div className="absolute inset-0 grain pointer-events-none" />
 
       <div className="container relative z-10">
         {/* Header block */}
-        <div className="max-w-4xl mb-20">
+        <div className="max-w-4xl mb-16">
           <div className="flex items-center gap-3 mb-8">
             <span className="eyebrow text-vrin-blue">Benchmarks</span>
             <span className="hairline flex-1" />
@@ -184,15 +150,93 @@ export function Evidence() {
           </p>
         </div>
 
-        {/* Stacked leaderboards */}
-        <div className="space-y-8">
-          {leaderboards.map((b) => (
-            <LeaderboardCard key={b.id} board={b} />
-          ))}
+        {/* Tabs */}
+        <div className="flex items-center gap-2 mb-5">
+          {leaderboards.map((b, i) => {
+            const isActive = i === activeIdx;
+            return (
+              <button
+                key={b.id}
+                onClick={() => setActiveIdx(i)}
+                className={`group relative inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 overflow-hidden ${
+                  isActive
+                    ? 'bg-vrin-charcoal text-vrin-cream'
+                    : 'border border-vrin-charcoal/15 text-vrin-charcoal/65 hover:border-vrin-charcoal/35 hover:text-vrin-charcoal'
+                }`}
+              >
+                <span className="relative z-10">{b.title}</span>
+                {/* Progress fill on active tab */}
+                {isActive && cardInView && (
+                  <motion.span
+                    key={`progress-${activeIdx}`}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: ROTATION_MS / 1000, ease: 'linear' }}
+                    style={{ transformOrigin: 'left' }}
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-vrin-sage/70"
+                  />
+                )}
+              </button>
+            );
+          })}
+          <span className="ml-auto hidden md:block text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/40">
+            auto-rotates · tap to pin
+          </span>
+        </div>
+
+        {/* Single leaderboard card */}
+        <div
+          ref={cardRef}
+          className="relative rounded-3xl border border-vrin-charcoal/10 bg-vrin-paper/80 p-8 md:p-12 overflow-hidden"
+        >
+          <div className="absolute inset-0 grid-faint opacity-40 pointer-events-none" />
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={board.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.45, ease }}
+              className="relative z-10"
+            >
+              {/* Header */}
+              <div className="flex items-end justify-between mb-10 pb-6 border-b border-vrin-charcoal/10 flex-wrap gap-3">
+                <div>
+                  <p className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45 mb-2">
+                    Leaderboard
+                  </p>
+                  <h3 className="font-display text-4xl md:text-5xl leading-none text-vrin-charcoal">
+                    {board.title}
+                  </h3>
+                  <p className="mt-2 font-mono text-sm text-vrin-charcoal/55">
+                    {board.metric}
+                  </p>
+                </div>
+                {board.note && (
+                  <div className="hidden md:flex flex-col items-end text-[11px] font-mono tracking-[0.12em] uppercase text-vrin-charcoal/40">
+                    <span>{board.note}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Rows */}
+              <div>
+                {board.rows.map((r, i) => (
+                  <LeaderboardRow
+                    key={`${board.id}-${r.name}`}
+                    row={r}
+                    i={i}
+                    maxTrack={board.maxTrack}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Legend + reproducibility */}
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-vrin-charcoal/10">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-vrin-charcoal/10">
           <div className="flex items-center gap-3 text-[11px] font-mono text-vrin-charcoal/50">
             <span className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-vrin-blue" />
