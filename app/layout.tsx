@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
-import { Manrope } from "next/font/google"
+import { GeistMono } from "geist/font/mono"
+import { Manrope, Instrument_Serif } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 import { Analytics } from "@vercel/analytics/next"
@@ -9,6 +10,14 @@ const manrope = Manrope({
   subsets: ["latin"],
   variable: '--font-manrope',
   weight: ['400', '600', '700']
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -274,7 +283,7 @@ export default function RootLayout({
         <meta name="referrer" content="origin-when-cross-origin" />
         <meta name="color-scheme" content="light dark" />
       </head>
-      <body className={`${GeistSans.className} ${manrope.variable}`}>
+      <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable} ${instrumentSerif.variable}`}>
         <Providers>
           {children}
         </Providers>
