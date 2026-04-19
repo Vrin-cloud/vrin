@@ -16,7 +16,6 @@ type Row = {
 
 const rows: Row[] = [
   { label: 'MultiHop-RAG · accuracy', vrin: 95.1, baseline: 78.9, baselineName: 'GPT-5.2 · same docs' },
-  { label: 'FinQA · financial QA', vrin: 71.4, baseline: 11.1, baselineName: 'vector-only retrieval' },
   { label: 'MuSiQue · multi-hop EM', vrin: 47.8, baseline: 37.2, baselineName: 'HippoRAG 2 (SOTA)' },
   { label: 'MuSiQue · multi-hop F1', vrin: 56.3, baseline: 43.9, baselineName: 'HippoRAG 2 (SOTA)' },
 ];

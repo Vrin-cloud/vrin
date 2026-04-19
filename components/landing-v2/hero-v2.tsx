@@ -36,6 +36,15 @@ export function HeroV2() {
         <div className="grid lg:grid-cols-12 gap-10 items-center">
           {/* Headline — editorial display type */}
           <div className="lg:col-span-7">
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease, delay: 0.05 }}
+              className="font-display text-[clamp(1.5rem,2.6vw,2.25rem)] leading-tight tracking-[-0.01em] text-vrin-charcoal/55 mb-2"
+            >
+              Give your AI agents
+            </motion.p>
+
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

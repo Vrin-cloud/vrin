@@ -6,10 +6,26 @@ import { useInView } from 'react-intersection-observer';
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const outcomes = [
-  { value: '95.1%', unit: 'accuracy', label: 'MultiHop-RAG benchmark', detail: '+16.2pp over GPT-5.2 baseline' },
-  { value: '71.4%', unit: 'vs 11.1%', label: 'FinQA financial reasoning', detail: '640% over vector-only retrieval' },
-  { value: '+28%', unit: 'accuracy', label: 'MuSiQue multi-hop', detail: 'Ahead of HippoRAG 2 (academic SOTA)' },
-  { value: '10×', unit: 'faster', label: 'Research-time collapse', detail: 'From weeks of reading to minutes' },
+  {
+    value: 'Up to 95%',
+    label: 'First-response resolution',
+    detail: 'Your agent lands the right answer on the first try.',
+  },
+  {
+    value: '80% fewer',
+    label: 'Follow-up questions needed',
+    detail: 'Cited, complete context — less back-and-forth.',
+  },
+  {
+    value: '10× faster',
+    label: 'Research time cut',
+    detail: 'Weeks of reading collapsed into seconds of reasoning.',
+  },
+  {
+    value: '5× richer',
+    label: 'Context for complex questions',
+    detail: 'Multi-hop reasoning where vector search gives up.',
+  },
 ];
 
 export function OutcomesV2() {
@@ -22,10 +38,10 @@ export function OutcomesV2() {
       <div className="container relative z-10">
         {/* Eyebrow */}
         <div className="flex items-center gap-3 mb-14 max-w-5xl mx-auto">
-          <span className="eyebrow text-vrin-blue">Evidence</span>
+          <span className="eyebrow text-vrin-blue">Outcomes</span>
           <span className="hairline flex-1" />
           <span className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
-            2026 public benchmarks
+            what teams feel on day one
           </span>
         </div>
 
@@ -47,11 +63,8 @@ export function OutcomesV2() {
               </span>
 
               <div className="flex items-baseline gap-3">
-                <span className="font-display text-[clamp(3rem,6vw,5rem)] leading-none tracking-[-0.03em] text-vrin-charcoal">
+                <span className="font-display text-[clamp(2.5rem,5vw,4.25rem)] leading-none tracking-[-0.03em] text-vrin-charcoal">
                   {item.value}
-                </span>
-                <span className="font-mono text-sm text-vrin-charcoal/50 tracking-wide">
-                  {item.unit}
                 </span>
               </div>
 
