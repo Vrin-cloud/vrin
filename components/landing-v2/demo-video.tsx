@@ -66,7 +66,8 @@ export function DemoVideo() {
               playsInline
               controls={isPlaying}
               onEnded={() => setIsPlaying(false)}
-              className="w-full h-auto block"
+              poster="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9' viewBox='0 0 16 9'%3E%3Crect width='16' height='9' fill='%230D0D0E'/%3E%3C/svg%3E"
+              className="w-full h-auto block bg-vrin-ink"
             />
 
             {/* Play overlay — visible until the user presses play */}
@@ -76,7 +77,7 @@ export function DemoVideo() {
                 aria-label="Play demo video"
                 className="absolute inset-0 flex items-center justify-center group cursor-pointer"
               >
-                <span className="absolute inset-0 bg-gradient-to-t from-vrin-ink/40 via-transparent to-transparent" />
+                <span className="absolute inset-0 bg-vrin-ink" />
                 <span className="relative z-10 flex items-center gap-3 rounded-full bg-vrin-cream/95 text-vrin-charcoal px-7 py-4 text-sm font-medium shadow-xl shadow-vrin-ink/20 transition-transform duration-300 group-hover:scale-105">
                   <Play className="w-4 h-4 fill-vrin-charcoal" />
                   Play the walkthrough
