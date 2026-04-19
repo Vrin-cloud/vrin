@@ -34,7 +34,7 @@ export function VrinGlowV2() {
           <span
             style={{
               backgroundImage:
-                'linear-gradient(0deg, rgba(32, 30, 30, 0.85) 0%, rgba(32, 30, 30, 0.55) 35%, rgba(249, 247, 242, 0.9) 80%, rgba(249, 247, 242, 1) 100%)',
+                'linear-gradient(0deg, rgba(249, 247, 242, 1) 0%, rgba(249, 247, 242, 0.92) 18%, rgba(32, 30, 30, 0.5) 55%, rgba(32, 30, 30, 0.88) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
