@@ -49,7 +49,7 @@ export function Verticals() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
 
   return (
-    <section className="relative bg-vrin-ink py-28 md:py-36 overflow-hidden">
+    <section className="relative bg-vrin-ink py-28 md:py-36 overflow-hidden rounded-[3rem] md:rounded-[4rem]">
       <div className="absolute inset-0 grid-faint-dark opacity-60 pointer-events-none" />
       <div className="absolute inset-0 grain pointer-events-none" />
       <div

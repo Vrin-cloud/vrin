@@ -45,7 +45,8 @@ const columns = [
 
 export function FooterV2() {
   return (
-    <footer className="relative bg-vrin-ink pt-24 pb-10 overflow-hidden">
+    <footer className="relative bg-vrin-paper px-2 md:px-3 pb-2 md:pb-3">
+      <div className="relative bg-vrin-ink pt-24 pb-10 overflow-hidden rounded-[2rem] md:rounded-[3rem]">
       <div className="absolute inset-0 grid-faint-dark opacity-40 pointer-events-none" />
       <div className="absolute inset-0 grain pointer-events-none" />
       {/* Bottom-left radial glow */}
@@ -141,6 +142,7 @@ export function FooterV2() {
           </div>
         </div>
 
+      </div>
       </div>
     </footer>
   );

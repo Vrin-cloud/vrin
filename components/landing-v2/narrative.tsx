@@ -41,7 +41,10 @@ export function Narrative() {
   const buttonOpacity = useTransform(scrollYProgress, [0.5, 0.65], [0, 1]);
 
   return (
-    <section ref={containerRef} className="relative bg-vrin-ink">
+    <section
+      ref={containerRef}
+      className="relative bg-vrin-ink rounded-[3rem] md:rounded-[4rem] overflow-clip"
+    >
       <div className="absolute inset-0 grid-faint-dark opacity-50 pointer-events-none" />
       <div className="absolute inset-0 grain pointer-events-none" />
 
