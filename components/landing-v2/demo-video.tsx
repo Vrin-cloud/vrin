@@ -82,9 +82,6 @@ export function DemoVideo() {
                   <Play className="w-4 h-4 fill-vrin-charcoal" />
                   Play the walkthrough
                 </span>
-                <span className="absolute bottom-6 left-6 text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-cream/80">
-                  demo · ~2 min
-                </span>
               </button>
             )}
           </div>
