@@ -39,7 +39,7 @@ function StructureDiagram() {
       playsInline
       preload="metadata"
       aria-label="Vrin turning documents into a living knowledge graph"
-      className="w-full h-auto"
+      className="w-full h-auto rounded-3xl"
     />
   );
 }
