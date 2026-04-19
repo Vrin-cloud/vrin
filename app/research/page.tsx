@@ -1,627 +1,732 @@
-"use client"
+'use client'
 
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { AnimatedBackground } from "@/components/animated-background"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
 import {
-  ArrowRight,
+  ArrowUpRight,
   Download,
-  ExternalLink,
   BookOpen,
   FlaskConical,
   Brain,
   GitBranch,
   Network,
-  Clock,
-  Shield,
   Search,
   Layers,
   Target,
   BarChart3,
-} from "lucide-react"
-import Link from "next/link"
+} from 'lucide-react'
 
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
+const ease = [0.16, 1, 0.3, 1] as const
 
-const benchmarkResults = {
-  multihop: [
-    { system: "Vrin (HybridRAG)", accuracy: "95.1%", ci: "[90.5, 99.7]", highlight: true },
-    { system: "GPT 5.2 (w/ oracle evidence)", accuracy: "78.9%", ci: "[74.3, 83.5]", highlight: false },
-    { system: "Multi-Meta RAG + GPT-4", accuracy: "63.0%", ci: "\u2014", highlight: false },
-    { system: "IRCoT + GPT-4", accuracy: "58.2%", ci: "\u2014", highlight: false },
-    { system: "Standard RAG + GPT-4", accuracy: "47.3%", ci: "\u2014", highlight: false },
-  ],
-  musique: [
-    { system: "Vrin", em: "0.478", f1: "0.563", highlight: true },
-    { system: "HippoRAG 2 (SOTA)", em: "0.372", f1: "0.486", highlight: false },
-    { system: "Standard RAG", em: "\u2014", f1: "0.457", highlight: false },
-  ],
-}
+const multihopRows = [
+  { system: 'Vrin', value: 95.1, isVrin: true },
+  { system: 'ChatGPT 5.2 (Thinking) [Oracle Context]', value: 78.9 },
+  { system: 'Multi-Meta RAG (GPT-4)', value: 63.0 },
+  { system: 'Multi-Meta RAG (Google PaLM)', value: 61.0 },
+  { system: 'GPT-4 Baseline', value: 56.0 },
+]
+
+const musiqueRows = [
+  { system: 'Vrin', value: 47.8, isVrin: true },
+  { system: 'StepChain GraphRAG', value: 43.9 },
+  { system: 'HopRAG', value: 42.2 },
+  { system: 'SiReRAG', value: 40.5 },
+  { system: 'HippoRAG 2', value: 37.2 },
+]
 
 const pipelineStages = [
   {
     icon: Target,
-    stage: "Query Complexity Routing",
-    description: "Structural classification in <1ms determines retrieval depth \u2014 simple factual lookups skip the full pipeline, complex queries get iterative multi-hop reasoning.",
+    stage: 'Query complexity routing',
+    description:
+      'Structural classification in under a millisecond determines retrieval depth. Simple factual lookups skip the full pipeline; complex queries get iterative multi-hop reasoning.',
   },
   {
     icon: Network,
-    stage: "Graph-Aware Query Planning",
-    description: "Before decomposing a query, Vrin consults the knowledge graph\u2019s structural metadata \u2014 what entities exist, which communities they belong to, what relationships connect them.",
+    stage: 'Graph-aware query planning',
+    description:
+      "Before decomposing a query, Vrin consults the knowledge graph's structural metadata: what entities exist, which communities they belong to, what relationships connect them.",
   },
   {
     icon: Search,
-    stage: "Multi-Strategy Graph Traversal",
-    description: "Multi-hop beam search with hub-weighted Personalized PageRank, synonym edge resolution, and three parallel traversal strategies merged via reciprocal rank fusion.",
+    stage: 'Multi-strategy graph traversal',
+    description:
+      'Multi-hop beam search with hub-weighted Personalized PageRank, synonym edge resolution, and three parallel traversal strategies merged via reciprocal rank fusion.',
   },
   {
     icon: BarChart3,
-    stage: "5-Dimensional Confidence Scoring",
-    description: "Entity coverage, type alignment, temporal alignment, fact density, and topical relevance \u2014 producing three outcomes: proceed, supplement with exploratory retrieval, or bail out.",
+    stage: '5-dimensional confidence scoring',
+    description:
+      'Entity coverage, type alignment, temporal alignment, fact density, and topical relevance producing three outcomes: proceed, supplement with exploratory retrieval, or bail out.',
   },
   {
     icon: Brain,
-    stage: "Iterative Reasoning Engine",
-    description: "Complex queries are decomposed into dependency-ordered sub-questions with targeted retrieval per gap \u2014 each iteration snapshots state and reverts if quality degrades.",
+    stage: 'Iterative reasoning engine',
+    description:
+      'Complex queries decomposed into dependency-ordered sub-questions with targeted retrieval per gap. Each iteration snapshots state and reverts if quality degrades.',
   },
   {
     icon: Layers,
-    stage: "Structured Context Preparation",
-    description: "Facts organized by entity and topic, cross-document connections stated as established insights, iterative reasoning chain injected \u2014 the LLM synthesizes from organized understanding.",
+    stage: 'Structured context preparation',
+    description:
+      'Facts organized by entity and topic, cross-document connections stated as established insights, iterative reasoning chain injected. The LLM synthesizes from organized understanding.',
   },
 ]
 
 const cognitiveSubprocesses = [
-  { label: "Perceive", description: "Identify entities and relationships", color: "text-[#083C5E]" },
-  { label: "Structure", description: "Formalize the query as a constrained search", color: "text-[#083C5E]" },
-  { label: "Store", description: "Know where relevant information lives", color: "text-[#083C5E]" },
-  { label: "Organize", description: "Connect related facts across documents", color: "text-[#083C5E]" },
-  { label: "Retrieve", description: "Pull the specific facts needed", color: "text-[#083C5E]" },
+  { label: 'Perceive', description: 'Identify entities and relationships' },
+  { label: 'Structure', description: 'Formalize the query as a constrained search' },
+  { label: 'Store', description: 'Know where relevant information lives' },
+  { label: 'Organize', description: 'Connect related facts across documents' },
+  { label: 'Retrieve', description: 'Pull the specific facts needed' },
+]
+
+type Row = { system: string; value: number; isVrin?: boolean }
+
+function LeaderboardCard({
+  title,
+  metric,
+  rows,
+  maxTrack,
+  note,
+}: {
+  title: string
+  metric: string
+  rows: Row[]
+  maxTrack: number
+  note: string
+}) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 })
+  return (
+    <div
+      ref={ref}
+      className="rounded-3xl border border-vrin-cream/15 bg-vrin-charcoal/40 p-8 md:p-10 overflow-hidden"
+    >
+      <div className="mb-8 pb-5 border-b border-vrin-cream/10">
+        <p className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-cream/45 mb-2">
+          Leaderboard
+        </p>
+        <h3 className="font-display text-3xl md:text-4xl leading-none text-vrin-cream">
+          {title}
+        </h3>
+        <p className="mt-2 font-mono text-xs md:text-sm text-vrin-cream/55">
+          {metric}
+        </p>
+      </div>
+
+      <div>
+        {rows.map((r, i) => {
+          const width = Math.min(100, (r.value / maxTrack) * 100)
+          return (
+            <motion.div
+              key={r.system}
+              initial={{ opacity: 0, y: 10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: i * 0.08, ease }}
+              className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)_auto] items-center gap-4 py-3"
+            >
+              <p
+                className={`text-right text-xs md:text-sm tracking-tight truncate ${
+                  r.isVrin
+                    ? 'text-vrin-cream font-medium'
+                    : 'text-vrin-cream/60'
+                }`}
+              >
+                {r.system}
+              </p>
+              <div className="relative h-6 rounded-full bg-vrin-cream/10 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={inView ? { width: `${width}%` } : {}}
+                  transition={{ duration: 1.1, delay: i * 0.08 + 0.2, ease }}
+                  className={`absolute inset-y-0 left-0 rounded-full ${
+                    r.isVrin ? 'bg-vrin-sage' : 'bg-vrin-sage/30'
+                  }`}
+                />
+              </div>
+              <p
+                className={`font-mono text-xs md:text-sm min-w-[4ch] text-right tabular-nums ${
+                  r.isVrin ? 'text-vrin-cream font-medium' : 'text-vrin-cream/55'
+                }`}
+              >
+                {r.value.toFixed(1)}%
+              </p>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <p className="mt-6 pt-5 border-t border-vrin-cream/10 text-xs text-vrin-cream/45 leading-relaxed">
+        {note}
+      </p>
+    </div>
+  )
+}
+
+const furtherReading = [
+  {
+    icon: FlaskConical,
+    title: 'Benchmark results: full methodology',
+    href: '/blog/benchmark-results-multihop-musique',
+    blurb:
+      'Complete evaluation on MultiHop-RAG and MuSiQue with per-type breakdowns, methodology details, and analysis.',
+  },
+  {
+    icon: Brain,
+    title: 'The reasoning gap: why RAG fails',
+    href: '/blog/the-reasoning-gap',
+    blurb:
+      'Technical deep-dive into why semantic similarity search cannot solve multi-document reasoning and what architecture replaces it.',
+  },
+  {
+    icon: Search,
+    title: 'Filesystem vs. graph: a stress test',
+    href: '/blog/karpathy-knowledge-base-stress-test',
+    blurb:
+      'Head-to-head comparison of local filesystem agent, standard RAG, and Vrin on a 30-document strategic reasoning task.',
+  },
+  {
+    icon: Network,
+    title: 'Why vector search fails for multi-document questions',
+    href: '/blog/why-vector-search-fails',
+    blurb:
+      'The five failure modes of embedding-based retrieval and why knowledge graphs address each one architecturally.',
+  },
 ]
 
 export default function ResearchPage() {
   return (
-    <div className="flex flex-col">
-      <AnimatedBackground />
+    <div className="flex flex-col bg-vrin-paper">
       <Header />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-4xl mx-auto px-6 text-center">
-          <motion.div
+      <section className="relative pt-36 md:pt-44 pb-24 md:pb-28 overflow-hidden vignette-paper">
+        <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container relative z-10">
+          <div className="flex items-center gap-3 mb-10">
+            <span className="eyebrow text-vrin-blue">Research</span>
+            <span className="hairline flex-1" />
+            <span className="hidden md:inline text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
+              whitepaper · benchmarks · code
+            </span>
+          </div>
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.9, ease }}
+            className="font-display text-[clamp(2.75rem,7vw,6rem)] leading-[0.98] tracking-[-0.035em] text-vrin-charcoal max-w-5xl"
           >
-            <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-              Research
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#201E1E] dark:text-white leading-tight mb-8">
-              The gap between retrieval<br />and reasoning
-            </h1>
-            <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light max-w-2xl mx-auto mb-10">
-              Current RAG systems delegate reasoning to the LLM, failing on multi-hop, temporal,
-              and numerical queries. Vrin engineers five cognitive subprocesses that the industry skipped.
-              The results are measurable.
+            The gap between retrieval
+            <br />
+            and <span className="serif-italic text-vrin-blue">reasoning.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease, delay: 0.2 }}
+            className="mt-8 max-w-3xl text-lg md:text-xl text-vrin-charcoal/65 leading-relaxed"
+          >
+            Current RAG systems delegate reasoning to the LLM, failing on multi-hop,
+            temporal, and numerical queries. Vrin engineers five cognitive
+            subprocesses the industry skipped. The results are measurable.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease, delay: 0.35 }}
+            className="mt-10 flex flex-col sm:flex-row gap-4"
+          >
+            <a
+              href="https://vrin.cloud/vrin-whitepaper.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <Download className="w-4 h-4" />
+              Read the whitepaper
+            </a>
+            <a
+              href="https://github.com/Vrin-cloud/vrin-benchmarks"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/20 px-7 py-4 text-sm font-medium text-vrin-charcoal hover:border-vrin-charcoal/50 hover:bg-vrin-sand/40 transition-all duration-300"
+            >
+              <GitBranch className="w-4 h-4" />
+              Benchmark code
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Whitepaper overview */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-4xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease }}
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-vrin-blue" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
+                  Whitepaper · April 2026
+                </p>
+                <h2 className="font-display text-2xl md:text-3xl leading-[1.15] tracking-[-0.02em] text-vrin-charcoal">
+                  Vrin: From Retrieval to Reasoning. A Hybrid Knowledge Graph
+                  Architecture for Enterprise AI
+                </h2>
+              </div>
+            </div>
+
+            <div className="space-y-6 text-base md:text-lg text-vrin-charcoal/70 leading-relaxed">
+              <p>
+                A human analyst answering a complex question doesn&apos;t just
+                search for similar text. They identify entities and relationships,
+                formalize the question as a constrained search, know where
+                relevant information lives, connect related facts across
+                documents, and then pull the specific facts needed. Five
+                cognitive subprocesses, yet current RAG addresses only the last
+                one.
+              </p>
+              <p>
+                This paper presents Vrin, a hybrid knowledge graph architecture
+                that engineers each of these five subprocesses explicitly. Rather
+                than treating retrieval as a single undifferentiated step, Vrin
+                implements a multi-stage reasoning pipeline: entity-centric fact
+                extraction with coreference resolution and temporal versioning, a
+                knowledge graph with community detection and cross-fact
+                deduplication, graph-aware query planning, confidence-scored
+                multi-hop traversal with Personalized PageRank, iterative
+                reasoning with per-step quality evaluation, and structured context
+                preparation that organizes evidence by concept rather than by
+                source.
+              </p>
+              <p>
+                The architecture draws from established constructs in cognitive
+                science: the brain&apos;s Complementary Learning Systems theory,
+                semantic network theory, and metacognitive monitoring. Vrin
+                independently converged on the same dual-store architecture that
+                HippoRAG applied to RAG at NeurIPS, a convergence suggesting these
+                engineering problems have a natural solution space.
+              </p>
+            </div>
+
+            <a
+              href="https://vrin.cloud/vrin-whitepaper.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-10 inline-flex items-center gap-2 text-sm font-medium text-vrin-blue hover:text-vrin-charcoal transition-colors"
+            >
+              Read the full whitepaper
+              <ArrowUpRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Five subprocesses */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-4xl relative z-10">
+          <div className="mb-14">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Core thesis</span>
+              <span className="hairline flex-1" />
+            </div>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.0] tracking-[-0.025em] text-vrin-charcoal mb-4">
+              Five subprocesses.{' '}
+              <span className="serif-italic text-vrin-blue">RAG addresses one.</span>
+            </h2>
+            <p className="max-w-2xl text-base md:text-lg text-vrin-charcoal/65 leading-relaxed">
+              The industry spent three years optimizing retrieval: better
+              embeddings, smarter chunking, bigger context windows. The other four
+              subprocesses were left to the LLM.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="https://vrin.cloud/vrin-whitepaper.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
+          </div>
+
+          <div className="space-y-3">
+            {cognitiveSubprocesses.map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, delay: i * 0.08, ease }}
+                className={`flex items-center gap-5 p-5 rounded-2xl border transition-colors ${
+                  i === 4
+                    ? 'border-vrin-sage/50 bg-vrin-sage/10'
+                    : 'border-vrin-charcoal/10 bg-vrin-cream/60'
+                }`}
               >
-                <Button
-                  size="lg"
-                  className="px-8 py-6 text-base font-medium bg-[#083C5E] hover:bg-[#083C5E]/90 text-white rounded-full"
+                <span className="font-mono text-xs tracking-widest text-vrin-charcoal/40 w-8">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="font-display text-lg md:text-xl text-vrin-charcoal">
+                  {item.label}
+                </span>
+                <span className="text-vrin-charcoal/25">/</span>
+                <span className="flex-1 text-sm text-vrin-charcoal/65">
+                  {item.description}
+                </span>
+                <span
+                  className={`text-[10px] font-mono tracking-[0.14em] uppercase whitespace-nowrap ${
+                    i === 4 ? 'text-vrin-blue' : 'text-vrin-blue/50'
+                  }`}
                 >
-                  <Download className="mr-2 h-5 w-5" />
-                  Read the Whitepaper
-                </Button>
-              </a>
-              <a
-                href="https://github.com/Vrin-cloud/vrin-benchmarks"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="px-8 py-6 text-base font-medium border-2 border-[#201E1E]/20 dark:border-white/20 text-[#201E1E] dark:text-white bg-transparent hover:bg-[#201E1E]/5 dark:hover:bg-white/5 rounded-full"
+                  {i === 4 ? 'Vrin + RAG' : 'Vrin'}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="mt-8 text-sm text-vrin-charcoal/55 text-center">
+            Standard RAG addresses only subprocess 5 (Retrieve) through semantic
+            similarity. Vrin engineers all five.
+          </p>
+        </div>
+      </section>
+
+      {/* Benchmarks — dark */}
+      <section className="relative bg-vrin-ink py-28 md:py-36 overflow-hidden rounded-[3rem] md:rounded-[4rem]">
+        <div className="absolute inset-0 grid-faint-dark opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-sage">Experimental evaluation</span>
+              <span className="hairline flex-1 opacity-40" />
+            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-cream">
+              Benchmark <span className="serif-italic text-vrin-sage">results.</span>
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-cream/65 leading-relaxed">
+              Evaluated on two complementary academic leaderboards following
+              BetterBench guidelines: fixed-seed sampling, confidence intervals,
+              and open-source evaluation code.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-5 max-w-6xl">
+            <LeaderboardCard
+              title="MultiHop-RAG"
+              metric="metric: Semantic Accuracy (SA)"
+              rows={multihopRows}
+              maxTrack={100}
+              note="Vrin tops the leaderboard even as ChatGPT 5.2 is given the exact evidence documents (oracle context) while Vrin retrieves from the full corpus. The gap is entirely attributable to structured reasoning."
+            />
+            <LeaderboardCard
+              title="MuSiQue"
+              metric="metric: Exact Match (EM)"
+              rows={musiqueRows}
+              maxTrack={65}
+              note="Compositional multi-hop QA designed to resist shortcuts. Vrin leads the public leaderboard, ahead of StepChain GraphRAG, HopRAG, SiReRAG, and HippoRAG 2."
+            />
+          </div>
+
+          {/* Key Finding */}
+          <div className="mt-10 max-w-6xl p-8 md:p-10 rounded-3xl border border-vrin-sage/25 bg-vrin-sage/5">
+            <p className="eyebrow text-vrin-sage mb-4">Where structure matters most</p>
+            <p className="text-base md:text-lg text-vrin-cream/75 leading-relaxed max-w-4xl">
+              The performance gap between Vrin and ChatGPT 5.2 on MultiHop-RAG is
+              largest on{' '}
+              <span className="font-medium text-vrin-cream">
+                temporal queries (+48.9pp)
+              </span>{' '}
+              and{' '}
+              <span className="font-medium text-vrin-cream">
+                comparison queries (+15.5pp)
+              </span>
+              , precisely the query types that require understanding the
+              structure of the question rather than finding semantically similar
+              text. On inference queries (single-hop lookups), both systems
+              perform equally well (99.2% vs 98.4%), confirming that the gap is
+              architectural, not model-dependent.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Architecture pipeline */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-5xl relative z-10">
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Architecture</span>
+              <span className="hairline flex-1" />
+            </div>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.0] tracking-[-0.025em] text-vrin-charcoal mb-6">
+              Reasoning <span className="serif-italic text-vrin-blue">before</span>{' '}
+              inference.
+            </h2>
+            <p className="max-w-2xl text-base md:text-lg text-vrin-charcoal/65 leading-relaxed">
+              Before the LLM sees a single token, Vrin has already understood the
+              query, consulted the knowledge graph, traversed multi-hop
+              relationships, evaluated confidence, and organized evidence by
+              concept.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {pipelineStages.map((stage, i) => {
+              const Icon = stage.icon
+              return (
+                <motion.div
+                  key={stage.stage}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.55, delay: i * 0.07, ease }}
+                  className="flex items-start gap-5 p-6 md:p-7 rounded-3xl border border-vrin-charcoal/10 bg-vrin-cream/60 hover:border-vrin-charcoal/25 transition-all duration-500"
                 >
-                  <GitBranch className="mr-2 h-5 w-5" />
-                  Benchmark Code
-                </Button>
-              </a>
+                  <div className="w-11 h-11 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-5 h-5 text-vrin-blue" />
+                  </div>
+                  <div>
+                    <h4 className="font-display text-xl md:text-2xl leading-[1.15] text-vrin-charcoal mb-2">
+                      {stage.stage}
+                    </h4>
+                    <p className="text-sm md:text-base text-vrin-charcoal/65 leading-relaxed">
+                      {stage.description}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Neuroscience */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-4xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease }}
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Cognitive architecture</span>
+              <span className="hairline flex-1" />
+            </div>
+
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.0] tracking-[-0.025em] text-vrin-charcoal mb-10">
+              Informed by neuroscience,{' '}
+              <span className="serif-italic text-vrin-blue">
+                validated by benchmarks.
+              </span>
+            </h2>
+
+            <div className="space-y-6 text-base md:text-lg text-vrin-charcoal/70 leading-relaxed">
+              <p>
+                Vrin&apos;s architecture maps to established constructs in
+                cognitive science. The dual-store knowledge graph (Neptune for
+                structured facts, OpenSearch for unstructured passages) mirrors
+                the brain&apos;s{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  Complementary Learning Systems
+                </span>
+                : the hippocampus for fast episodic indexing, the neocortex for
+                slow, structured knowledge consolidation.
+              </p>
+              <p>
+                The multi-hop graph traversal implements{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  spreading activation
+                </span>{' '}
+                from semantic network theory: entities activate related entities
+                along typed relationship edges, not through embedding similarity.
+                Hub-weighted PageRank reflects how the brain organizes knowledge
+                through hub-like multi-synaptic structures rather than
+                point-to-point connections.
+              </p>
+              <p>
+                The confidence scoring system draws from{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  metacognitive monitoring
+                </span>
+                . The anterior cingulate cortex detects retrieval uncertainty and
+                can halt processing when evidence is insufficient. Vrin&apos;s
+                adaptive bail-out, which detects zero entity coverage and
+                terminates in under 500ms, is a direct analog.
+              </p>
+              <p>
+                The nightly consolidation pipeline (community detection,
+                cross-fact deduplication, usage-based stability scoring) mirrors{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  sleep-dependent memory consolidation
+                </span>
+                , where the brain restructures and strengthens frequently
+                accessed knowledge pathways.
+              </p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Whitepaper Overview */}
-      <section className="py-24 bg-[#F8F8F8] dark:bg-[#1A1818]">
-        <div className="container max-w-3xl mx-auto px-6">
-          <Section>
-            <div className="flex items-start gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-[#083C5E]/10 dark:bg-[#8DAA9D]/20 flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-6 h-6 text-[#083C5E] dark:text-[#8DAA9D]" />
-              </div>
-              <div>
-                <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-2 block">
-                  Whitepaper &middot; April 2026
-                </span>
-                <h2 className="text-2xl md:text-3xl font-light text-[#201E1E] dark:text-white">
-                  Vrin: From Retrieval to Reasoning. A Hybrid Knowledge Graph Architecture for Enterprise AI
-                </h2>
-              </div>
+      {/* The 95% unexplored */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-4xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease }}
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Looking forward</span>
+              <span className="hairline flex-1" />
             </div>
 
-            <div className="space-y-6 text-lg text-[#201E1E]/70 dark:text-white/70 font-light leading-relaxed">
-              <p>
-                A human analyst answering a complex question doesn&apos;t just search for similar text.
-                They identify entities and relationships, formalize the question as a constrained search,
-                know where relevant information lives, connect related facts across documents, and then
-                pull the specific facts needed. Five cognitive subprocesses, yet current RAG addresses
-                only the last one.
-              </p>
-              <p>
-                This paper presents Vrin, a hybrid knowledge graph architecture that engineers each of
-                these five subprocesses explicitly. Rather than treating retrieval as a single undifferentiated
-                step, Vrin implements a multi-stage reasoning pipeline: entity-centric fact extraction with
-                coreference resolution and temporal versioning, a knowledge graph with community detection
-                and cross-fact deduplication, graph-aware query planning, confidence-scored multi-hop
-                traversal with Personalized PageRank, iterative reasoning with per-step quality evaluation,
-                and structured context preparation that organizes evidence by concept rather than by source.
-              </p>
-              <p>
-                The architecture draws from established constructs in cognitive science: the brain&apos;s
-                Complementary Learning Systems theory (dual-store hippocampus-neocortex architecture),
-                semantic network theory (spreading activation along relational pathways), and metacognitive
-                monitoring (confidence-based retrieval halting). Vrin independently converged on the same
-                dual-store architecture that HippoRAG applied to RAG at NeurIPS, a convergence
-                suggesting these engineering problems have a natural solution space.
-              </p>
-            </div>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.0] tracking-[-0.025em] text-vrin-charcoal mb-10">
+              The <span className="serif-italic text-vrin-blue">95%</span>{' '}
+              unexplored.
+            </h2>
 
-            <div className="mt-8">
-              <a
-                href="https://vrin.cloud/vrin-whitepaper.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-[#083C5E] dark:text-[#8DAA9D] hover:underline text-sm font-medium"
-              >
-                Read the full whitepaper
-                <ExternalLink className="w-4 h-4" />
-              </a>
+            <div className="space-y-6 text-base md:text-lg text-vrin-charcoal/70 leading-relaxed">
+              <p>
+                We believe the industry has explored less than 5% of the
+                available innovation space in knowledge-augmented AI. The dominant
+                focus has been on improving the{' '}
+                <span className="italic">retrieval</span> subprocess: better
+                embeddings, smarter reranking, larger context windows. The other
+                four cognitive subprocesses (perception, structuring, storage,
+                and organization), each with validated science behind them,
+                remain largely unapplied.
+              </p>
+              <p>
+                Active areas of research include{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  adaptive retrieval
+                </span>{' '}
+                that makes finer-grained decisions about which pipeline stages
+                to invoke,{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  automatic domain specialization
+                </span>{' '}
+                that detects query patterns and learns domain expertise from
+                usage, and{' '}
+                <span className="font-medium text-vrin-charcoal">
+                  knowledge graph pattern detection
+                </span>{' '}
+                that identifies frequently-accessed subgraphs and creates memory
+                packs for fine-tuning domain-specialized models.
+              </p>
+              <p>
+                The fundamental thesis is that AI systems will eventually be
+                specialized like human employees, not through fine-tuning a
+                single model, but through engineering the cognitive
+                infrastructure surrounding it.
+              </p>
             </div>
-          </Section>
+          </motion.div>
         </div>
       </section>
 
-      {/* The Five Cognitive Subprocesses */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-4xl mx-auto px-6">
-          <Section>
-            <div className="text-center mb-16">
-              <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-                Core Thesis
-              </span>
-              <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-4">
-                Five subprocesses. RAG addresses one.
-              </h2>
-              <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light max-w-2xl mx-auto">
-                The industry spent three years optimizing retrieval: better embeddings, smarter chunking,
-                bigger context windows. The other four subprocesses were left to the LLM.
-              </p>
-            </div>
+      {/* Further reading */}
+      <section className="relative bg-vrin-paper py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-            <div className="grid gap-4">
-              {cognitiveSubprocesses.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.08 }}
-                  className={`flex items-center gap-5 p-5 rounded-xl border transition-colors ${
-                    i === 4
-                      ? "border-[#8DAA9D]/40 bg-[#8DAA9D]/5 dark:bg-[#8DAA9D]/10"
-                      : "border-[#201E1E]/10 dark:border-white/10"
-                  }`}
+        <div className="container max-w-5xl relative z-10">
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Further reading</span>
+              <span className="hairline flex-1" />
+            </div>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.0] tracking-[-0.025em] text-vrin-charcoal">
+              Deep <span className="serif-italic text-vrin-blue">dives.</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {furtherReading.map((item, i) => {
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="group p-7 rounded-3xl border border-vrin-charcoal/10 bg-vrin-cream/60 hover:border-vrin-charcoal/25 transition-all duration-500"
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-medium text-sm ${
-                    i === 4
-                      ? "bg-[#8DAA9D]/20 text-[#083C5E] dark:text-[#8DAA9D]"
-                      : "bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 text-[#083C5E] dark:text-[#8DAA9D]"
-                  }`}>
-                    {i + 1}
+                  <div className="w-10 h-10 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center mb-5">
+                    <Icon className="w-5 h-5 text-vrin-blue" />
                   </div>
-                  <div className="flex-1">
-                    <span className="font-medium text-[#201E1E] dark:text-white">{item.label}</span>
-                    <span className="text-[#201E1E]/50 dark:text-white/50 mx-2">/</span>
-                    <span className="text-[#201E1E]/60 dark:text-white/60 font-light">{item.description}</span>
-                  </div>
-                  {i < 4 && (
-                    <span className="text-xs font-medium tracking-wider uppercase text-[#083C5E]/40 dark:text-[#8DAA9D]/40 flex-shrink-0">
-                      Vrin
-                    </span>
-                  )}
-                  {i === 4 && (
-                    <span className="text-xs font-medium tracking-wider uppercase text-[#8DAA9D] flex-shrink-0">
-                      Vrin + RAG
-                    </span>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            <p className="text-sm text-[#201E1E]/50 dark:text-white/50 font-light mt-6 text-center">
-              Standard RAG addresses only subprocess 5 (Retrieve) through semantic similarity. Vrin engineers all five.
-            </p>
-          </Section>
-        </div>
-      </section>
-
-      {/* Benchmark Results */}
-      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
-        <div className="container max-w-5xl mx-auto px-6">
-          <Section>
-            <div className="text-center mb-16">
-              <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-                Experimental Evaluation
-              </span>
-              <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
-                Benchmark results
-              </h2>
-              <p className="text-lg text-white/60 font-light max-w-2xl mx-auto">
-                Evaluated on two complementary academic benchmarks following BetterBench guidelines:
-                fixed-seed sampling, confidence intervals, and open-source evaluation code.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* MultiHop-RAG */}
-              <div className="rounded-2xl border border-white/10 overflow-hidden">
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-lg font-medium text-white mb-1">MultiHop-RAG</h3>
-                  <p className="text-sm text-white/50 font-light">
-                    609 news articles, 384 stratified samples. Cross-document reasoning over 2&ndash;4 articles.
+                  <h4 className="font-display text-xl leading-[1.15] text-vrin-charcoal group-hover:text-vrin-blue transition-colors mb-2">
+                    {item.title}
+                  </h4>
+                  <p className="text-sm text-vrin-charcoal/65 leading-relaxed">
+                    {item.blurb}
                   </p>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-3">
-                    {benchmarkResults.multihop.map((row, i) => (
-                      <div
-                        key={i}
-                        className={`flex items-center justify-between py-2 px-3 rounded-lg ${
-                          row.highlight ? "bg-[#8DAA9D]/15" : ""
-                        }`}
-                      >
-                        <span className={`text-sm ${row.highlight ? "text-white font-medium" : "text-white/60 font-light"}`}>
-                          {row.system}
-                        </span>
-                        <div className="flex items-center gap-4">
-                          <span className={`text-sm font-mono ${row.highlight ? "text-[#8DAA9D] font-semibold" : "text-white/70"}`}>
-                            {row.accuracy}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs text-white/40 font-light">
-                      GPT 5.2 receives exact evidence documents (oracle context). Vrin retrieves from the full corpus.
-                      The gap is entirely attributable to structured reasoning.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* MuSiQue */}
-              <div className="rounded-2xl border border-white/10 overflow-hidden">
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-lg font-medium text-white mb-1">MuSiQue</h3>
-                  <p className="text-sm text-white/50 font-light">
-                    4,848 Wikipedia paragraphs, 300 questions. Compositional multi-hop QA designed to resist shortcuts.
-                  </p>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-1 mb-4">
-                    <div className="flex items-center justify-between text-xs text-white/40 font-medium tracking-wider uppercase px-3 pb-2">
-                      <span>System</span>
-                      <div className="flex gap-8">
-                        <span>Exact Match</span>
-                        <span>Token F1</span>
-                      </div>
-                    </div>
-                    {benchmarkResults.musique.map((row, i) => (
-                      <div
-                        key={i}
-                        className={`flex items-center justify-between py-2.5 px-3 rounded-lg ${
-                          row.highlight ? "bg-[#8DAA9D]/15" : ""
-                        }`}
-                      >
-                        <span className={`text-sm ${row.highlight ? "text-white font-medium" : "text-white/60 font-light"}`}>
-                          {row.system}
-                        </span>
-                        <div className="flex gap-8">
-                          <span className={`text-sm font-mono w-14 text-right ${row.highlight ? "text-[#8DAA9D] font-semibold" : "text-white/70"}`}>
-                            {row.em}
-                          </span>
-                          <span className={`text-sm font-mono w-14 text-right ${row.highlight ? "text-[#8DAA9D] font-semibold" : "text-white/70"}`}>
-                            {row.f1}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs text-white/40 font-light">
-                      +28% Exact Match and +16% Token F1 over HippoRAG 2, the current published
-                      state of the art on compositional multi-hop QA.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Finding */}
-            <div className="mt-12 p-8 rounded-2xl border border-[#8DAA9D]/20 bg-[#8DAA9D]/5">
-              <h3 className="text-base font-medium text-white mb-3">Where structure matters most</h3>
-              <p className="text-sm text-white/70 font-light leading-relaxed">
-                The performance gap between Vrin and GPT 5.2 on MultiHop-RAG is largest on <span className="text-white font-medium">temporal queries (+48.9pp)</span> and <span className="text-white font-medium">comparison queries (+15.5pp)</span>,
-                precisely the query types that require understanding the <em>structure</em> of the question
-                rather than finding semantically similar text. On inference queries (single-hop lookups),
-                both systems perform equally well (99.2% vs 98.4%), confirming that the gap is
-                architectural, not model-dependent.
-              </p>
-            </div>
-          </Section>
+                </Link>
+              )
+            })}
+          </div>
         </div>
       </section>
 
-      {/* Architecture: Pipeline Stages */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-4xl mx-auto px-6">
-          <Section>
-            <div className="text-center mb-16">
-              <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-                Architecture
-              </span>
-              <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-4">
-                Reasoning before inference
-              </h2>
-              <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light max-w-2xl mx-auto">
-                Before the LLM sees a single token, Vrin has already understood the query, consulted
-                the knowledge graph, traversed multi-hop relationships, evaluated confidence, and
-                organized evidence by concept.
-              </p>
-            </div>
+      {/* Closing CTA */}
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-            <div className="space-y-5">
-              {pipelineStages.map((stage, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.08 }}
-                  className="flex items-start gap-5 p-6 rounded-2xl border border-[#201E1E]/10 dark:border-white/10 hover:border-[#8DAA9D]/30 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#083C5E]/10 dark:bg-[#8DAA9D]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <stage.icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
-                  </div>
-                  <div>
-                    <h4 className="text-base font-medium text-[#201E1E] dark:text-white mb-1.5">
-                      {stage.stage}
-                    </h4>
-                    <p className="text-sm text-[#201E1E]/60 dark:text-white/60 font-light leading-relaxed">
-                      {stage.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </Section>
-        </div>
-      </section>
+        <div className="container relative z-10 text-center max-w-4xl mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="w-10 h-px bg-vrin-charcoal/20" />
+            <span className="eyebrow text-vrin-charcoal/50">Reasoning before inference</span>
+            <span className="w-10 h-px bg-vrin-charcoal/20" />
+          </div>
 
-      {/* Neuroscience Foundation */}
-      <section className="py-24 bg-[#F8F8F8] dark:bg-[#1A1818]">
-        <div className="container max-w-3xl mx-auto px-6">
-          <Section>
-            <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-              Cognitive Architecture
+          <h2 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[0.98] tracking-[-0.03em] text-vrin-charcoal">
+            The context is reasoned over
+            <br />
+            <span className="serif-italic text-vrin-blue">
+              before the model sees it.
             </span>
-            <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-8">
-              Informed by neuroscience, validated by benchmarks
-            </h2>
-            <div className="space-y-6 text-lg text-[#201E1E]/70 dark:text-white/70 font-light leading-relaxed">
-              <p>
-                Vrin&apos;s architecture maps to established constructs in cognitive science.
-                The dual-store knowledge graph (Neptune for structured facts, OpenSearch for
-                unstructured passages) mirrors the brain&apos;s <strong className="font-medium text-[#201E1E] dark:text-white">Complementary Learning Systems</strong>:
-                the hippocampus for fast episodic indexing, the neocortex for slow, structured knowledge consolidation.
-              </p>
-              <p>
-                The multi-hop graph traversal implements <strong className="font-medium text-[#201E1E] dark:text-white">spreading activation</strong> from
-                semantic network theory: entities activate related entities along typed relationship edges,
-                not through embedding similarity. Hub-weighted PageRank reflects how the brain organizes
-                knowledge through hub-like multi-synaptic structures rather than point-to-point connections.
-              </p>
-              <p>
-                The confidence scoring system draws from <strong className="font-medium text-[#201E1E] dark:text-white">metacognitive monitoring</strong>.
-                The anterior cingulate cortex detects retrieval uncertainty and can halt processing when
-                evidence is insufficient. Vrin&apos;s adaptive bail-out, which detects zero entity coverage
-                and terminates in under 500ms, is a direct analog.
-              </p>
-              <p>
-                The nightly consolidation pipeline (community detection, cross-fact deduplication,
-                usage-based stability scoring) mirrors <strong className="font-medium text-[#201E1E] dark:text-white">sleep-dependent memory consolidation</strong>,
-                where the brain restructures and strengthens frequently-accessed knowledge pathways.
-              </p>
-            </div>
-          </Section>
-        </div>
-      </section>
+          </h2>
 
-      {/* Vision: The 95% Unexplored */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-3xl mx-auto px-6">
-          <Section>
-            <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-              Looking Forward
-            </span>
-            <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-8">
-              The 95% unexplored
-            </h2>
-            <div className="space-y-6 text-lg text-[#201E1E]/70 dark:text-white/70 font-light leading-relaxed">
-              <p>
-                We believe the industry has explored less than 5% of the available innovation space in
-                knowledge-augmented AI. The dominant focus has been on improving the <em>retrieval</em> subprocess:
-                better embeddings, smarter reranking, larger context windows. The other four cognitive
-                subprocesses (perception, structuring, storage, and organization), each with
-                validated science behind them, remain largely unapplied.
-              </p>
-              <p>
-                Active areas of research include <strong className="font-medium text-[#201E1E] dark:text-white">adaptive retrieval</strong> that
-                makes finer-grained decisions about which pipeline stages to invoke, <strong className="font-medium text-[#201E1E] dark:text-white">automatic
-                domain specialization</strong> that detects query patterns and learns domain expertise
-                from usage, and <strong className="font-medium text-[#201E1E] dark:text-white">knowledge graph pattern detection</strong> that
-                identifies frequently-accessed subgraphs and creates memory packs for fine-tuning
-                domain-specialized models.
-              </p>
-              <p>
-                The fundamental thesis is that AI systems will eventually be specialized like human
-                employees, not through fine-tuning a single model, but through engineering the
-                cognitive infrastructure surrounding it.
-              </p>
-            </div>
-          </Section>
-        </div>
-      </section>
+          <p className="mt-8 max-w-xl mx-auto text-lg text-vrin-charcoal/65 leading-relaxed">
+            Read the whitepaper, explore the benchmark code, or see it in action.
+          </p>
 
-      {/* Further Reading */}
-      <section className="py-24 bg-[#F8F8F8] dark:bg-[#1A1818]">
-        <div className="container max-w-4xl mx-auto px-6">
-          <Section>
-            <div className="text-center mb-12">
-              <span className="text-xs font-medium tracking-widest uppercase text-[#8DAA9D] mb-6 block">
-                Further Reading
-              </span>
-              <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white">
-                Deep dives
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-5">
-              <Link
-                href="/blog/benchmark-results-multihop-musique"
-                className="group p-6 rounded-2xl border border-[#201E1E]/10 dark:border-white/10 hover:border-[#8DAA9D]/30 transition-colors"
-              >
-                <FlaskConical className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] mb-3" />
-                <h4 className="text-base font-medium text-[#201E1E] dark:text-white mb-2 group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
-                  Benchmark Results: Full Methodology
-                </h4>
-                <p className="text-sm text-[#201E1E]/60 dark:text-white/60 font-light">
-                  Complete evaluation on MultiHop-RAG and MuSiQue with per-type breakdowns,
-                  methodology details, and analysis.
-                </p>
-              </Link>
-
-              <Link
-                href="/blog/the-reasoning-gap"
-                className="group p-6 rounded-2xl border border-[#201E1E]/10 dark:border-white/10 hover:border-[#8DAA9D]/30 transition-colors"
-              >
-                <Brain className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] mb-3" />
-                <h4 className="text-base font-medium text-[#201E1E] dark:text-white mb-2 group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
-                  The Reasoning Gap: Why RAG Fails
-                </h4>
-                <p className="text-sm text-[#201E1E]/60 dark:text-white/60 font-light">
-                  Technical deep-dive into why semantic similarity search cannot solve
-                  multi-document reasoning and what architecture replaces it.
-                </p>
-              </Link>
-
-              <Link
-                href="/blog/karpathy-knowledge-base-stress-test"
-                className="group p-6 rounded-2xl border border-[#201E1E]/10 dark:border-white/10 hover:border-[#8DAA9D]/30 transition-colors"
-              >
-                <Search className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] mb-3" />
-                <h4 className="text-base font-medium text-[#201E1E] dark:text-white mb-2 group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
-                  Filesystem vs. Graph: A Stress Test
-                </h4>
-                <p className="text-sm text-[#201E1E]/60 dark:text-white/60 font-light">
-                  Head-to-head comparison of local filesystem agent, standard RAG, and Vrin
-                  on a 30-document strategic reasoning task.
-                </p>
-              </Link>
-
-              <Link
-                href="/blog/why-vector-search-fails"
-                className="group p-6 rounded-2xl border border-[#201E1E]/10 dark:border-white/10 hover:border-[#8DAA9D]/30 transition-colors"
-              >
-                <Network className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D] mb-3" />
-                <h4 className="text-base font-medium text-[#201E1E] dark:text-white mb-2 group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
-                  Why Vector Search Fails for Multi-Document Questions
-                </h4>
-                <p className="text-sm text-[#201E1E]/60 dark:text-white/60 font-light">
-                  The five failure modes of embedding-based retrieval and why knowledge graphs
-                  address each one architecturally.
-                </p>
-              </Link>
-            </div>
-          </Section>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-3xl mx-auto px-6 text-center">
-          <Section>
-            <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-white mb-4">
-              The context is reasoned over before the model sees it
-            </h2>
-            <p className="text-lg text-[#201E1E]/60 dark:text-white/60 font-light mb-10 max-w-xl mx-auto">
-              Read the whitepaper, explore the benchmark code, or see it in action.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="https://vrin.cloud/vrin-whitepaper.pdf" target="_blank" rel="noopener noreferrer">
-                <Button
-                  size="lg"
-                  className="px-8 py-6 text-base font-medium bg-[#083C5E] hover:bg-[#083C5E]/90 text-white rounded-full"
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  Read the Whitepaper
-                </Button>
-              </a>
-              <Link href="/playground">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="px-8 py-6 text-base font-medium border-2 border-[#201E1E]/20 dark:border-white/20 text-white dark:text-[#201E1E] bg-[#201E1E] dark:bg-white hover:bg-[#201E1E]/90 dark:hover:bg-white/90 rounded-full"
-                >
-                  Try the Playground
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </Section>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://vrin.cloud/vrin-whitepaper.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <Download className="w-4 h-4" />
+              Read the whitepaper
+            </a>
+            <Link
+              href="/playground"
+              className="group inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/20 px-7 py-4 text-sm font-medium text-vrin-charcoal hover:border-vrin-charcoal/50 hover:bg-vrin-sand/40 transition-all duration-300"
+            >
+              Try the playground
+              <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+            </Link>
+          </div>
         </div>
       </section>
 
