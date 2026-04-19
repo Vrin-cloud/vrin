@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
@@ -15,64 +16,17 @@ type Step = {
 };
 
 function ConnectDiagram() {
-  // Hub-and-spoke: sources flowing into Vrin core
-  const sources = ['Notion', 'Slack', 'Drive', 'SharePoint', 'Jira', 'PDFs'];
   return (
-    <svg viewBox="0 0 400 280" className="w-full h-full">
-      {/* center node */}
-      <defs>
-        <radialGradient id="core" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#8DAA9D" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#8DAA9D" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="200" cy="140" r="60" fill="url(#core)" />
-      <circle cx="200" cy="140" r="28" fill="#201E1E" />
-      <text
-        x="200"
-        y="145"
-        textAnchor="middle"
-        fill="#F9F7F2"
-        fontSize="10"
-        fontFamily="var(--font-geist-mono), monospace"
-        letterSpacing="0.1em"
-      >
-        VRIN
-      </text>
-
-      {sources.map((s, i) => {
-        const angle = (i / sources.length) * Math.PI * 2 - Math.PI / 2;
-        const r = 110;
-        const x = 200 + Math.cos(angle) * r;
-        const y = 140 + Math.sin(angle) * r;
-        return (
-          <g key={s}>
-            <line
-              x1={200}
-              y1={140}
-              x2={x}
-              y2={y}
-              stroke="#201E1E"
-              strokeOpacity="0.18"
-              strokeDasharray="3 4"
-            />
-            <circle cx={x} cy={y} r="4" fill="#083C5E" />
-            <text
-              x={x}
-              y={y + (y > 140 ? 16 : -8)}
-              textAnchor="middle"
-              fontSize="10"
-              fontFamily="var(--font-geist-mono), monospace"
-              fill="#201E1E"
-              fillOpacity="0.55"
-              letterSpacing="0.06em"
-            >
-              {s}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+    <div className="relative w-full h-full">
+      <Image
+        src="/Vrin KG.png"
+        alt="Vrin knowledge graph — every enterprise source connected into one reasoning core"
+        fill
+        sizes="(min-width: 1024px) 60vw, 100vw"
+        className="object-contain"
+        priority
+      />
+    </div>
   );
 }
 
