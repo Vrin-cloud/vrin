@@ -13,7 +13,7 @@ export function ClosingCTA() {
   return (
     <section
       ref={ref}
-      className="relative bg-vrin-paper py-28 md:py-40 overflow-hidden"
+      className="relative bg-vrin-paper pt-28 md:pt-40 pb-14 md:pb-20 overflow-hidden"
     >
       <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
       <div className="absolute inset-0 grain pointer-events-none" />
