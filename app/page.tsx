@@ -8,6 +8,7 @@ import { HeroV2 } from "@/components/landing-v2/hero-v2"
 import { OutcomesV2 } from "@/components/landing-v2/outcomes-v2"
 import { Narrative } from "@/components/landing-v2/narrative"
 import { HowItThinks } from "@/components/landing-v2/how-it-thinks"
+import { DemoVideo } from "@/components/landing-v2/demo-video"
 import { Surfaces } from "@/components/landing-v2/surfaces"
 import { Evidence } from "@/components/landing-v2/evidence"
 import { Verticals } from "@/components/landing-v2/verticals"
@@ -34,6 +35,7 @@ export default function Home() {
       <OutcomesV2 />
       <Narrative />
       <HowItThinks />
+      <DemoVideo />
       <Surfaces />
       <Evidence />
       <Verticals />
