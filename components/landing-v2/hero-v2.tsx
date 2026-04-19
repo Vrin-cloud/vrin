@@ -128,7 +128,7 @@ export function HeroV2() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, ease, delay: 0.4 }}
-            className="hidden lg:flex lg:col-span-5 relative h-[520px] items-center justify-center"
+            className="hidden lg:flex lg:col-span-5 relative h-[520px] items-center justify-center -mt-10"
           >
             {/* Orb container */}
             <div className="relative w-full h-full">
