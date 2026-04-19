@@ -15,7 +15,7 @@ import { Verticals } from "@/components/landing-v2/verticals"
 import { PricingV2 } from "@/components/landing-v2/pricing-v2"
 import { ClosingCTA } from "@/components/landing-v2/closing-cta"
 import { VrinGlowV2 } from "@/components/landing-v2/vrin-glow-v2"
-import { FooterV2 } from "@/components/landing-v2/footer-v2"
+import { Footer } from "@/components/footer"
 
 export default function Home() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -42,7 +42,7 @@ export default function Home() {
       <PricingV2 openContactForm={openContactForm} />
       <ClosingCTA />
       <VrinGlowV2 />
-      <FooterV2 />
+      <Footer />
 
       <ContactForm
         isOpen={isContactFormOpen}

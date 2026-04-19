@@ -1,111 +1,113 @@
-"use client"
+'use client'
 
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { AnimatedBackground } from "@/components/animated-background"
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import Link from 'next/link'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
 import {
-  Bot,
   Scale,
   BarChart3,
   Stethoscope,
   Headphones,
-  ArrowRight,
+  ArrowUpRight,
   Calendar,
   CheckCircle,
-  Code2,
-  Puzzle,
-  Globe,
   Shield,
   GitBranch,
   TrendingUp,
   Zap,
   Network,
   ChevronDown,
-  ChevronUp
-} from "lucide-react"
-import { useState } from "react"
+  ChevronUp,
+} from 'lucide-react'
 
-// Problems with current AI agents
+const ease = [0.16, 1, 0.3, 1] as const
+
 const problems = [
   {
     icon: Network,
-    title: "Agents hallucinate without structured knowledge",
-    description: "Vector search returns similar-looking text chunks. Your agents need actual facts with relationships: who, what, when, and how they connect."
+    title: 'Agents hallucinate without structured knowledge',
+    description:
+      'Vector search returns similar-looking text chunks. Your agents need actual facts with relationships: who, what, when, and how they connect.',
   },
   {
     icon: GitBranch,
-    title: "No provenance means no trust",
-    description: "When your enterprise customer asks 'where did the AI get that answer?', you need to point to specific facts from specific documents. Not 'it was in the embeddings.'"
+    title: 'No provenance means no trust',
+    description:
+      "When your enterprise customer asks 'where did the AI get that answer?', you need to point to specific facts from specific documents. Not 'it was in the embeddings.'",
   },
   {
     icon: Shield,
-    title: "Data sovereignty is non-negotiable",
-    description: "Your enterprise customers require their data stays in their cloud. You need a reasoning layer that supports isolated deployments per customer."
+    title: 'Data sovereignty is non-negotiable',
+    description:
+      'Your enterprise customers require their data stays in their cloud. You need a reasoning layer that supports isolated deployments per customer.',
   },
   {
     icon: TrendingUp,
-    title: "Building in-house takes 6-12 months",
-    description: "Custom knowledge graph pipelines, fact extraction, multi-hop traversal, temporal versioning. Your team should ship product features, not infrastructure."
-  }
+    title: 'Building in-house takes 6-12 months',
+    description:
+      'Custom knowledge graph pipelines, fact extraction, multi-hop traversal, temporal versioning. Your team should ship product features, not infrastructure.',
+  },
 ]
 
-// Use cases
 const useCases = [
   {
     icon: Scale,
-    industry: "Legal AI",
-    title: "Trace answers to specific clauses and precedents",
-    description: "Legal agents need to cite exactly where an answer came from: which contract clause, which regulation, which precedent. Vrin's fact-level provenance gives your agents the audit trail regulated industries demand.",
-    result: "Every legal conclusion traceable to source documents"
+    industry: 'Legal AI',
+    title: 'Trace answers to specific clauses and precedents',
+    description:
+      "Legal agents need to cite exactly where an answer came from: which contract clause, which regulation, which precedent. Vrin's fact-level provenance gives your agents the audit trail regulated industries demand.",
+    result: 'Every legal conclusion traceable to source documents',
   },
   {
     icon: BarChart3,
-    industry: "Financial AI",
-    title: "Reason across filings, reports, and market data",
-    description: "Financial agents need to connect data across quarterly reports, analyst notes, and regulatory filings, with temporal awareness. Vrin's bi-temporal knowledge graph tracks what was true in Q2 vs Q3, not just what's latest.",
-    result: "Cross-document financial reasoning with temporal versioning"
+    industry: 'Financial AI',
+    title: 'Reason across filings, reports, and market data',
+    description:
+      "Financial agents need to connect data across quarterly reports, analyst notes, and regulatory filings, with temporal awareness. Vrin's bi-temporal knowledge graph tracks what was true in Q2 vs Q3, not just what's latest.",
+    result: 'Cross-document reasoning with temporal versioning',
   },
   {
     icon: Stethoscope,
-    industry: "Healthcare AI",
-    title: "Connect clinical notes, research, and guidelines",
-    description: "Healthcare agents deal with patient data, clinical research, and treatment guidelines that evolve. Vrin ensures every recommendation traces to specific evidence, with automatic conflict resolution when guidelines change.",
-    result: "Evidence-based recommendations with full provenance"
+    industry: 'Healthcare AI',
+    title: 'Connect clinical notes, research, and guidelines',
+    description:
+      'Healthcare agents deal with patient data, clinical research, and treatment guidelines that evolve. Vrin ensures every recommendation traces to specific evidence, with automatic conflict resolution when guidelines change.',
+    result: 'Evidence-based recommendations with full provenance',
   },
   {
     icon: Headphones,
-    industry: "Customer Support AI",
-    title: "Answer complex tickets across all knowledge sources",
-    description: "Support agents need to reason across tickets, docs, Slack threads, and product notes simultaneously. Vrin's multi-hop reasoning connects the dots that keyword search misses, with cited sources for every answer.",
-    result: "Cross-system reasoning with source-backed answers"
-  }
+    industry: 'Customer Support AI',
+    title: 'Answer complex tickets across all knowledge sources',
+    description:
+      "Support agents need to reason across tickets, docs, Slack threads, and product notes simultaneously. Vrin's multi-hop reasoning connects the dots that keyword search misses, with cited sources for every answer.",
+    result: 'Cross-system reasoning with source-backed answers',
+  },
 ]
 
-// How it works steps
 const howItWorks = [
   {
-    step: "01",
+    step: '01',
     title: "Connect your customer's knowledge",
-    description: "Vrin connects to your customer's data sources (documents, APIs, databases) and extracts structured facts into a temporal knowledge graph. Each customer gets an isolated knowledge graph in their own cloud."
+    description:
+      "Vrin connects to your customer's data sources (documents, APIs, databases) and extracts structured facts into a temporal knowledge graph. Each customer gets an isolated knowledge graph in their own cloud.",
   },
   {
-    step: "02",
-    title: "Your agents reason, not just retrieve",
-    description: "When your agent asks Vrin a question, it doesn't just return similar text. It decomposes the question, traverses entity relationships across documents, and assembles precisely the context your LLM needs."
+    step: '02',
+    title: 'Your agents reason, not just retrieve',
+    description:
+      "When your agent asks Vrin a question, it doesn't just return similar text. It decomposes the question, traverses entity relationships across documents, and assembles precisely the context your LLM needs.",
   },
   {
-    step: "03",
-    title: "Every answer is traceable",
-    description: "Vrin returns not just the answer context, but the specific facts it used, the documents they came from, and confidence scores. Your agents can cite sources, building trust with enterprise customers."
-  }
+    step: '03',
+    title: 'Every answer is traceable',
+    description:
+      'Vrin returns not just the answer context, but the specific facts it used, the documents they came from, and confidence scores. Your agents can cite sources, building trust with enterprise customers.',
+  },
 ]
 
-// Integration code examples
 const codeExamples = {
   sdk: `from vrin import VRINClient
 
@@ -135,179 +137,201 @@ vrin_search_entities → Find entities in the knowledge graph`,
     "query": "Which suppliers had delivery delays in Q4?",
     "query_depth": "research",
     "stream": true
-  }'`
+  }'`,
 }
 
-// FAQs
 const faqs = [
   {
-    q: "How is this different from just using a vector database?",
-    a: "Vector databases find text chunks that look similar. Vrin builds a structured knowledge graph (entities, relationships, timestamps, confidence scores) and reasons across them. For simple questions, vector search works fine. For questions that span multiple documents, require temporal awareness, or need audit trails, you need a knowledge graph."
+    q: 'How is this different from just using a vector database?',
+    a: 'Vector databases find text chunks that look similar. Vrin builds a structured knowledge graph (entities, relationships, timestamps, confidence scores) and reasons across them. For simple questions, vector search works fine. For questions that span multiple documents, require temporal awareness, or need audit trails, you need a knowledge graph.',
   },
   {
-    q: "Can each of my customers have their own isolated instance?",
-    a: "Yes. Vrin's enterprise routing (vrin_ent_* API keys) deploys each customer's knowledge graph in their own AWS account. Their data never touches our infrastructure or any other customer's environment. This is built-in, not an add-on."
+    q: 'Can each of my customers have their own isolated instance?',
+    a: "Yes. Vrin's enterprise routing (vrin_ent_* API keys) deploys each customer's knowledge graph in their own AWS account. Their data never touches our infrastructure or any other customer's environment. This is built-in, not an add-on.",
   },
   {
-    q: "What LLMs does Vrin work with?",
-    a: "All of them. Vrin is the reasoning layer, not the model. It works with GPT, Claude, Gemini, open-source models, or any LLM your customers prefer. You bring the model, Vrin provides the structured context."
+    q: 'What LLMs does Vrin work with?',
+    a: 'All of them. Vrin is the reasoning layer, not the model. It works with GPT, Claude, Gemini, open-source models, or any LLM your customers prefer. You bring the model, Vrin provides the structured context.',
   },
   {
-    q: "How long does integration take?",
-    a: "The SDK integration is a few lines of Python. Most teams have a working prototype within a day. Production deployment (including knowledge ingestion, testing, and customer data isolation) typically takes 1-2 weeks."
+    q: 'How long does integration take?',
+    a: 'The SDK integration is a few lines of Python. Most teams have a working prototype within a day. Production deployment (including knowledge ingestion, testing, and customer data isolation) typically takes 1-2 weeks.',
   },
   {
-    q: "What benchmarks can I show my customers?",
-    a: "Vrin scores 95.1% accuracy on MultiHop-RAG (vs. 78.9% for GPT-5.2 with the same documents) and is 28% more accurate than HippoRAG 2 (academic state-of-the-art) on MuSiQue multi-hop reasoning. These are published, reproducible results."
+    q: 'What benchmarks can I show my customers?',
+    a: 'Vrin tops both the MultiHop-RAG and MuSiQue leaderboards. 95.1% Semantic Accuracy on MultiHop-RAG (vs 78.9% for ChatGPT 5.2 with oracle context) and 47.8% Exact Match on MuSiQue (ahead of StepChain GraphRAG 43.9%, HopRAG 42.2%, SiReRAG 40.5%, and HippoRAG 2 37.2%). Published, reproducible results.',
   },
   {
-    q: "Does Vrin handle document updates and contradictions?",
-    a: "Yes. Vrin's temporal knowledge graph versions every fact with timestamps. When a new document contradicts an older fact, Vrin automatically detects the contradiction and preserves both versions with their temporal context. Your agents always know what's current."
-  }
+    q: 'Does Vrin handle document updates and contradictions?',
+    a: "Yes. Vrin's temporal knowledge graph versions every fact with timestamps. When a new document contradicts an older fact, Vrin automatically detects the contradiction and preserves both versions with their temporal context. Your agents always know what's current.",
+  },
 ]
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [isOpen, setIsOpen] = useState(false)
   return (
-    <div className="border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10 last:border-0">
+    <div className="border-b border-vrin-charcoal/10 last:border-0">
       <button
-        className="w-full flex items-center justify-between py-5 text-left"
+        className="w-full flex items-center justify-between py-6 text-left"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-base font-medium text-[#201E1E] dark:text-[#FFFFFF] pr-4">{q}</span>
+        <span className="font-display text-lg md:text-xl text-vrin-charcoal pr-4 leading-tight">
+          {q}
+        </span>
         {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-[#201E1E]/40 dark:text-[#FFFFFF]/40 flex-shrink-0" />
+          <ChevronUp className="w-5 h-5 text-vrin-charcoal/40 flex-shrink-0" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-[#201E1E]/40 dark:text-[#FFFFFF]/40 flex-shrink-0" />
+          <ChevronDown className="w-5 h-5 text-vrin-charcoal/40 flex-shrink-0" />
         )}
       </button>
       {isOpen && (
-        <p className="pb-5 text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 leading-relaxed">
-          {a}
-        </p>
+        <p className="pb-6 text-base text-vrin-charcoal/65 leading-relaxed max-w-3xl">{a}</p>
       )}
     </div>
   )
 }
 
 export default function ForAgentsPage() {
-  const [heroRef, heroInView] = useInView({ triggerOnce: true, threshold: 0.1 })
-  const [problemsRef, problemsInView] = useInView({ triggerOnce: true, threshold: 0.1 })
-  const [useCasesRef, useCasesInView] = useInView({ triggerOnce: true, threshold: 0.1 })
-  const [howRef, howInView] = useInView({ triggerOnce: true, threshold: 0.1 })
-  const [codeRef, codeInView] = useInView({ triggerOnce: true, threshold: 0.1 })
   const [activeTab, setActiveTab] = useState<'sdk' | 'mcp' | 'api'>('sdk')
 
+  const [useCasesRef, useCasesInView] = useInView({ triggerOnce: true, threshold: 0.1 })
+  const [codeRef, codeInView] = useInView({ triggerOnce: true, threshold: 0.1 })
+
   return (
-    <div className="flex flex-col">
-      <AnimatedBackground />
+    <div className="flex flex-col bg-vrin-paper">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-vrin-cream dark:bg-vrin-charcoal" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#083C5E]/5 dark:to-[#8DAA9D]/5" />
+      {/* Hero */}
+      <section className="relative pt-36 md:pt-44 pb-24 md:pb-28 overflow-hidden vignette-paper">
+        <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
 
         <div className="container relative z-10">
-          <motion.div
-            ref={heroRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <Badge variant="outline" className="mb-6 px-4 py-2 text-xs font-medium tracking-widest uppercase bg-[#083C5E]/10 dark:bg-[#8DAA9D]/10 border-[#083C5E]/20 dark:border-[#8DAA9D]/20 text-[#083C5E] dark:text-[#8DAA9D]">
-              <Bot className="w-3 h-3 mr-2" />
-              For AI Agent Builders
-            </Badge>
+          <div className="flex items-center gap-3 mb-10">
+            <span className="eyebrow text-vrin-blue">For agent builders</span>
+            <span className="hairline flex-1" />
+            <span className="hidden md:inline text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
+              OEM · embeddable · sovereign
+            </span>
+          </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight text-vrin-charcoal dark:text-vrin-cream mb-6">
-              Give your AI agents a reasoning engine they can trust
-            </h1>
+          <div className="max-w-5xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease }}
+              className="font-display text-[clamp(2.75rem,7vw,6rem)] leading-[0.98] tracking-[-0.035em] text-vrin-charcoal"
+            >
+              Give your agents a
+              <br />
+              <span className="serif-italic text-vrin-blue">reasoning engine</span>{' '}
+              they can trust.
+            </motion.h1>
 
-            <p className="text-base md:text-lg text-vrin-charcoal/60 dark:text-vrin-cream/60 font-normal max-w-2xl mx-auto mb-10">
-              Your agents are only as good as the knowledge behind them. Vrin structures enterprise
-              documents into a temporal knowledge graph and reasons across it, so your agents
-              deliver traceable answers, not hallucinations.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease, delay: 0.2 }}
+              className="mt-8 max-w-2xl text-lg md:text-xl text-vrin-charcoal/65 leading-relaxed"
+            >
+              Your agents are only as good as the knowledge behind them. Vrin
+              structures enterprise documents into a temporal knowledge graph and
+              reasons across it, so your agents deliver traceable answers, not
+              hallucinations.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-vrin-charcoal hover:bg-vrin-blue text-vrin-cream dark:bg-vrin-cream dark:text-vrin-charcoal dark:hover:bg-vrin-sage px-8 py-6 text-base font-medium rounded-full transition-all duration-300"
-                onClick={() => window.location.href = '/waitlist'}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease, delay: 0.35 }}
+              className="mt-10 flex flex-col sm:flex-row gap-4"
+            >
+              <Link
+                href="/waitlist"
+                className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
               >
-                Join Waitlist
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="px-8 py-6 text-base font-medium border-2 border-vrin-charcoal/20 dark:border-vrin-cream/20 text-vrin-charcoal dark:text-vrin-cream hover:bg-vrin-sage/10 dark:hover:bg-vrin-blue/10 rounded-full transition-all duration-300"
-                onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
+                Join the waitlist
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+              </Link>
+              <a
+                href="https://cal.com/vedant-vrin/book-a-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/20 px-7 py-4 text-sm font-medium text-vrin-charcoal hover:border-vrin-charcoal/50 hover:bg-vrin-sand/40 transition-all duration-300"
               >
-                <Calendar className="mr-2 h-5 w-5" />
-                Talk to Our Team
-              </Button>
-            </div>
+                <Calendar className="w-4 h-4" />
+                Talk to our team
+              </a>
+            </motion.div>
 
-            {/* Benchmark proof chips */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#083C5E]/5 dark:bg-[#8DAA9D]/10 rounded-full">
-                <CheckCircle className="w-4 h-4 text-[#083C5E] dark:text-[#8DAA9D]" />
-                <span className="text-xs font-medium text-[#083C5E] dark:text-[#8DAA9D]">95.1% on MultiHop-RAG</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#083C5E]/5 dark:bg-[#8DAA9D]/10 rounded-full">
-                <CheckCircle className="w-4 h-4 text-[#083C5E] dark:text-[#8DAA9D]" />
-                <span className="text-xs font-medium text-[#083C5E] dark:text-[#8DAA9D]">28% better than academic SOTA</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#083C5E]/5 dark:bg-[#8DAA9D]/10 rounded-full">
-                <CheckCircle className="w-4 h-4 text-[#083C5E] dark:text-[#8DAA9D]" />
-                <span className="text-xs font-medium text-[#083C5E] dark:text-[#8DAA9D]">Your data stays in your cloud</span>
-              </div>
-            </div>
-          </motion.div>
+            {/* Proof chips */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, ease, delay: 0.5 }}
+              className="mt-12 flex flex-wrap gap-3"
+            >
+              {[
+                '95.1% on MultiHop-RAG',
+                'Tops MuSiQue leaderboard',
+                'Data stays in your cloud',
+              ].map((chip) => (
+                <span
+                  key={chip}
+                  className="inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/15 bg-vrin-cream/60 px-4 py-2 text-xs font-mono tracking-tight text-vrin-charcoal/75"
+                >
+                  <CheckCircle className="w-3.5 h-3.5 text-vrin-blue" />
+                  {chip}
+                </span>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Problems Section */}
-      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
-        <div className="container">
-          <motion.div
-            ref={problemsRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={problemsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 max-w-4xl mx-auto"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
-              The Problem
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#FFFFFF] mb-6">
-              Why your AI agents fall short
-            </h2>
-            <p className="text-base text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto">
-              You built a great agent. But when enterprise customers ask hard questions that span
-              multiple documents, need temporal context, or require audit trails, your agent guesses.
-            </p>
-          </motion.div>
+      {/* Problems — dark */}
+      <section className="relative bg-vrin-ink py-28 md:py-36 overflow-hidden rounded-[3rem] md:rounded-[4rem]">
+        <div className="absolute inset-0 grid-faint-dark opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {problems.map((problem, index) => {
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-sage">The problem</span>
+              <span className="hairline flex-1 opacity-40" />
+            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-cream">
+              Why your agents{' '}
+              <span className="serif-italic text-vrin-sage">fall short.</span>
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-cream/60 leading-relaxed">
+              You built a great agent. But when enterprise customers ask hard
+              questions that span multiple documents, need temporal context, or
+              require audit trails, your agent guesses.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5 max-w-5xl">
+            {problems.map((problem, i) => {
               const Icon = problem.icon
               return (
                 <motion.div
-                  key={index}
+                  key={problem.title}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={problemsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="p-8 bg-[#201E1E]/30 rounded-2xl border border-[#FFFFFF]/10"
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease }}
+                  className="p-8 rounded-3xl border border-vrin-cream/10 bg-vrin-charcoal/40"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-[#8DAA9D]/20 flex items-center justify-center mb-6">
-                    <Icon className="w-6 h-6 text-[#8DAA9D]" />
+                  <div className="w-11 h-11 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center mb-6">
+                    <Icon className="w-5 h-5 text-vrin-sage" />
                   </div>
-                  <h3 className="text-lg font-medium text-[#FFFFFF] mb-3">{problem.title}</h3>
-                  <p className="text-sm text-[#FFFFFF]/60 leading-relaxed">{problem.description}</p>
+                  <h3 className="font-display text-2xl leading-[1.15] text-vrin-cream mb-3">
+                    {problem.title}
+                  </h3>
+                  <p className="text-sm text-vrin-cream/60 leading-relaxed">
+                    {problem.description}
+                  </p>
                 </motion.div>
               )
             })}
@@ -315,39 +339,42 @@ export default function ForAgentsPage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container">
-          <motion.div
-            ref={howRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={howInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 max-w-4xl mx-auto"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-[#083C5E] dark:text-[#8DAA9D] mb-4 block">
-              How It Works
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-              Connect. Reason. Trace.
-            </h2>
-          </motion.div>
+      {/* How it works */}
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-          <div className="max-w-4xl mx-auto space-y-8">
-            {howItWorks.map((step, index) => (
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">How it works</span>
+              <span className="hairline flex-1" />
+            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-charcoal">
+              Connect. Reason.{' '}
+              <span className="serif-italic text-vrin-blue">Trace.</span>
+            </h2>
+          </div>
+
+          <div className="max-w-4xl space-y-10 md:space-y-12">
+            {howItWorks.map((step, i) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={howInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="flex gap-6 items-start"
+                key={step.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.12, ease }}
+                className="grid md:grid-cols-[auto_1fr] gap-6 md:gap-10 items-start"
               >
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#083C5E] dark:bg-[#8DAA9D] flex items-center justify-center">
-                  <span className="text-sm font-bold text-white dark:text-[#201E1E]">{step.step}</span>
-                </div>
+                <span className="font-mono text-sm tracking-widest text-vrin-charcoal/40">
+                  {step.step}
+                </span>
                 <div>
-                  <h3 className="text-xl font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">{step.title}</h3>
-                  <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 leading-relaxed">{step.description}</p>
+                  <h3 className="font-display text-2xl md:text-3xl leading-[1.15] tracking-[-0.02em] text-vrin-charcoal mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-base md:text-lg text-vrin-charcoal/65 leading-relaxed max-w-2xl">
+                    {step.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -356,51 +383,55 @@ export default function ForAgentsPage() {
       </section>
 
       {/* Use Cases */}
-      <section className="py-24 bg-[#FAFAFA] dark:bg-[#1a1a1a]">
-        <div className="container">
-          <motion.div
-            ref={useCasesRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={useCasesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 max-w-4xl mx-auto"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-[#083C5E] dark:text-[#8DAA9D] mb-4 block">
-              Use Cases
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-              One reasoning engine, every vertical
-            </h2>
-            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto">
-              Whether you&apos;re building for legal, finance, healthcare, or support, your agents need
-              the same thing: structured knowledge reasoning with traceable answers.
-            </p>
-          </motion.div>
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {useCases.map((useCase, index) => {
+        <div className="container relative z-10" ref={useCasesRef}>
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Use cases</span>
+              <span className="hairline flex-1" />
+            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-charcoal">
+              One reasoning engine,
+              <br />
+              <span className="serif-italic text-vrin-blue">every</span> vertical.
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-charcoal/65 leading-relaxed">
+              Whether you&apos;re building for legal, finance, healthcare, or
+              support, your agents need the same thing: structured knowledge
+              reasoning with traceable answers.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5 max-w-6xl">
+            {useCases.map((useCase, i) => {
               const Icon = useCase.icon
               return (
                 <motion.div
-                  key={index}
+                  key={useCase.industry}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={useCasesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="p-8 bg-white dark:bg-[#201E1E] rounded-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10"
+                  animate={useCasesInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease }}
+                  className="p-8 rounded-3xl border border-vrin-charcoal/10 bg-vrin-cream/60 hover:border-vrin-charcoal/25 transition-all duration-500"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-[#083C5E]/10 dark:bg-[#8DAA9D]/20 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-vrin-blue" />
                     </div>
-                    <span className="text-xs font-medium uppercase tracking-widest text-[#083C5E] dark:text-[#8DAA9D]">
+                    <span className="eyebrow text-vrin-blue">
                       {useCase.industry}
                     </span>
                   </div>
-                  <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-3">{useCase.title}</h3>
-                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60 leading-relaxed mb-4">{useCase.description}</p>
-                  <div className="flex items-center gap-2 text-sm text-[#083C5E] dark:text-[#8DAA9D]">
+                  <h3 className="font-display text-2xl md:text-3xl leading-[1.15] tracking-[-0.02em] text-vrin-charcoal mb-3">
+                    {useCase.title}
+                  </h3>
+                  <p className="text-sm text-vrin-charcoal/65 leading-relaxed mb-5">
+                    {useCase.description}
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-vrin-blue">
                     <CheckCircle className="w-4 h-4" />
-                    <span>{useCase.result}</span>
+                    <span className="serif-italic">{useCase.result}</span>
                   </div>
                 </motion.div>
               )
@@ -409,39 +440,39 @@ export default function ForAgentsPage() {
         </div>
       </section>
 
-      {/* Integration Code Examples */}
-      <section className="py-24 bg-black rounded-[3rem] md:rounded-[4rem]">
-        <div className="container">
-          <motion.div
-            ref={codeRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={codeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 max-w-4xl mx-auto"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-[#8DAA9D] mb-4 block">
-              Integration
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#FFFFFF] mb-6">
-              A few lines to add reasoning
-            </h2>
-            <p className="text-base text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto">
-              Drop-in integration via Python SDK, MCP server, or REST API. Your agents get structured
-              knowledge reasoning without changing your architecture.
-            </p>
-          </motion.div>
+      {/* Integration — dark */}
+      <section className="relative bg-vrin-ink py-28 md:py-36 overflow-hidden rounded-[3rem] md:rounded-[4rem]">
+        <div className="absolute inset-0 grid-faint-dark opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-          <div className="max-w-3xl mx-auto">
+        <div className="container relative z-10" ref={codeRef}>
+          <div className="max-w-4xl mb-14">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-sage">Integration</span>
+              <span className="hairline flex-1 opacity-40" />
+            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-cream">
+              A few lines to add{' '}
+              <span className="serif-italic text-vrin-sage">reasoning.</span>
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-cream/60 leading-relaxed">
+              Drop-in integration via Python SDK, MCP server, or REST API. Your
+              agents get structured knowledge reasoning without changing your
+              architecture.
+            </p>
+          </div>
+
+          <div className="max-w-4xl">
             {/* Tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-5">
               {(['sdk', 'mcp', 'api'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                     activeTab === tab
-                      ? 'bg-[#8DAA9D] text-[#201E1E]'
-                      : 'bg-[#FFFFFF]/10 text-[#FFFFFF]/60 hover:text-[#FFFFFF]'
+                      ? 'bg-vrin-sage text-vrin-ink'
+                      : 'border border-vrin-cream/20 text-vrin-cream/60 hover:text-vrin-cream hover:border-vrin-cream/40'
                   }`}
                 >
                   {tab === 'sdk' ? 'Python SDK' : tab === 'mcp' ? 'MCP Server' : 'REST API'}
@@ -449,9 +480,20 @@ export default function ForAgentsPage() {
               ))}
             </div>
 
-            {/* Code block */}
-            <div className="bg-[#1a1a1a] rounded-2xl p-6 overflow-x-auto border border-[#FFFFFF]/10">
-              <pre className="text-sm text-[#FFFFFF]/80 font-mono leading-relaxed">
+            {/* Code */}
+            <div className="rounded-3xl border border-vrin-cream/10 bg-vrin-charcoal/60 overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-vrin-cream/10">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]/50" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#EAB308]/50" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E]/50" />
+                </div>
+                <span className="text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-cream/40">
+                  vrin · {activeTab}
+                </span>
+                <span className="text-[11px] font-mono text-vrin-cream/30">v1.2.0</span>
+              </div>
+              <pre className="p-8 text-[13px] font-mono leading-[1.7] text-vrin-cream/85 overflow-x-auto">
                 <code>{codeExamples[activeTab]}</code>
               </pre>
             </div>
@@ -459,130 +501,194 @@ export default function ForAgentsPage() {
         </div>
       </section>
 
-      {/* B2B2B Pitch */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="text-xs font-medium uppercase tracking-widest text-[#083C5E] dark:text-[#8DAA9D] mb-4 block">
-              Scale
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-              One integration. Hundreds of enterprise deployments.
-            </h2>
-            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto mb-12">
-              You build the agent. Vrin handles the knowledge reasoning. Each of your enterprise customers
-              gets their own isolated knowledge graph in their own cloud, with data sovereignty built in,
-              not bolted on.
-            </p>
+      {/* B2B2B */}
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="p-6 bg-[#FAFAFA] dark:bg-[#2A2828] rounded-2xl">
-                <Zap className="w-8 h-8 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">Ship faster</h3>
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                  Skip 6-12 months of infrastructure building. Add knowledge reasoning to your agent in days.
-                </p>
-              </div>
-              <div className="p-6 bg-[#FAFAFA] dark:bg-[#2A2828] rounded-2xl">
-                <Shield className="w-8 h-8 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">Data isolation</h3>
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                  Each customer&apos;s knowledge graph runs in their own cloud. Enterprise-grade data sovereignty per deployment.
-                </p>
-              </div>
-              <div className="p-6 bg-[#FAFAFA] dark:bg-[#2A2828] rounded-2xl">
-                <TrendingUp className="w-8 h-8 text-[#083C5E] dark:text-[#8DAA9D] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">Improves over time</h3>
-                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                  Vrin&apos;s knowledge graph consolidates and strengthens with every query. Your agents get smarter the more they&apos;re used.
-                </p>
-              </div>
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Scale</span>
+              <span className="hairline flex-1" />
             </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-charcoal">
+              One integration. Hundreds of
+              <br />
+              <span className="serif-italic text-vrin-blue">enterprise</span>{' '}
+              deployments.
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-charcoal/65 leading-relaxed">
+              You build the agent. Vrin handles the knowledge reasoning. Each of
+              your enterprise customers gets their own isolated knowledge graph in
+              their own cloud, with data sovereignty built in, not bolted on.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 max-w-6xl">
+            {[
+              {
+                icon: Zap,
+                title: 'Ship faster',
+                blurb:
+                  'Skip 6-12 months of infrastructure building. Add knowledge reasoning to your agent in days.',
+              },
+              {
+                icon: Shield,
+                title: 'Data isolation',
+                blurb:
+                  "Each customer's knowledge graph runs in their own cloud. Enterprise-grade data sovereignty per deployment.",
+              },
+              {
+                icon: TrendingUp,
+                title: 'Improves over time',
+                blurb:
+                  "Vrin's knowledge graph consolidates and strengthens with every query. Your agents get smarter the more they're used.",
+              },
+            ].map((card, i) => {
+              const Icon = card.icon
+              return (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease }}
+                  className="p-8 rounded-3xl border border-vrin-charcoal/10 bg-vrin-cream/60"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-vrin-sage/15 border border-vrin-sage/20 flex items-center justify-center mb-6">
+                    <Icon className="w-5 h-5 text-vrin-blue" />
+                  </div>
+                  <h3 className="font-display text-2xl leading-[1.15] text-vrin-charcoal mb-2">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-vrin-charcoal/65 leading-relaxed">
+                    {card.blurb}
+                  </p>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Benchmarks */}
-      <section className="py-24 bg-[#FAFAFA] dark:bg-[#1a1a1a]">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="text-xs font-medium uppercase tracking-widest text-[#083C5E] dark:text-[#8DAA9D] mb-4 block">
-              Benchmarks
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-              Independently verified accuracy
-            </h2>
-            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 font-normal max-w-2xl mx-auto mb-12">
-              Published results on standard academic benchmarks. Not marketing claims. Reproducible measurements.
-            </p>
+      <section className="relative bg-vrin-cream py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              <div className="p-8 bg-white dark:bg-[#201E1E] rounded-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
-                <div className="text-4xl font-light text-[#083C5E] dark:text-[#8DAA9D] mb-2">95.1%</div>
-                <div className="text-base font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">MultiHop-RAG</div>
-                <div className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                  vs. 78.9% for GPT-5.2 with the same documents. 16.2pp improvement on cross-document reasoning.
-                </div>
-              </div>
-              <div className="p-8 bg-white dark:bg-[#201E1E] rounded-2xl border border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
-                <div className="text-4xl font-light text-[#083C5E] dark:text-[#8DAA9D] mb-2">+28%</div>
-                <div className="text-base font-medium text-[#201E1E] dark:text-[#FFFFFF] mb-2">MuSiQue</div>
-                <div className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                  28% more accurate than HippoRAG 2 (academic state-of-the-art) on multi-hop reasoning tasks.
-                </div>
-              </div>
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Benchmarks</span>
+              <span className="hairline flex-1" />
             </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-charcoal">
+              Independently verified{' '}
+              <span className="serif-italic text-vrin-blue">accuracy.</span>
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg text-vrin-charcoal/65 leading-relaxed">
+              Published results on standard academic benchmarks. Not marketing
+              claims. Reproducible measurements.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5 max-w-4xl">
+            {[
+              {
+                value: '95.1%',
+                label: 'MultiHop-RAG',
+                detail:
+                  'Tops the leaderboard on Semantic Accuracy. 16.2pp above ChatGPT 5.2 with oracle context.',
+              },
+              {
+                value: '#1',
+                label: 'MuSiQue',
+                detail:
+                  'Leads the leaderboard on Exact Match (47.8%) across StepChain GraphRAG, HopRAG, SiReRAG, HippoRAG 2.',
+              },
+            ].map((b, i) => (
+              <motion.div
+                key={b.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease }}
+                className="p-8 md:p-10 rounded-3xl border border-vrin-charcoal/10 bg-vrin-paper/80"
+              >
+                <div className="font-display text-6xl md:text-7xl leading-none text-vrin-charcoal mb-4">
+                  {b.value}
+                </div>
+                <p className="eyebrow text-vrin-blue mb-3">{b.label}</p>
+                <p className="text-sm text-vrin-charcoal/65 leading-relaxed">
+                  {b.detail}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-light text-[#201E1E] dark:text-[#FFFFFF]">
-                Common questions
-              </h2>
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container relative z-10">
+          <div className="max-w-4xl mb-12">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="eyebrow text-vrin-blue">Frequently asked</span>
+              <span className="hairline flex-1" />
             </div>
-            <div>
-              {faqs.map((faq, index) => (
-                <FAQItem key={index} q={faq.q} a={faq.a} />
-              ))}
-            </div>
+            <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.0] tracking-[-0.03em] text-vrin-charcoal">
+              Common <span className="serif-italic text-vrin-blue">questions.</span>
+            </h2>
+          </div>
+          <div className="max-w-4xl">
+            {faqs.map((faq) => (
+              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-24 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[#201E1E] dark:text-[#FFFFFF] mb-6">
-              Give your agents the reasoning they deserve
-            </h2>
-            <p className="text-base text-[#201E1E]/60 dark:text-[#FFFFFF]/60 mb-10 max-w-xl mx-auto">
-              Start with the free tier. Integrate in minutes. Scale to hundreds of enterprise deployments.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-[#201E1E] dark:bg-[#FFFFFF] text-[#FFFFFF] dark:text-[#201E1E] hover:bg-[#083C5E] dark:hover:bg-[#8DAA9D] px-8 py-6 text-base font-medium rounded-full transition-all duration-300"
-                onClick={() => window.location.href = '/waitlist'}
-              >
-                Join Waitlist
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="px-8 py-6 text-base font-medium border-2 border-[#201E1E]/20 dark:border-[#FFFFFF]/20 text-[#201E1E] dark:text-[#FFFFFF] hover:bg-[#201E1E]/5 dark:hover:bg-[#FFFFFF]/10 rounded-full transition-all duration-300"
-                onClick={() => window.open("https://cal.com/vedant-vrin/book-a-demo", "_blank")}
-              >
-                <Calendar className="mr-2 h-5 w-5" />
-                Talk to Our Team
-              </Button>
-            </div>
+      {/* Closing CTA */}
+      <section className="relative bg-vrin-paper py-28 md:py-36 overflow-hidden">
+        <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container relative z-10 text-center max-w-4xl mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="w-10 h-px bg-vrin-charcoal/20" />
+            <span className="eyebrow text-vrin-charcoal/50">Plug it in</span>
+            <span className="w-10 h-px bg-vrin-charcoal/20" />
+          </div>
+
+          <h2 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[0.98] tracking-[-0.03em] text-vrin-charcoal">
+            Give your agents the reasoning
+            <br />
+            they <span className="serif-italic text-vrin-blue">deserve.</span>
+          </h2>
+
+          <p className="mt-8 max-w-xl mx-auto text-lg text-vrin-charcoal/65 leading-relaxed">
+            Start with the free tier. Integrate in minutes. Scale to hundreds of
+            enterprise deployments.
+          </p>
+
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/waitlist"
+              className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Join the waitlist
+              <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+            </Link>
+            <a
+              href="https://cal.com/vedant-vrin/book-a-demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/20 px-7 py-4 text-sm font-medium text-vrin-charcoal hover:border-vrin-charcoal/50 hover:bg-vrin-sand/40 transition-all duration-300"
+            >
+              <Calendar className="w-4 h-4" />
+              Talk to our team
+            </a>
           </div>
         </div>
       </section>
