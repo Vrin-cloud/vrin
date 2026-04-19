@@ -13,6 +13,7 @@ import { Evidence } from "@/components/landing-v2/evidence"
 import { Verticals } from "@/components/landing-v2/verticals"
 import { PricingV2 } from "@/components/landing-v2/pricing-v2"
 import { ClosingCTA } from "@/components/landing-v2/closing-cta"
+import { VrinGlowV2 } from "@/components/landing-v2/vrin-glow-v2"
 import { FooterV2 } from "@/components/landing-v2/footer-v2"
 
 export default function Home() {
@@ -38,6 +39,7 @@ export default function Home() {
       <Verticals />
       <PricingV2 openContactForm={openContactForm} />
       <ClosingCTA />
+      <VrinGlowV2 />
       <FooterV2 />
 
       <ContactForm

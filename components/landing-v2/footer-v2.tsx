@@ -141,12 +141,6 @@ export function FooterV2() {
           </div>
         </div>
 
-        {/* Giant watermark */}
-        <div className="mt-16 select-none pointer-events-none">
-          <p className="font-display text-[clamp(6rem,22vw,18rem)] leading-[0.85] tracking-[-0.05em] text-vrin-cream/[0.035] text-center">
-            vrin
-          </p>
-        </div>
       </div>
     </footer>
   );
