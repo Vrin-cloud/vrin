@@ -34,7 +34,7 @@ export function HeroV2() {
         </motion.div>
 
         <div className="grid lg:grid-cols-12 gap-10 items-center">
-          {/* Headline — editorial display type */}
+          {/* Headline: editorial display type */}
           <div className="lg:col-span-7">
             <motion.p
               initial={{ opacity: 0, y: 14 }}
@@ -64,7 +64,7 @@ export function HeroV2() {
               className="mt-8 max-w-xl text-lg md:text-xl text-vrin-charcoal/65 leading-relaxed font-normal"
             >
               Vrin is the retrieval-time reasoning layer for AI agents. It curates
-              the exact context an agent needs — reasoned, cited, and source-bound —
+              the exact context an agent needs: reasoned, cited, and source-bound,
               before a single token is generated.
             </motion.p>
 
@@ -93,7 +93,7 @@ export function HeroV2() {
               </a>
             </motion.div>
 
-            {/* Works-with row — tucked under as provenance, not hero feature */}
+            {/* Works-with row: tucked under as provenance, not hero feature */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -123,7 +123,7 @@ export function HeroV2() {
             </motion.div>
           </div>
 
-          {/* Right rail — Spline ornament with editorial caption */}
+          {/* Right rail: Spline ornament with editorial caption */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}

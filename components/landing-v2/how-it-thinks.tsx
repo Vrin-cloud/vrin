@@ -19,7 +19,7 @@ function ConnectDiagram() {
   return (
     <Image
       src="/Vrin KG.png"
-      alt="Vrin knowledge graph — every enterprise source connected into one reasoning core"
+      alt="Vrin knowledge graph: every enterprise source connected into one reasoning core"
       width={1600}
       height={900}
       sizes="(min-width: 1024px) 60vw, 100vw"
@@ -103,7 +103,7 @@ const steps: Step[] = [
     kicker: 'Connect',
     title: 'Every source, one surface.',
     italic: 'without the migration tax.',
-    copy: 'Point Vrin at where your knowledge already lives — Drive, Notion, Slack, SharePoint, PDFs, databases. Your team keeps working. Vrin keeps reading.',
+    copy: 'Point Vrin at where your knowledge already lives: Drive, Notion, Slack, SharePoint, PDFs, databases. Your team keeps working. Vrin keeps reading.',
     diagram: <ConnectDiagram />,
   },
   {
@@ -111,7 +111,7 @@ const steps: Step[] = [
     kicker: 'Structure',
     title: 'Documents become a living graph.',
     italic: 'not a bucket of chunks.',
-    copy: 'Vrin extracts entities, relationships, and timestamped facts — each one cited back to its source. Your knowledge graph grows with every ingest and self-heals across conflicting versions.',
+    copy: 'Vrin extracts entities, relationships, and timestamped facts, each one cited back to its source. Your knowledge graph grows with every ingest and self-heals across conflicting versions.',
     diagram: <StructureDiagram />,
   },
   {
@@ -119,7 +119,7 @@ const steps: Step[] = [
     kicker: 'Reason',
     title: 'Your agent asks. Vrin walks the graph.',
     italic: 'three hops. one answer.',
-    copy: 'At query time, Vrin reasons across the graph, gathers the exact facts the question demands, and hands your agent a curated context pack — cited, time-aware, ready to generate.',
+    copy: 'At query time, Vrin reasons across the graph, gathers the exact facts the question demands, and hands your agent a curated context pack: cited, time-aware, ready to generate.',
     diagram: <ReasonDiagram />,
   },
 ];
@@ -158,7 +158,7 @@ function StepCard({ step, index }: { step: Step; index: number }) {
         </p>
       </div>
 
-      {/* Diagram column — media renders raw on the paper background */}
+      {/* Diagram column: media renders raw on the paper background */}
       <div className="lg:col-span-7">
         <div className="relative w-full">
           <span className="absolute -top-6 left-0 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/35">

@@ -26,7 +26,7 @@ const outcomes: Outcome[] = [
     value: 80,
     suffix: '% fewer',
     label: 'Follow-up questions needed',
-    detail: 'Cited, complete context — less back-and-forth.',
+    detail: 'Cited, complete context. Less back-and-forth.',
   },
   {
     value: 10,

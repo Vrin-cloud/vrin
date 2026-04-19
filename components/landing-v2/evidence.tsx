@@ -130,7 +130,7 @@ export function Evidence() {
 
       <div className="container relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-          {/* Left — narrative */}
+          {/* Left: narrative */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3 mb-8">
               <span className="eyebrow text-vrin-blue">Benchmarks</span>
@@ -147,7 +147,7 @@ export function Evidence() {
 
             <p className="mt-6 text-base md:text-lg text-vrin-charcoal/65 leading-relaxed max-w-sm">
               Public, reproducible evaluations against the strongest systems on the
-              leaderboard. Same documents, same questions — and every Vrin answer
+              leaderboard. Same documents, same questions. Every Vrin answer
               traceable back to source.
             </p>
 
@@ -162,7 +162,7 @@ export function Evidence() {
             </p>
           </div>
 
-          {/* Right — leaderboard card */}
+          {/* Right: leaderboard card */}
           <div ref={cardRef} className="lg:col-span-7">
             <div className="relative rounded-3xl border border-vrin-charcoal/10 bg-vrin-paper/80 p-8 md:p-10 overflow-hidden">
               <div className="absolute inset-0 grid-faint opacity-40 pointer-events-none" />

@@ -191,7 +191,7 @@ export function PricingV2({ openContactForm }: { openContactForm: (s: string) =>
           ))}
         </div>
 
-        {/* Fine print — "all plans include" */}
+        {/* Fine print: "all plans include" */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -219,7 +219,7 @@ export function PricingV2({ openContactForm }: { openContactForm: (s: string) =>
             <p className="eyebrow text-vrin-blue mb-4">Security &amp; deployment</p>
             <ul className="space-y-2 text-sm text-vrin-charcoal/65">
               {[
-                'Hybrid cloud — BYOC or shared',
+                'Hybrid cloud · BYOC or shared',
                 'Enterprise keys never leave your VPC',
                 'SOC 2 Type II (in progress)',
                 'Air-gapped deployment available',

@@ -33,8 +33,8 @@ export function AnnouncementV2() {
             </span>
 
             <span className="text-vrin-cream/75 font-normal">
-              <span className="hidden sm:inline">See how Vrin resolves complex support tickets faster — </span>
-              <span className="sm:hidden">Support demo —</span>
+              <span className="hidden sm:inline">See how Vrin resolves complex support tickets faster.&nbsp;</span>
+              <span className="sm:hidden">Support demo&nbsp;·&nbsp;</span>
             </span>
 
             <Link

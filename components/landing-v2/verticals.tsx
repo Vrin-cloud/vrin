@@ -11,7 +11,7 @@ const verticals = [
   {
     icon: Scale,
     kicker: 'Legal AI',
-    title: 'Every clause, every precedent — traced.',
+    title: 'Every clause, every precedent, traced.',
     blurb:
       'Your agents cite the exact clause, version, and jurisdiction. Audit-grade by construction, not by hope.',
   },
@@ -34,7 +34,7 @@ const verticals = [
     kicker: 'Customer Support',
     title: 'Resolution on the first response.',
     blurb:
-      'Your agent walks the graph of tickets, docs, and changelogs — arrives at the right policy before anyone has to escalate.',
+      'Your agent walks the graph of tickets, docs, and changelogs, arriving at the right policy before anyone has to escalate.',
   },
   {
     icon: Landmark,
@@ -79,7 +79,7 @@ export function Verticals() {
           </p>
         </div>
 
-        {/* Grid — large first card, 2x2 rest */}
+        {/* Grid: large first card, 2x2 rest */}
         <div className="grid md:grid-cols-6 gap-4">
           {/* Feature card */}
           <motion.div

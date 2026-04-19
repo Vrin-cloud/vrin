@@ -7,11 +7,11 @@ import { ArrowUpRight } from 'lucide-react';
 
 const manifesto =
   'The model isn\'t the bottleneck. The context is. ' +
-  'Today\'s LLMs can reason, synthesize, analyze brilliantly — but only over what you feed them. ' +
+  'Today\'s LLMs can reason, synthesize, analyze brilliantly, but only over what you feed them. ' +
   'Enterprise decisions demand connecting facts across teams, timelines, and formats. ' +
   'Three-plus hops that transformers can\'t reach natively and vector search doesn\'t even attempt. ' +
   'Vrin is the reasoning layer that curates context before the model ever sees it. ' +
-  'Structured, cited, time-aware — ready the moment your agent asks.';
+  'Structured, cited, time-aware. Ready the moment your agent asks.';
 
 function Word({
   word,
@@ -95,7 +95,7 @@ export function Narrative() {
 
           {/* Corner metadata */}
           <div className="absolute bottom-8 left-8 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-cream/30">
-            § 001 — on context
+            § 001 · on context
           </div>
           <div className="absolute bottom-8 right-8 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-cream/30">
             scroll to read
