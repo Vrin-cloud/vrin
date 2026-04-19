@@ -17,74 +17,37 @@ type Step = {
 
 function ConnectDiagram() {
   return (
-    <div className="relative w-full h-full">
-      <Image
-        src="/Vrin KG.png"
-        alt="Vrin knowledge graph — every enterprise source connected into one reasoning core"
-        fill
-        sizes="(min-width: 1024px) 60vw, 100vw"
-        className="object-contain"
-        priority
-      />
-    </div>
+    <Image
+      src="/Vrin KG.png"
+      alt="Vrin knowledge graph — every enterprise source connected into one reasoning core"
+      width={1600}
+      height={900}
+      sizes="(min-width: 1024px) 60vw, 100vw"
+      className="w-full h-auto"
+      priority
+    />
   );
 }
 
 function StructureDiagram() {
-  // Entity graph schematic
-  const nodes = [
-    { id: 'A', x: 80, y: 80, label: 'Acme Corp' },
-    { id: 'B', x: 220, y: 60, label: 'Q4 2025' },
-    { id: 'C', x: 320, y: 140, label: '$50M' },
-    { id: 'D', x: 200, y: 180, label: 'revenue' },
-    { id: 'E', x: 80, y: 200, label: 'Jane Doe' },
-    { id: 'F', x: 340, y: 40, label: 'filed' },
-  ];
-  const edges = [
-    ['A', 'B'], ['B', 'D'], ['D', 'C'],
-    ['A', 'E'], ['E', 'F'], ['B', 'F'],
-  ];
-  const map = Object.fromEntries(nodes.map((n) => [n.id, n]));
-
   return (
-    <svg viewBox="0 0 400 280" className="w-full h-full">
-      {edges.map(([a, b], i) => (
-        <line
-          key={i}
-          x1={map[a].x}
-          y1={map[a].y}
-          x2={map[b].x}
-          y2={map[b].y}
-          stroke="#083C5E"
-          strokeOpacity="0.35"
-          strokeWidth="1"
-        />
-      ))}
-      {nodes.map((n) => (
-        <g key={n.id}>
-          <circle cx={n.x} cy={n.y} r="5" fill="#083C5E" />
-          <circle cx={n.x} cy={n.y} r="12" fill="#083C5E" fillOpacity="0.08" />
-          <text
-            x={n.x + 10}
-            y={n.y + 4}
-            fontSize="10"
-            fontFamily="var(--font-geist-mono), monospace"
-            fill="#201E1E"
-            fillOpacity="0.7"
-            letterSpacing="0.02em"
-          >
-            {n.label}
-          </text>
-        </g>
-      ))}
-    </svg>
+    <video
+      src="/videos/vrin-sales-page-autoplay.mp4"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      aria-label="Vrin turning documents into a living knowledge graph"
+      className="w-full h-auto"
+    />
   );
 }
 
 function ReasonDiagram() {
   // Reasoning path through 3 hops
   return (
-    <svg viewBox="0 0 400 280" className="w-full h-full">
+    <svg viewBox="0 0 400 280" className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="#8DAA9D" />
@@ -195,22 +158,13 @@ function StepCard({ step, index }: { step: Step; index: number }) {
         </p>
       </div>
 
-      {/* Diagram column */}
+      {/* Diagram column — media renders raw on the paper background */}
       <div className="lg:col-span-7">
-        <div className="relative aspect-[4/3] rounded-2xl border border-vrin-charcoal/10 bg-vrin-cream/60 backdrop-blur-sm p-6 overflow-hidden">
-          <div className="absolute inset-0 grid-faint opacity-50" />
-          <div className="absolute inset-0 grain" />
-          <div className="absolute top-4 left-4 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/35">
+        <div className="relative w-full">
+          <span className="absolute -top-6 left-0 text-[10px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/35">
             fig. {step.idx}
-          </div>
-          <div className="absolute top-4 right-4 flex gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-vrin-charcoal/20" />
-            <span className="w-1.5 h-1.5 rounded-full bg-vrin-charcoal/20" />
-            <span className="w-1.5 h-1.5 rounded-full bg-vrin-charcoal/20" />
-          </div>
-          <div className="relative z-10 w-full h-full flex items-center justify-center">
-            {step.diagram}
-          </div>
+          </span>
+          {step.diagram}
         </div>
       </div>
     </motion.div>
