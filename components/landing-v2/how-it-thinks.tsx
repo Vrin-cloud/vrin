@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useInView as useFramerInView } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -30,10 +31,32 @@ function ConnectDiagram() {
 }
 
 function StructureDiagram() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const inView = useFramerInView(videoRef, { amount: 0.4 });
+  const hasStartedRef = useRef(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (inView) {
+      // First viewing starts from the beginning; subsequent re-entries resume
+      // from wherever the viewer last paused.
+      if (!hasStartedRef.current) {
+        video.currentTime = 0;
+        hasStartedRef.current = true;
+      }
+      video.play().catch(() => {
+        /* autoplay policy may block muted playback in rare cases; safe to ignore */
+      });
+    } else {
+      video.pause();
+    }
+  }, [inView]);
+
   return (
     <video
+      ref={videoRef}
       src="https://viwzlcmoipoagqzf.public.blob.vercel-storage.com/vrin-sales-page-autoplay-KP3OuZ9vN3Emt5mehiZ5NFfCMhd3zv.mp4"
-      autoPlay
       loop
       muted
       playsInline
