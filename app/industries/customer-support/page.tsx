@@ -338,7 +338,7 @@ export default function CustomerSupportPage() {
               <video
                 ref={videoRef}
                 className="w-full aspect-video"
-                src="/videos/Customer Support Demo Compressed.mp4"
+                src="https://viwzlcmoipoagqzf.public.blob.vercel-storage.com/Customer%20Support%20Demo%20Compressed-z2nyNAKoHjzfobycyRvhl9yCw3o7QI.mp4"
                 poster="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9' viewBox='0 0 16 9'%3E%3Crect width='16' height='9' fill='%230D0D0E'/%3E%3C/svg%3E"
                 muted={isMuted}
                 playsInline

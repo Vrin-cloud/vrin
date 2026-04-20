@@ -32,7 +32,7 @@ function ConnectDiagram() {
 function StructureDiagram() {
   return (
     <video
-      src="/videos/vrin-sales-page-autoplay.mp4"
+      src="https://viwzlcmoipoagqzf.public.blob.vercel-storage.com/vrin-sales-page-autoplay-KP3OuZ9vN3Emt5mehiZ5NFfCMhd3zv.mp4"
       autoPlay
       loop
       muted

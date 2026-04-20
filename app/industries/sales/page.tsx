@@ -264,7 +264,7 @@ export default function SalesPage() {
                   className="w-full h-auto"
                 >
                   <source
-                    src="/videos/vrin-sales-page-autoplay.mp4"
+                    src="https://viwzlcmoipoagqzf.public.blob.vercel-storage.com/vrin-sales-page-autoplay-KP3OuZ9vN3Emt5mehiZ5NFfCMhd3zv.mp4"
                     type="video/mp4"
                   />
                 </video>
