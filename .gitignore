@@ -44,7 +44,12 @@ yarn-error.log*
 
 # vercel
 .vercel
+.env.vercel
+
+# Demo explainer video lives on Vercel Blob (not tracked in git)
+public/videos/demo-explainer.mp4
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env*.local

@@ -61,7 +61,7 @@ export function DemoVideo() {
           <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-vrin-charcoal/10 bg-vrin-ink">
             <video
               ref={videoRef}
-              src="/videos/demo-explainer.mp4"
+              src="https://viwzlcmoipoagqzf.public.blob.vercel-storage.com/demo-explainer-lT7RY1d4tt3D5crAFSh74VMj8Csn7w.mp4"
               preload="metadata"
               playsInline
               controls={isPlaying}
