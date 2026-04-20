@@ -44,9 +44,9 @@ export function ClosingCTA() {
             transition={{ duration: 1, delay: 0.1, ease }}
             className="font-display text-[clamp(3rem,8vw,7rem)] leading-[0.95] tracking-[-0.035em] text-vrin-charcoal"
           >
-            Let your agents
+            Give your agents a mind
             <br />
-            <span className="serif-italic text-vrin-blue">reason.</span>
+            <span className="serif-italic text-vrin-blue">to think with.</span>
           </motion.h2>
 
           <motion.p
