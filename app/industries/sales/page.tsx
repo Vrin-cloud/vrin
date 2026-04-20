@@ -159,68 +159,59 @@ export default function SalesPage() {
     <div className="flex flex-col bg-vrin-paper">
       <Header />
 
-      {/* Hero */}
+      {/* Hero — centered text + tilting mockup that hides behind the next section */}
       <section
         ref={heroRef}
-        className="relative pt-36 md:pt-44 pb-8 overflow-hidden vignette-paper"
+        className="relative pt-36 md:pt-44 pb-0 overflow-hidden vignette-paper"
       >
         <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
         <div className="absolute inset-0 grain pointer-events-none" />
 
         <div className="container relative z-10">
-          <div className="flex items-center gap-3 mb-10">
-            <span className="eyebrow text-vrin-blue">For sales teams</span>
-            <span className="hairline flex-1" />
-            <span className="hidden md:inline text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
-              reasoning · sourced · on-call
-            </span>
-          </div>
-
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease }}
-            className="font-display text-[clamp(2.75rem,6vw,5.5rem)] leading-[0.98] tracking-[-0.035em] text-vrin-charcoal max-w-5xl"
+            className="text-center max-w-5xl mx-auto"
           >
-            Your reps don&apos;t need another place to search.{' '}
-            <span className="serif-italic text-vrin-blue">
-              They need something that thinks.
-            </span>
-          </motion.h1>
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <span className="w-10 h-px bg-vrin-charcoal/20" />
+              <span className="eyebrow text-vrin-blue">For sales teams</span>
+              <span className="w-10 h-px bg-vrin-charcoal/20" />
+            </div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease, delay: 0.2 }}
-            className="mt-8 max-w-3xl text-lg md:text-xl text-vrin-charcoal/65 leading-relaxed"
-          >
-            Vrin reasons across your entire knowledge base and delivers sourced
-            answers in seconds, on every call, for every deal.
-          </motion.p>
+            <h1 className="font-display text-[clamp(2.75rem,6vw,5.5rem)] leading-[0.98] tracking-[-0.035em] text-vrin-charcoal">
+              Your reps don&apos;t need another place to search.{' '}
+              <span className="serif-italic text-vrin-blue">
+                They need something that thinks.
+              </span>
+            </h1>
 
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease, delay: 0.35 }}
-            className="mt-10 flex flex-col sm:flex-row gap-4"
-          >
-            <a
-              href="https://cal.com/vedant-vrin/book-a-demo"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
-            >
-              Book a 15-min call
-              <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
-            </a>
+            <p className="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-vrin-charcoal/65 leading-relaxed">
+              Vrin reasons across your entire knowledge base and delivers sourced
+              answers in seconds, on every call, for every deal.
+            </p>
+
+            <div className="mt-10 flex justify-center">
+              <a
+                href="https://cal.com/vedant-vrin/book-a-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal px-7 py-4 text-sm font-medium text-vrin-cream hover:bg-vrin-blue transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Book a 15-min call
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+              </a>
+            </div>
           </motion.div>
 
-          {/* Product mockup */}
+          {/* Product mockup — centered, tilts back, partially hides behind next section */}
           <div
-            className="mt-16 max-w-4xl"
+            className="mt-14 max-w-3xl mx-auto"
             style={{
               perspective: '1200px',
               clipPath: 'inset(-50px -100vw 0 -100vw)',
+              maxHeight: '580px',
             }}
           >
             <motion.div
@@ -232,7 +223,7 @@ export default function SalesPage() {
                 translateY: cardTranslateY,
                 scale: cardScale,
                 transformOrigin: 'bottom center',
-                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.12))',
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.15))',
               }}
               className="rounded-3xl overflow-hidden border border-vrin-charcoal/10"
             >
