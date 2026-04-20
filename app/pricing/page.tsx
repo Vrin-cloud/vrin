@@ -1,249 +1,285 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Check, ArrowLeft } from 'lucide-react'
-import vrinIcon from '@/public/vrin-icon.svg'
+import { Check, ArrowUpRight } from 'lucide-react'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+
+const ease = [0.16, 1, 0.3, 1] as const
 
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual')
-
   const proPrice = billingPeriod === 'annual' ? 16 : 19
-  const savings = billingPeriod === 'annual' ? 'Save $60/year' : null
+
+  const freeFeatures = [
+    '10 file uploads / month',
+    '100 MB storage',
+    '100 queries / month',
+    'GPT-5.2 · Claude 4 Haiku · Gemini 3 Flash · Grok 3',
+    'Web search integration',
+    'Source citations on every answer',
+  ]
+
+  const proFeatures = [
+    '100 file uploads / month',
+    '5 GB storage',
+    '1,000 queries / month',
+    'All frontier models (GPT-5.2 Turbo, o3, o4-mini, Claude 4 Sonnet & Opus, Gemini 3 Pro & Ultra)',
+    'Brainstorm mode · creative reasoning',
+    'Expert mode · deep analysis',
+    'Thinking panel visibility',
+    'Unlimited conversations',
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src={vrinIcon} alt="VRIN" width={32} height={32} />
-            <span className="text-xl font-semibold text-gray-900">VRIN</span>
-          </Link>
-          <Link
-            href="/chat"
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Chat
-          </Link>
-        </div>
-      </header>
+    <div className="flex flex-col bg-vrin-paper min-h-screen">
+      <Header />
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-16">
-        {/* Title */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Choose your plan
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Unlock the full power of AI-driven reasoning over your knowledge base
-          </p>
-        </div>
+      <section className="relative pt-36 md:pt-44 pb-20 md:pb-28 overflow-hidden vignette-paper">
+        <div className="absolute inset-0 grid-faint opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
 
-        {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <button
-            onClick={() => setBillingPeriod('monthly')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              billingPeriod === 'monthly'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setBillingPeriod('annual')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-              billingPeriod === 'annual'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Annual
-            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500 text-white">
-              -17%
+        <div className="container relative z-10">
+          {/* Editorial meta row */}
+          <div className="flex items-center gap-3 mb-10 max-w-5xl mx-auto">
+            <span className="eyebrow text-vrin-blue">Pricing</span>
+            <span className="hairline flex-1" />
+            <span className="hidden md:inline text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
+              individuals · teams come later
             </span>
-          </button>
-        </div>
+          </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Plan */}
-          <motion.div
+          {/* Headline */}
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm"
+            transition={{ duration: 0.9, ease }}
+            className="font-display text-[clamp(2.75rem,6vw,5.5rem)] leading-[0.98] tracking-[-0.035em] text-vrin-charcoal text-center max-w-5xl mx-auto"
           >
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Free</h2>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl font-bold text-gray-900">$0</span>
-                <span className="text-gray-500">/ month</span>
-              </div>
-              <p className="text-gray-600">
-                Get started with AI-powered knowledge search
-              </p>
-            </div>
+            Start for free.{' '}
+            <span className="serif-italic text-vrin-blue">Upgrade</span> when
+            you feel the gap.
+          </motion.h1>
 
-            <Link
-              href="/waitlist"
-              className="block w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-900 text-center font-semibold rounded-xl transition-all mb-8"
-            >
-              Join Waitlist
-            </Link>
-
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">10 file uploads per month</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">100 MB storage</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">100 queries per month</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">Access to GPT-5.2, Claude 4 Haiku, Gemini 3 Flash, Grok 3</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">Web search integration</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-700">Source citations</span>
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* Pro Plan */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-[#1a1a1a] rounded-2xl p-8 shadow-xl relative"
+            transition={{ duration: 0.8, ease, delay: 0.2 }}
+            className="mt-8 max-w-2xl mx-auto text-lg text-vrin-charcoal/65 leading-relaxed text-center"
           >
-            {/* Popular Badge */}
-            <div className="absolute top-6 right-6">
-              <span className="px-3 py-1 bg-teal-500/20 text-teal-400 text-sm font-medium rounded-full border border-teal-500/30">
-                Popular
-              </span>
-            </div>
+            Vrin is free to try with a full reasoning engine included. Pro unlocks the
+            frontier models, deeper modes, and the context capacity serious work asks
+            for.
+          </motion.p>
 
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Pro</h2>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-bold text-white">${proPrice}</span>
-                <span className="text-gray-400">/ month</span>
-              </div>
-              {billingPeriod === 'annual' && (
-                <p className="text-sm text-gray-500 mb-2">when billed annually</p>
-              )}
-              <p className="text-gray-400">
-                Unlock advanced reasoning and premium models
-              </p>
-            </div>
-
-            <button
-              onClick={() => {
-                window.location.href = '/waitlist'
-              }}
-              className="block w-full py-3 px-4 bg-teal-500 hover:bg-teal-400 text-gray-900 text-center font-semibold rounded-xl transition-all mb-8"
-            >
-              Join Waitlist
-            </button>
-
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">100 file uploads per month</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">5 GB storage</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">1,000 queries per month</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">
-                  All AI models including GPT-5.2 Turbo, o3, o4-mini, Claude 4 Sonnet & Opus, Gemini 3 Pro & Ultra
+          {/* Billing toggle */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease, delay: 0.35 }}
+            className="mt-12 flex items-center justify-center"
+          >
+            <div className="inline-flex items-center gap-1 rounded-full border border-vrin-charcoal/15 bg-vrin-cream/60 p-1">
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  billingPeriod === 'monthly'
+                    ? 'bg-vrin-charcoal text-vrin-cream'
+                    : 'text-vrin-charcoal/65 hover:text-vrin-charcoal'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingPeriod('annual')}
+                className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  billingPeriod === 'annual'
+                    ? 'bg-vrin-charcoal text-vrin-cream'
+                    : 'text-vrin-charcoal/65 hover:text-vrin-charcoal'
+                }`}
+              >
+                Annual
+                <span
+                  className={`text-[10px] font-mono tracking-wider px-2 py-0.5 rounded-full ${
+                    billingPeriod === 'annual'
+                      ? 'bg-vrin-sage/25 text-vrin-sage'
+                      : 'bg-vrin-sage/15 text-vrin-sage'
+                  }`}
+                >
+                  −17%
                 </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">Brainstorm mode for creative reasoning</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">Expert mode with deep analysis</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">Thinking panel visibility</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300">Unlimited conversations</span>
-              </li>
-            </ul>
-
-            <p className="mt-8 text-sm text-gray-500">
-              Existing subscriber?{' '}
-              <a href="/account/billing" className="text-teal-400 hover:underline">
-                See billing help
-              </a>
-            </p>
+              </button>
+            </div>
           </motion.div>
         </div>
+      </section>
 
-        {/* FAQ or Additional Info */}
-        <div className="mt-16 text-center">
-          <p className="text-gray-600">
-            Questions about our plans?{' '}
+      {/* Plan cards */}
+      <section className="relative bg-vrin-paper pb-24 md:pb-32 overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container relative z-10">
+          <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto">
+            {/* Free */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease, delay: 0.1 }}
+              className="relative rounded-3xl p-8 md:p-10 flex flex-col bg-vrin-cream/70 border border-vrin-charcoal/10 hover:border-vrin-charcoal/25 transition-all duration-500"
+            >
+              <div className="mb-6">
+                <h2 className="font-display text-3xl leading-none text-vrin-charcoal">
+                  Free
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-vrin-charcoal/55">
+                  Try Vrin with the full reasoning engine.
+                </p>
+              </div>
+
+              <div className="mb-8 flex items-baseline gap-2">
+                <span className="font-display text-5xl leading-none text-vrin-charcoal">
+                  $0
+                </span>
+                <span className="text-xs font-mono tracking-wider text-vrin-charcoal/40">
+                  / month
+                </span>
+              </div>
+
+              <ul className="space-y-3 mb-10">
+                {freeFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm">
+                    <Check className="w-4 h-4 mt-0.5 shrink-0 text-vrin-blue" />
+                    <span className="text-vrin-charcoal/75">{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/waitlist"
+                className="mt-auto group inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium bg-vrin-charcoal text-vrin-cream hover:bg-vrin-blue transition-all duration-300"
+              >
+                Join the waitlist
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+              </Link>
+            </motion.div>
+
+            {/* Pro */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease, delay: 0.2 }}
+              className="relative rounded-3xl p-8 md:p-10 flex flex-col bg-vrin-charcoal text-vrin-cream border border-vrin-charcoal"
+            >
+              <div className="absolute top-5 right-5 text-[10px] font-mono tracking-[0.18em] uppercase px-3 py-1 rounded-full bg-vrin-sage/20 text-vrin-sage border border-vrin-sage/30">
+                Most chosen
+              </div>
+
+              <div className="mb-6">
+                <h2 className="font-display text-3xl leading-none text-vrin-cream">
+                  Pro
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-vrin-cream/60">
+                  Frontier models, deeper modes, serious context capacity.
+                </p>
+              </div>
+
+              <div className="mb-2 flex items-baseline gap-2">
+                <span className="font-display text-5xl leading-none text-vrin-cream">
+                  ${proPrice}
+                </span>
+                <span className="text-xs font-mono tracking-wider text-vrin-cream/50">
+                  / month
+                </span>
+              </div>
+              <p className="mb-8 text-xs font-mono text-vrin-cream/40">
+                {billingPeriod === 'annual' ? 'billed annually' : 'billed monthly'}
+              </p>
+
+              <ul className="space-y-3 mb-10">
+                {proFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm">
+                    <Check className="w-4 h-4 mt-0.5 shrink-0 text-vrin-sage" />
+                    <span className="text-vrin-cream/80">{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/waitlist"
+                className="mt-auto group inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium bg-vrin-sage text-vrin-ink hover:bg-vrin-cream transition-all duration-300"
+              >
+                Join the waitlist
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+              </Link>
+
+              <p className="mt-6 text-xs font-mono text-vrin-cream/40">
+                Already subscribed?{' '}
+                <Link href="/account/billing" className="text-vrin-sage hover:text-vrin-cream underline">
+                  Billing help
+                </Link>
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Trust row */}
+          <div className="mt-20 max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
+            <span>· SOC 2 in progress</span>
+            <span>· 256-bit encryption</span>
+            <span>· GDPR ready</span>
+            <span>· Data never leaves your VPC (enterprise)</span>
+          </div>
+
+          {/* Enterprise CTA */}
+          <div className="mt-16 max-w-4xl mx-auto rounded-3xl border border-vrin-charcoal/10 bg-vrin-cream/60 p-8 md:p-10 flex flex-wrap items-center justify-between gap-6">
+            <div className="max-w-xl">
+              <p className="eyebrow text-vrin-blue mb-2">Team or enterprise?</p>
+              <p className="font-display text-2xl md:text-3xl leading-[1.15] text-vrin-charcoal">
+                Dedicated infra, BYOC, SSO, data residency.{' '}
+                <span className="serif-italic text-vrin-blue">Talk to us.</span>
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/#pricing"
+                className="inline-flex items-center gap-2 rounded-full border border-vrin-charcoal/15 px-5 py-3 text-sm font-medium text-vrin-charcoal hover:border-vrin-charcoal/40 hover:bg-vrin-sand/40 transition-all duration-300"
+              >
+                View team plans
+              </Link>
+              <a
+                href="https://cal.com/vedant-vrin/book-a-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full bg-vrin-charcoal text-vrin-cream px-5 py-3 text-sm font-medium hover:bg-vrin-blue transition-all duration-300"
+              >
+                Book a demo
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" />
+              </a>
+            </div>
+          </div>
+
+          {/* Questions footer */}
+          <div className="mt-16 text-center text-sm text-vrin-charcoal/55">
+            Questions about the plans?{' '}
             <a
               href="https://cal.com/vedant-vrin/book-a-demo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-teal-600 hover:underline"
+              className="text-vrin-blue underline hover:text-vrin-charcoal"
             >
               Schedule a call
+            </a>{' '}
+            or email{' '}
+            <a href="mailto:support@vrin.cloud" className="text-vrin-blue underline hover:text-vrin-charcoal">
+              support@vrin.cloud
             </a>
-            {' '}or email us at{' '}
-            <a href="mailto:support@vrin.co" className="text-teal-600 hover:underline">
-              support@vrin.co
-            </a>
-          </p>
+            .
+          </div>
         </div>
+      </section>
 
-        {/* Trust Badges */}
-        <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-          <div className="flex items-center gap-2">
-            <Image src={vrinIcon} alt="VRIN" width={20} height={20} className="opacity-50" />
-            <span>SOC 2 Compliant</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Image src={vrinIcon} alt="VRIN" width={20} height={20} className="opacity-50" />
-            <span>256-bit Encryption</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Image src={vrinIcon} alt="VRIN" width={20} height={20} className="opacity-50" />
-            <span>GDPR Ready</span>
-          </div>
-        </div>
-      </main>
+      <Footer />
     </div>
   )
 }

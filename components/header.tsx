@@ -40,7 +40,7 @@ const menuItems = {
         title: "LEARN",
         items: [
           { label: "Blog", href: "/blog", icon: FileText, description: "Engineering & research insights" },
-          { label: "Documentation", href: "/docs", icon: BookOpen, description: "API reference and guides" },
+          { label: "Documentation", href: "https://docs.vrin.cloud", icon: BookOpen, description: "API reference and guides" },
           { label: "Benchmarks", href: "/blog/benchmark-results-multihop-musique", icon: BarChart3, description: "95.1% MultiHop-RAG, 28% better than SOTA" },
         ]
       }
@@ -347,26 +347,30 @@ export function Header() {
                           {section.title}
                         </h3>
                         <div className="grid grid-cols-2 gap-2">
-                          {section.items.map((item) => (
-                            <Link
-                              key={item.label}
-                              href={item.href}
-                              className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#083C5E]/5 dark:hover:bg-[#8DAA9D]/10 transition-colors group"
-                              onClick={() => setActiveDropdown(null)}
-                            >
-                              <div className="w-10 h-10 rounded-lg bg-[#083C5E]/10 dark:bg-[#8DAA9D]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#083C5E]/20 dark:group-hover:bg-[#8DAA9D]/30 transition-colors">
-                                <item.icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
-                              </div>
-                              <div>
-                                <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
-                                  {item.label}
-                                </p>
-                                <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
-                                  {item.description}
-                                </p>
-                              </div>
-                            </Link>
-                          ))}
+                          {section.items.map((item) => {
+                            const isExternal = item.href.startsWith("http")
+                            return (
+                              <Link
+                                key={item.label}
+                                href={item.href}
+                                {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#083C5E]/5 dark:hover:bg-[#8DAA9D]/10 transition-colors group"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                <div className="w-10 h-10 rounded-lg bg-[#083C5E]/10 dark:bg-[#8DAA9D]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#083C5E]/20 dark:group-hover:bg-[#8DAA9D]/30 transition-colors">
+                                  <item.icon className="w-5 h-5 text-[#083C5E] dark:text-[#8DAA9D]" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-[#201E1E] dark:text-[#FFFFFF] group-hover:text-[#083C5E] dark:group-hover:text-[#8DAA9D] transition-colors">
+                                    {item.label}
+                                  </p>
+                                  <p className="text-sm text-[#201E1E]/60 dark:text-[#FFFFFF]/60">
+                                    {item.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            )
+                          })}
                         </div>
                       </div>
                     ))}
@@ -441,20 +445,24 @@ export function Header() {
               }`}>
                 RESOURCES
               </p>
-              {menuItems.resources.sections[0].items.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`block text-base font-normal py-2 transition-colors ${
-                    isScrolled
-                      ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
-                      : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {menuItems.resources.sections[0].items.map((item) => {
+                const isExternal = item.href.startsWith("http")
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className={`block text-base font-normal py-2 transition-colors ${
+                      isScrolled
+                        ? "text-[#FFFFFF]/70 hover:text-[#8DAA9D]"
+                        : "text-vrin-charcoal/70 hover:text-vrin-blue dark:text-vrin-cream/70 dark:hover:text-vrin-sage"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
             </div>
 
             {/* Direct Links */}

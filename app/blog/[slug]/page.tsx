@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { AnimatedBackground } from "@/components/animated-background"
 import { getPostBySlug, getAllPosts } from "@/lib/blog/posts"
 import { Calendar, Clock, Share2, Twitter, Linkedin, Link as LinkIcon } from "lucide-react"
 
@@ -91,38 +90,40 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <AnimatedBackground />
+    <div className="flex flex-col min-h-screen bg-vrin-paper">
       <Header />
 
-      {/* Article Header — Center-aligned */}
-      <article className="pt-32 pb-8 bg-[#FFFFFF] dark:bg-[#201E1E]">
-        <div className="container max-w-[720px]">
+      {/* Article Header — editorial, center-aligned */}
+      <article className="relative pt-36 md:pt-44 pb-10 bg-vrin-paper overflow-hidden vignette-paper">
+        <div className="absolute inset-0 grid-faint opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 grain pointer-events-none" />
+
+        <div className="container max-w-[760px] relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-center"
           >
-            {/* Date + Category */}
-            <div className="flex items-center justify-center gap-3 text-sm text-[#201E1E]/50 dark:text-[#FFFFFF]/50 mb-6">
+            {/* Meta row */}
+            <div className="flex items-center justify-center gap-3 mb-8 text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/45">
               <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              <span className="text-[#201E1E]/20 dark:text-[#FFFFFF]/20">|</span>
-              <span className="capitalize">{post.category}</span>
+              <span className="text-vrin-charcoal/20">·</span>
+              <span className="text-vrin-blue">{post.category}</span>
             </div>
 
-            {/* Title — center */}
-            <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-medium tracking-tight mb-6 text-[#201E1E] dark:text-[#FFFFFF] leading-[1.1]">
+            {/* Title */}
+            <h1 className="font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.02] tracking-[-0.025em] text-vrin-charcoal mb-6">
               {post.title}
             </h1>
 
-            {/* Description — center */}
-            <p className="text-lg text-[#201E1E]/60 dark:text-[#FFFFFF]/60 max-w-2xl mx-auto mb-8">
+            {/* Description */}
+            <p className="text-base md:text-lg text-vrin-charcoal/65 max-w-2xl mx-auto mb-10 leading-relaxed">
               {post.description}
             </p>
 
-            {/* Author — center */}
-            <div className="flex items-center justify-center gap-3 pb-8 border-b border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+            {/* Author */}
+            <div className="flex items-center justify-center gap-3 pb-8 border-b border-vrin-charcoal/10">
               {post.author.avatar ? (
                 <Image
                   src={post.author.avatar}
@@ -132,20 +133,20 @@ export default function BlogPostPage() {
                   className="w-9 h-9 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-[#083C5E]/20 dark:bg-[#8DAA9D]/20 flex items-center justify-center text-[#083C5E] dark:text-[#8DAA9D] font-medium text-sm">
+                <div className="w-9 h-9 rounded-full bg-vrin-sage/20 flex items-center justify-center text-vrin-blue font-medium text-sm">
                   {post.author.name.split(' ').map(n => n[0]).join('')}
                 </div>
               )}
               <div className="text-sm">
                 {post.author.linkedin ? (
-                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors">
+                  <a href={post.author.linkedin} target="_blank" rel="noopener noreferrer" className="font-medium text-vrin-charcoal hover:text-vrin-blue transition-colors">
                     {post.author.name}
                   </a>
                 ) : (
-                  <span className="font-medium text-[#201E1E] dark:text-[#FFFFFF]">{post.author.name}</span>
+                  <span className="font-medium text-vrin-charcoal">{post.author.name}</span>
                 )}
-                <span className="text-[#201E1E]/40 dark:text-[#FFFFFF]/40 mx-2">·</span>
-                <span className="text-[#201E1E]/50 dark:text-[#FFFFFF]/50">{post.readingTime}</span>
+                <span className="text-vrin-charcoal/30 mx-2">·</span>
+                <span className="text-vrin-charcoal/50 font-mono text-xs">{post.readingTime}</span>
               </div>
             </div>
           </motion.div>
@@ -153,17 +154,18 @@ export default function BlogPostPage() {
       </article>
 
       {/* Article Content with Left Sidebar (Recent) + Right Sidebar (TOC) */}
-      <section id="article-content" className="py-12 bg-[#FFFFFF] dark:bg-[#201E1E]">
+      <section id="article-content" className="relative py-12 bg-vrin-paper overflow-hidden">
+        <div className="absolute inset-0 grain pointer-events-none" />
         {/* Left sidebar — All Posts link + Recent posts, pinned to left edge */}
         <div className={`hidden lg:block fixed left-8 top-32 w-48 z-10 transition-opacity duration-300 ${showSidebars ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
           <Link
             href="/blog"
-            className="text-sm font-medium text-[#201E1E] dark:text-[#FFFFFF] hover:text-[#083C5E] dark:hover:text-[#8DAA9D] transition-colors mb-6 block"
+            className="group inline-flex items-center gap-1.5 text-[11px] font-mono tracking-[0.14em] uppercase text-vrin-charcoal/55 hover:text-vrin-charcoal transition-colors mb-8"
           >
-            ← All Posts
+            ← All posts
           </Link>
           <div className="mb-4">
-            <p className="text-xs font-medium uppercase tracking-widest text-[#201E1E]/40 dark:text-[#FFFFFF]/40 mb-3">Recent</p>
+            <p className="text-[10px] font-mono tracking-[0.18em] uppercase text-vrin-blue mb-4">Recent</p>
             <ul className="space-y-3">
               {getAllPosts()
                 .filter(p => p.slug !== slug)
@@ -172,11 +174,7 @@ export default function BlogPostPage() {
                   <li key={recentPost.slug}>
                     <Link
                       href={`/blog/${recentPost.slug}`}
-                      className={`block text-[13px] leading-snug transition-colors duration-200 ${
-                        recentPost.slug === slug
-                          ? 'text-[#201E1E] dark:text-[#FFFFFF] font-medium'
-                          : 'text-[#201E1E]/40 dark:text-[#FFFFFF]/40 hover:text-[#201E1E]/70 dark:hover:text-[#FFFFFF]/70'
-                      }`}
+                      className="block text-[13px] leading-snug text-vrin-charcoal/50 hover:text-vrin-charcoal transition-colors"
                     >
                       {recentPost.title.length > 50 ? recentPost.title.slice(0, 50) + '...' : recentPost.title}
                     </Link>
@@ -189,8 +187,9 @@ export default function BlogPostPage() {
         {/* Right sidebar — TOC, pinned to right edge */}
         {headings.length > 2 && (
           <div className={`hidden lg:block fixed right-8 top-32 w-48 z-10 transition-opacity duration-300 ${showSidebars ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <p className="text-[10px] font-mono tracking-[0.18em] uppercase text-vrin-blue mb-4 pl-4">On this page</p>
             <nav>
-              <ul className="space-y-3 border-l border-[#201E1E]/10 dark:border-[#FFFFFF]/10">
+              <ul className="space-y-3 border-l border-vrin-charcoal/12">
                 {headings.map(({ id, text }) => (
                   <li key={id}>
                     <a
@@ -201,8 +200,8 @@ export default function BlogPostPage() {
                       }}
                       className={`block pl-4 text-[13px] leading-snug transition-colors duration-200 ${
                         activeHeading === id
-                          ? 'text-[#201E1E] dark:text-[#FFFFFF] border-l-2 border-[#083C5E] dark:border-[#8DAA9D] -ml-px font-medium'
-                          : 'text-[#201E1E]/35 dark:text-[#FFFFFF]/35 hover:text-[#201E1E]/60 dark:hover:text-[#FFFFFF]/60'
+                          ? 'text-vrin-charcoal border-l-2 border-vrin-blue -ml-px font-medium'
+                          : 'text-vrin-charcoal/40 hover:text-vrin-charcoal/70'
                       }`}
                     >
                       {text}

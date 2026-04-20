@@ -17,6 +17,12 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        serif: ["var(--font-instrument-serif)", "Georgia", "serif"],
+        display: ["var(--font-instrument-serif)", "Georgia", "serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -64,7 +70,10 @@ const config: Config = {
         // Custom VRIN Brand Colors
         vrin: {
           cream: "#FFFFFF",
+          paper: "#F9F7F2",
+          sand: "#EDE8DD",
           charcoal: "#201E1E",
+          ink: "#0D0D0E",
           blue: "#083C5E",
           sage: "#8DAA9D",
         },
