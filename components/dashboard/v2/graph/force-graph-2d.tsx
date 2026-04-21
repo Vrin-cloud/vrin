@@ -32,7 +32,9 @@ export function ForceGraph2DView({ data, highlightId, searchTerm, onNodeClick }:
     return () => ro.disconnect()
   }, [])
 
-  // Neighbour set for hover fade — Obsidian-style.
+  // Neighbour set for the hover fade effect: on hover, everything except
+  // the focused node and its direct neighbours dims so the local
+  // neighbourhood pops out.
   const neighbours = React.useMemo(() => {
     if (!hovered) return new Set<string>()
     const set = new Set<string>([hovered.id])
@@ -97,7 +99,8 @@ export function ForceGraph2DView({ data, highlightId, searchTerm, onNodeClick }:
             ctx.fillStyle = isHighlighted ? "#201E1E" : n.color
             ctx.fill()
 
-            // Label — Obsidian shows at zoom > ~0.8, fades as you zoom out.
+            // Label shown once zoomed past ~0.8×; below that only the
+            // hovered / highlighted node shows its name.
             if (globalScale > 0.8 && (isHovered || isHighlighted || globalScale > 1.6)) {
               const label = n.name.length > 30 ? `${n.name.slice(0, 30)}…` : n.name
               const fontSize = Math.max(9, 10 / globalScale)

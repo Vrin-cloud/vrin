@@ -108,7 +108,7 @@ export default function KnowledgeGraphPage() {
     <PageShell
       eyebrow="Graph"
       title="Knowledge graph"
-      description="3D and Obsidian-style 2D views over your entities and relationships."
+      description="3D and 2D views over your entities and relationships."
       bleed
     >
       <div className="h-[calc(100vh-10rem)] min-h-[560px] flex flex-col gap-3 p-6 pt-4">

@@ -23,7 +23,10 @@ interface Props {
 
 export function ForceGraph3DView({ data, highlightId, searchTerm, onNodeClick }: Props) {
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const graphRef = React.useRef<{ zoomToFit?: (ms: number, padding?: number) => void } | null>(null)
+  const graphRef = React.useRef<{
+    zoomToFit?: (ms: number, padding?: number) => void
+    controls?: () => { minDistance?: number; maxDistance?: number }
+  } | null>(null)
   const [size, setSize] = React.useState({ width: 0, height: 0 })
   const [hovered, setHovered] = React.useState<ForceGraphNode | null>(null)
   const hoverXYRef = React.useRef<{ x: number; y: number } | null>(null)
@@ -55,17 +58,44 @@ export function ForceGraph3DView({ data, highlightId, searchTerm, onNodeClick }:
     return () => el.removeEventListener("pointermove", onMove)
   }, [hovered])
 
-  // After initial layout, fit camera to the graph.
+  // After initial layout, fit camera to the graph ONCE per dataset. Do not
+  // re-fit on every engine stop — the simulation re-cools whenever a node
+  // is hovered/dragged, and re-fitting there jumps the camera away from
+  // what the user is looking at.
+  //
+  // Padding controls default zoom: higher padding = more empty space around
+  // the graph bounds = camera sits farther back. 140 lands the graph
+  // comfortably in the viewport without filling it edge-to-edge.
   React.useEffect(() => {
     const t = setTimeout(() => {
       try {
-        graphRef.current?.zoomToFit?.(500, 40)
+        graphRef.current?.zoomToFit?.(500, 180)
       } catch {
         // fg not ready yet — harmless.
       }
     }, 1200)
     return () => clearTimeout(t)
   }, [data.nodes.length])
+
+  // Constrain how far the user can zoom in / out. Without this, it's easy
+  // to end up inside a node or spiralling into infinite space. Limits are
+  // applied on the OrbitControls exposed by react-force-graph-3d.
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        const controls = graphRef.current?.controls?.() as
+          | { minDistance?: number; maxDistance?: number }
+          | undefined
+        if (controls) {
+          controls.minDistance = 80
+          controls.maxDistance = 3000
+        }
+      } catch {
+        // ignore — controls not ready yet
+      }
+    }, 500)
+    return () => clearTimeout(t)
+  }, [])
 
   const matchesSearch = React.useCallback(
     (n: ForceGraphNode) => {
@@ -111,13 +141,6 @@ export function ForceGraph3DView({ data, highlightId, searchTerm, onNodeClick }:
             setHovered(null)
           }}
           onNodeClick={(n: ForceGraphNode) => onNodeClick(n)}
-          onEngineStop={() => {
-            try {
-              graphRef.current?.zoomToFit?.(400, 40)
-            } catch {
-              // ignore
-            }
-          }}
         />
       )}
 

@@ -34,8 +34,23 @@ export interface ForceGraphData {
   links: ForceGraphLink[]
   /** Unique node.type values present in this dataset, stable-sorted. */
   types: string[]
-  /** Community → list of node ids, ordered by community size desc. */
-  communityIndex: Array<{ id: number; color: string; size: number; topType?: string }>
+  /**
+   * Community → metadata, ordered by community size desc.
+   *
+   * - `topType`: dominant node.type within the community (useful when the
+   *   graph has meaningful entity typing, mostly a fallback here).
+   * - `exemplars`: names of the highest-degree members — used as the
+   *   cluster's human label in the legend (e.g. "RAG · HippoRAG ·
+   *   Self-RAG"). Far more informative than `topType` when every node in
+   *   the dataset shares the same default type.
+   */
+  communityIndex: Array<{
+    id: number
+    color: string
+    size: number
+    topType?: string
+    exemplars: string[]
+  }>
   colorFor: (nodeId: string) => string
 }
 
@@ -153,15 +168,22 @@ export function toForceGraphData(nodes: Node[], edges: Edge[]): ForceGraphData {
 
   const types = Array.from(new Set(fgNodes.map((n) => n.type))).sort()
 
-  // Build community index with size + dominant type.
+  // Build community index with size, dominant type, and exemplar names.
+  //
+  // Exemplars are the highest-degree members within each community — they
+  // act as a one-glance "what is this cluster about" label. We pick the
+  // top 3 so legends stay compact. Ties broken by name for stability.
   const sizeByCommunity = new Map<number, number>()
   const typeTallyByCommunity = new Map<number, Map<string, number>>()
+  const membersByCommunity = new Map<number, ForceGraphNode[]>()
   for (const n of fgNodes) {
     if (n.communityId === null) continue
     sizeByCommunity.set(n.communityId, (sizeByCommunity.get(n.communityId) ?? 0) + 1)
     if (!typeTallyByCommunity.has(n.communityId)) typeTallyByCommunity.set(n.communityId, new Map())
     const t = typeTallyByCommunity.get(n.communityId)!
     t.set(n.type, (t.get(n.type) ?? 0) + 1)
+    if (!membersByCommunity.has(n.communityId)) membersByCommunity.set(n.communityId, [])
+    membersByCommunity.get(n.communityId)!.push(n)
   }
   const communityIndex = communities.ordered.map((id) => {
     const tally = typeTallyByCommunity.get(id)
@@ -175,11 +197,18 @@ export function toForceGraphData(nodes: Node[], edges: Edge[]): ForceGraphData {
         }
       }
     }
+    const members = membersByCommunity.get(id) ?? []
+    const exemplars = members
+      .slice()
+      .sort((a, b) => (b.degree - a.degree) || a.name.localeCompare(b.name))
+      .slice(0, 3)
+      .map((m) => m.name)
     return {
       id,
       color: communities.colorForCommunity(id),
       size: sizeByCommunity.get(id) ?? 0,
       topType,
+      exemplars,
     }
   })
 

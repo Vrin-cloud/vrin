@@ -15,7 +15,7 @@ interface Action {
 
 const ACTIONS: Action[] = [
   { label: "Ask VRIN", description: "Start a new conversation grounded in your knowledge.", href: "/dashboard/chat", icon: MessageSquare },
-  { label: "Explore graph", description: "See entities and relationships in 3D or Obsidian-style 2D.", href: "/dashboard/knowledge", icon: Network },
+  { label: "Explore graph", description: "See entities and relationships in 3D or 2D.", href: "/dashboard/knowledge", icon: Network },
   { label: "Upload documents", description: "Ingest PDFs, notes, or text — facts extracted in seconds.", href: "/dashboard/knowledge/uploads", icon: Upload },
   { label: "Connect a source", description: "Sync Notion, Slack, Google Drive, and more.", href: "/dashboard/connectors", icon: Plug },
   { label: "New API key", description: "Generate a key for SDK, MCP, or direct API use.", href: "/dashboard/api-keys", icon: Key },
