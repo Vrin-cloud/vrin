@@ -61,6 +61,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dashboard v2 semantic surfaces (light) */
+    --surface: 0 100% 99.6%;       /* page background — cream */
+    --surface-2: 36 32% 96%;       /* cards / panels — paper */
+    --surface-3: 36 27% 89%;       /* hover / inset — sand */
   }
 
   .dark {
@@ -104,6 +109,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dashboard v2 semantic surfaces (dark) — vrin-ink / vrin-charcoal */
+    --surface: 240 3% 5%;
+    --surface-2: 0 3% 12%;
+    --surface-3: 0 0% 18%;
   }
 }
 

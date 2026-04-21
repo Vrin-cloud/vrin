@@ -77,6 +77,13 @@ const config: Config = {
           blue: "#083C5E",
           sage: "#8DAA9D",
         },
+        // Dashboard v2 semantic aliases — map brand tokens to intent.
+        // Resolved to CSS variables in globals.css so dark mode works without per-component branching.
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          2: "hsl(var(--surface-2))",
+          3: "hsl(var(--surface-3))",
+        },
       },
       letterSpacing: {
         'heading': '-0.02em',
