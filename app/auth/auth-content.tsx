@@ -119,7 +119,14 @@ export default function AuthContent() {
         const syncData = await syncRes.json();
 
         if (syncData.success) {
-          localStorage.setItem('vrin_api_key', syncData.api_key);
+          // Post-v2 sync response: raw api_key is returned ONLY when the
+          // user was just created (first-ever signup). Existing users
+          // receive user identity + primary_key_prefix — the dashboard
+          // authenticates with the Stytch session JWT cookie directly, so
+          // the raw api_key is no longer load-bearing for login.
+          if (syncData.api_key) {
+            localStorage.setItem('vrin_api_key', syncData.api_key);
+          }
           localStorage.setItem('vrin_user', JSON.stringify({
             user_id: syncData.user_id,
             email: syncData.email,
@@ -128,16 +135,16 @@ export default function AuthContent() {
           localStorage.setItem('vrin_stytch_auth', JSON.stringify({
             member_id: data.member_id,
             user_id: syncData.user_id,
-            api_key: syncData.api_key,
             email: syncData.email,
             name: syncData.name,
+            primary_key_prefix: syncData.primary_key_prefix,
           }));
 
           const destination = returnTo || '/dashboard';
           localStorage.removeItem('oauth_return_to');
           router.replace(destination);
         } else {
-          setError('Failed to complete sign-in. Please try again.');
+          setError(syncData.error || 'Failed to complete sign-in. Please try again.');
         }
       } catch (err: any) {
         console.error('[Auth] Password auth error:', err);

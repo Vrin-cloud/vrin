@@ -44,6 +44,12 @@ export const STORAGE_KEYS = {
   // --- OAuth / redirects ---
   /** Where to return after OAuth redirect completes. */
   OAUTH_RETURN_TO: 'oauth_return_to',
+
+  // --- Dashboard v2 shell ---
+  /** "1" when the dashboard sidebar is collapsed, otherwise absent. */
+  VRIN_DASHBOARD_SIDEBAR_COLLAPSED: 'vrin_dashboard_sidebar_collapsed',
+  /** "3d" | "2d" — last-selected knowledge-graph view mode. */
+  VRIN_GRAPH_VIEW_MODE: 'vrin_graph_view_mode',
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];

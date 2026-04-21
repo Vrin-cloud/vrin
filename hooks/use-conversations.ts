@@ -47,7 +47,7 @@ interface UseConversationsReturn {
   refreshConversations: () => Promise<void>;
 }
 
-export const useConversations = (apiKey: string): UseConversationsReturn => {
+export const useConversations = (apiKey: string | null): UseConversationsReturn => {
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

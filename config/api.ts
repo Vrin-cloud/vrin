@@ -88,20 +88,73 @@ export const getAuthHeaders = (apiKey?: string) => ({
 // Helper function to make authenticated API calls
 export const apiCall = async (endpoint: string, options: RequestInit = {}, apiKey?: string) => {
   const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-  
+
   const defaultOptions: RequestInit = {
     headers: getAuthHeaders(apiKey),
     ...options
   };
 
   const response = await fetch(url, defaultOptions);
-  
+
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`API call failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
-  
+
   return response.json();
+};
+
+/**
+ * Credential for `authedFetch`. Either a long-lived API key (SDK path) or a
+ * short-lived Stytch session JWT (dashboard path). Pass whichever the caller
+ * has — the backend accepts both and routes internally.
+ */
+export type AuthCredential =
+  | { type: 'apikey'; value: string }
+  | { type: 'session'; value: string };
+
+/**
+ * Generic authenticated fetch used by the dashboard AuthProvider. Prefers the
+ * provided credential over the legacy apiKey argument. The Bearer header is
+ * built from whichever credential is present; the backend's
+ * `authenticate_with_routing` validates API keys (vrin_* prefix) and Stytch
+ * session JWTs (eyJ* prefix) in the same code path.
+ *
+ * Note: we don't branch base URL here — callers pass absolute URLs or paths
+ * relative to whatever base URL they want. For dashboard calls this is
+ * typically the RAG Lambda Function URL; for auth endpoints it's the auth
+ * API Gateway.
+ */
+export const authedFetch = async (
+  url: string,
+  options: RequestInit = {},
+  credential: AuthCredential | null
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options.headers as Record<string, string>) || {}),
+  };
+  if (credential?.value) {
+    headers['Authorization'] = `Bearer ${credential.value}`;
+  }
+  return fetch(url, { ...options, headers });
+};
+
+/**
+ * JSON wrapper over authedFetch. Throws on non-2xx with the response body in
+ * the message, mirroring the existing `apiCall` contract.
+ */
+export const authedJson = async <T = unknown>(
+  url: string,
+  options: RequestInit = {},
+  credential: AuthCredential | null
+): Promise<T> => {
+  const response = await authedFetch(url, options, credential);
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`API call failed: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+  return response.json() as Promise<T>;
 };
 
 // Enterprise API Configuration (Multi-Tenant Architecture)

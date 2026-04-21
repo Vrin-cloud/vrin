@@ -24,7 +24,7 @@ interface UseChatSessionReturn {
   loadMessages: (sessionId: string, messages: ChatMessage[]) => void;
 }
 
-export const useChatSession = (apiKey: string): UseChatSessionReturn => {
+export const useChatSession = (apiKey: string | null): UseChatSessionReturn => {
   const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);

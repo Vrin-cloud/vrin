@@ -128,11 +128,38 @@ export interface VRINSpecializationInfo {
   error?: string;
 }
 
+/**
+ * Credential the service should send on every request. Either a raw API key
+ * (SDK path) or a Stytch session JWT (dashboard path). When both are provided,
+ * the session JWT takes precedence — the dashboard uses the short-lived
+ * credential and keeps the API key around only for UI display / SDK handoff.
+ */
+type VrinCredential =
+  | string
+  | { apiKey?: string | null; sessionJwt?: string | null };
+
 export class VRINService {
   private apiKey: string;
+  private sessionJwt: string | null;
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor(credential: VrinCredential) {
+    if (typeof credential === "string") {
+      // Backward-compat: new VRINService(apiKey) — SDK callers + any legacy code.
+      this.apiKey = credential;
+      this.sessionJwt = null;
+    } else {
+      this.apiKey = credential.apiKey || "";
+      this.sessionJwt = credential.sessionJwt || null;
+    }
+  }
+
+  /**
+   * Bearer header value. Prefers the (short-lived, auto-rotating) Stytch
+   * session JWT when present; falls back to the raw API key. Read freshly per
+   * call so the dashboard picks up JWT rotation without reinstantiating.
+   */
+  private get bearer(): string {
+    return this.sessionJwt || this.apiKey;
   }
 
   /**
@@ -148,7 +175,7 @@ export class VRINService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
         },
         body: JSON.stringify({
           content,
@@ -187,7 +214,7 @@ export class VRINService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
         },
         body: JSON.stringify({
           query,
@@ -232,7 +259,7 @@ export class VRINService {
       const response = await fetch(`/api/rag/graph?${queryString}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
           'Content-Type': 'application/json',
         },
       });
@@ -395,7 +422,7 @@ export class VRINService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
         },
         body: JSON.stringify({
           custom_prompt: customPrompt,
@@ -426,7 +453,7 @@ export class VRINService {
       const response = await fetch('/api/rag/specialize', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
         },
       });
 
@@ -458,7 +485,7 @@ export class VRINService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.bearer}`,
         },
         body: JSON.stringify({
           query,

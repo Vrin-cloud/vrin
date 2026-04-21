@@ -54,29 +54,54 @@ const loadAuthState = (): AuthState => {
     };
   }
 
+  // Primary: legacy 'vrin_auth' container used by email/password signup flow.
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      console.log('Raw stored data:', parsed);
-      
-      // Check if we have valid authentication data
       const hasValidUser = parsed.user && parsed.user.user_id && parsed.user.email;
       const hasValidApiKey = parsed.apiKey && typeof parsed.apiKey === 'string' && parsed.apiKey.startsWith('vrin_');
-      
-      const authState = {
-        user: hasValidUser ? parsed.user : null,
-        apiKey: hasValidApiKey ? parsed.apiKey : null,
-        isAuthenticated: hasValidUser && hasValidApiKey,
-        isLoading: false,
-      };
-      
-      console.log('Loaded auth state from localStorage:', authState);
-      console.log('isAuthenticated calculation:', { hasValidUser, hasValidApiKey, isAuthenticated: authState.isAuthenticated });
-      return authState;
+      if (hasValidUser && hasValidApiKey) {
+        return {
+          user: parsed.user,
+          apiKey: parsed.apiKey,
+          isAuthenticated: true,
+          isLoading: false,
+        };
+      }
     }
   } catch (error) {
-    console.error('Failed to load auth state:', error);
+    console.error('Failed to load auth state from vrin_auth:', error);
+  }
+
+  // Fallback: Stytch / Google flow stores user + api key separately under
+  // `vrin_user` + `vrin_api_key`. useAuth consumers should still be able to
+  // read a credential when available. Users authenticated purely via Stytch
+  // session (no localStorage api_key) are treated as unauthenticated here —
+  // dashboard code that needs the session JWT reads it from
+  // useDashboardAuth() instead.
+  try {
+    const rawUser = localStorage.getItem('vrin_user');
+    const rawApiKey = localStorage.getItem('vrin_api_key');
+    if (rawUser && rawApiKey && rawApiKey.startsWith('vrin_')) {
+      const user = JSON.parse(rawUser);
+      if (user && user.user_id && user.email) {
+        return {
+          user: {
+            user_id: user.user_id,
+            email: user.email,
+            api_key: rawApiKey,
+            token: rawApiKey,
+            is_verified: true,
+          },
+          apiKey: rawApiKey,
+          isAuthenticated: true,
+          isLoading: false,
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load auth state from vrin_user/vrin_api_key:', error);
   }
 
   return {

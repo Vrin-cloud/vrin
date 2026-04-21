@@ -14,7 +14,7 @@ interface UseFileUploadsReturn {
   clearCompletedUploads: () => void;
 }
 
-export const useFileUploads = (apiKey: string): UseFileUploadsReturn => {
+export const useFileUploads = (apiKey: string | null): UseFileUploadsReturn => {
   const [uploads, setUploads] = useState<FileUpload[]>([]);
   const [pollingIds, setPollingIds] = useState<Set<string>>(new Set());
 
