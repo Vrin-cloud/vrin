@@ -12,7 +12,7 @@ export default function ConnectorsPage() {
       title="Connectors"
       description="Sync Notion, Slack, Google Drive, and more into your knowledge graph."
     >
-      <DataSourcesSection apiKey={apiKey} userId={user.user_id} userEmail={user.email} />
+      <DataSourcesSection apiKey={apiKey ?? undefined} userId={user.user_id} userEmail={user.email} />
     </PageShell>
   )
 }

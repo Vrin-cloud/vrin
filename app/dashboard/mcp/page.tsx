@@ -12,7 +12,7 @@ export default function McpPage() {
       title="MCP server"
       description="Wire Claude, Cursor, and other MCP clients into your VRIN knowledge base."
     >
-      <MCPSection apiKey={apiKey} />
+      <MCPSection apiKey={apiKey ?? ""} />
     </PageShell>
   )
 }
