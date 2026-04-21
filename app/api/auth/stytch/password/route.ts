@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
         existingOrgId = searchResult.organizations[0].organization_id;
       }
     } catch (emailSearchErr: any) {
-      // Error handled silently
+      // Not fatal — Stytch may legitimately return no matches. Detailed
+      // Stytch error fields are logged on the subsequent signup fallback
+      // if we actually fail to proceed.
     }
 
     if (!existingOrgId) {
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
           existingOrgId = slugResult.organizations[0].organization_id;
         }
       } catch (slugSearchErr: any) {
-        // Error handled silently
+        // Non-fatal — slug fallback lookup miss is normal for first-time users.
       }
     }
 
@@ -146,6 +148,13 @@ export async function POST(request: NextRequest) {
 
       return buildSuccessResponse(authResponse, fullName, true);
     } catch (signupErr: any) {
+      // Server-side log only — never surface Stytch internals to the client.
+      console.error('[stytch/password] Signup failed:', {
+        error_type: signupErr?.error_type,
+        error_message: signupErr?.error_message,
+        status_code: signupErr?.status_code,
+      });
+
       if (signupErr.error_type === 'organization_slug_already_exists') {
         return NextResponse.json(
           { success: false, error: 'An account with this email may already exist. Try Google or magic link.' },

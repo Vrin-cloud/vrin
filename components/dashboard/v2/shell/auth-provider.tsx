@@ -39,10 +39,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isChecking, setIsChecking] = React.useState(true)
 
   // Live session JWT — read lazily on every consumer call so rotation is free.
+  // Tries the Stytch SDK first, then falls back to reading the cookie directly.
+  // The fallback matters right after a fresh login redirect: the `/password`
+  // route sets `stytch_session_jwt` server-side in the response cookies, but
+  // the client-side Stytch SDK only re-reads cookies when it initialises or
+  // calls refresh. Without this fallback there's a window (up to a few ms
+  // after the dashboard mounts) where the cookie is set but getTokens()
+  // returns null, and AuthProvider would incorrectly redirect to /auth.
   const getSessionJwt = React.useCallback((): string | null => {
     try {
       const tokens = stytchClient?.session?.getTokens?.()
-      return tokens?.session_jwt || null
+      if (tokens?.session_jwt) return tokens.session_jwt
+    } catch {
+      // ignore and fall through to the cookie reader
+    }
+    if (typeof document === "undefined") return null
+    const match = document.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith("stytch_session_jwt="))
+    if (!match) return null
+    try {
+      return decodeURIComponent(match.slice("stytch_session_jwt=".length)) || null
     } catch {
       return null
     }
@@ -50,15 +68,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const sessionJwt = stytchInitialized ? getSessionJwt() : null
 
-  // Bootstrap: reconcile Stytch member + localStorage + NextAuth.
+  // Bootstrap: reconcile Stytch + localStorage + NextAuth.
+  //
+  // Identity resolution is split from credential resolution on purpose. The
+  // credential (Stytch JWT / API key) is read fresh via getSessionJwt() +
+  // storedApiKey on every render above — that's what drives network auth.
+  // Here we just need to decide "who is the current user" so the UI has a
+  // name/email/id to render. Preference: localStorage (written by
+  // /auth/stytch/sync right after login) > Stytch member hook > NextAuth.
   React.useEffect(() => {
     if (!stytchInitialized || sessionStatus === "loading") return
 
     let storedApiKey = authService.getStoredApiKey()
     let storedUser = authService.getStoredUser() as DashboardUser | null
 
-    // Cross-account mismatch (legacy NextAuth check): if NextAuth email ≠
-    // stored email, wipe local state so the next flow issues fresh values.
+    // Cross-account mismatch guard (legacy NextAuth + localStorage check).
     if (session?.user?.email && storedUser?.email && session.user.email !== storedUser.email) {
       console.warn(
         `Security: session mismatch — localStorage ${storedUser.email} vs NextAuth ${session.user.email}. Clearing.`
@@ -70,9 +94,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       storedUser = null
     }
 
-    // Stytch session present → dashboard auth is satisfied even without an
-    // api_key in localStorage. Prefer Stytch member info as the canonical
-    // source, fall back to localStorage user data for name/created_at.
+    // Compute whether we have *any* valid credential. sessionJwt read fresh
+    // from the Stytch client (imperative, hits cookies directly — doesn't
+    // wait for the useStytchMemberSession react state to hydrate, which can
+    // lag a beat after a fresh login redirect).
+    const jwt = getSessionJwt()
+    const hasCredential = !!jwt || !!storedApiKey
+
+    // Path 1: localStorage identity + any credential → render dashboard.
+    // This is the post-login happy path: auth-content.tsx just wrote
+    // vrin_user, and the cookie gives us a Stytch JWT.
+    if (storedUser && storedUser.user_id && storedUser.email && hasCredential) {
+      setUser(storedUser)
+      setApiKey(storedApiKey)
+      setIsChecking(false)
+      return
+    }
+
+    // Path 2: no storedUser but Stytch hooks have populated → derive from
+    // Stytch member data. Rare: only fires on a very fresh browser where
+    // auth-content didn't run (e.g. direct-cookie scenarios).
     if (stytchSession && stytchMember) {
       const derivedUser: DashboardUser = {
         user_id: storedUser?.user_id || stytchMember.member_id,
@@ -80,29 +121,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: stytchMember.name || storedUser?.name || (stytchMember.email_address || "").split("@")[0],
         created_at: storedUser?.created_at || new Date().toISOString(),
       }
+      // Persist so future renders hit Path 1 immediately.
+      storage.setJson(STORAGE_KEYS.VRIN_USER, derivedUser)
       setUser(derivedUser)
-      setApiKey(storedApiKey) // may be null — that's fine, session carries auth
-      setIsChecking(false)
-      return
-    }
-
-    // No Stytch session. Try legacy localStorage path.
-    if (storedApiKey && storedUser) {
-      if (!storedUser.user_id || !storedUser.email) {
-        console.warn("Incomplete user data in localStorage — redirecting to /auth")
-        storage.remove(STORAGE_KEYS.VRIN_USER)
-        storage.remove(STORAGE_KEYS.VRIN_API_KEY)
-        setIsChecking(false)
-        window.location.href = "/auth"
-        return
-      }
       setApiKey(storedApiKey)
-      setUser(storedUser)
       setIsChecking(false)
       return
     }
 
-    // Google OAuth (NextAuth) first-time flow — sync NextAuth-issued key to localStorage.
+    // Path 3: incomplete localStorage user — wipe and force re-auth.
+    if (storedApiKey && storedUser && (!storedUser.user_id || !storedUser.email)) {
+      console.warn("Incomplete user data in localStorage — redirecting to /auth")
+      storage.remove(STORAGE_KEYS.VRIN_USER)
+      storage.remove(STORAGE_KEYS.VRIN_API_KEY)
+      setIsChecking(false)
+      window.location.href = "/auth"
+      return
+    }
+
+    // Path 4: Google OAuth (NextAuth) first-time flow — sync NextAuth-issued
+    // api_key to localStorage so Path 1 takes over on next render.
     if (session?.user) {
       const nextAuthUser = session.user as { email?: string; name?: string; apiKey?: string; userId?: string }
       if (nextAuthUser.apiKey && nextAuthUser.userId) {
@@ -122,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsChecking(false)
-  }, [session, sessionStatus, authService, stytchInitialized, stytchSession, stytchMember])
+  }, [session, sessionStatus, authService, stytchInitialized, stytchSession, stytchMember, getSessionJwt])
 
   const logout = React.useCallback(async () => {
     authService.logout()
