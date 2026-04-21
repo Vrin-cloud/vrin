@@ -57,7 +57,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="dashboard-v2 min-h-screen flex bg-background text-foreground">
       <DashboardSidebar collapsed={collapsed} onToggle={toggleCollapsed} recentConversations={recent} />
 
       {/* Mobile nav — same content in a sheet. */}

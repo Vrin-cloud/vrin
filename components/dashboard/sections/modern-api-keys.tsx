@@ -6,27 +6,48 @@ import {
   Key,
   Plus,
   Copy,
-  Eye,
-  EyeOff,
-  Calendar,
-  Activity,
-  Settings,
   Trash2,
   AlertCircle,
   CheckCircle2,
-  Folder,
-  ExternalLink,
-  RefreshCw
+  RefreshCw,
+  ShieldAlert,
 } from 'lucide-react';
-import { AuthService } from '../../../lib/services/vrin-service';
+import toast from 'react-hot-toast';
 
+import { useDashboardAuth } from '../../../components/dashboard/v2/shell/auth-context';
+
+/**
+ * Shape returned by GET /api/auth/api-keys (v2 contract).
+ *
+ * Raw keys are NEVER returned by the backend after the v2 cutover — only
+ * hashes are stored. The raw key is shown exactly once at creation, in a
+ * copy-once modal; subsequent visits render the prefix only (positive
+ * identifier, not a secret). Users who lost the raw key rotate: create a
+ * new one, then revoke the old.
+ */
 interface ApiKey {
-  api_key: string;
-  user_id: string;
-  created_at: string;
-  last_used?: string;
-  project_name?: string;
-  usage_count?: number;
+  key_prefix: string;
+  key_name?: string;
+  environment?: string;
+  status?: string;
+  email?: string;
+  created_at?: string | number | null;
+  last_used_at?: string | number | null;
+  expires_at?: string | number | null;
+}
+
+function formatDate(value?: string | number | null): string {
+  if (!value) return '—';
+  const asNumber = typeof value === 'number' || /^\d+$/.test(String(value));
+  const raw = asNumber ? Number(value) * 1000 : value;
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatRelative(value?: string | number | null): string {
+  if (!value) return 'Never';
+  return formatDate(value);
 }
 
 export function ModernApiKeysSection() {
@@ -34,472 +55,383 @@ export function ModernApiKeysSection() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
-  const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [revealedKey, setRevealedKey] = useState<{ raw: string; name: string } | null>(null);
+  const [deletingPrefix, setDeletingPrefix] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ApiKey | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const authService = new AuthService();
+  const { authedFetch } = useDashboardAuth();
 
   useEffect(() => {
     fetchApiKeys();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchApiKeys = async () => {
+  async function fetchApiKeys() {
     setIsLoading(true);
     setError(null);
-    
     try {
-      const apiKey = authService.getStoredApiKey();
-      if (!apiKey) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch('/api/auth/api-keys', {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`
-        }
-      });
-
+      const response = await authedFetch('/api/auth/api-keys');
       const data = await response.json();
-      
-      if (data.success) {
-        setApiKeys(data.api_keys || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch API keys');
-      }
+      if (!data.success) throw new Error(data.error || 'Failed to fetch API keys');
+      setApiKeys(data.api_keys || []);
     } catch (err: any) {
-      console.error('Failed to fetch API keys:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  const handleCreateApiKey = async () => {
-    if (!newProjectName.trim()) {
-      setError('Project name is required');
+  async function handleCreateApiKey() {
+    const name = newProjectName.trim();
+    if (!name) {
+      setError('Key name is required');
       return;
     }
-
     setIsCreating(true);
     setError(null);
-    
     try {
-      const apiKey = authService.getStoredApiKey();
-      if (!apiKey) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch('/api/auth/api-keys', {
+      const response = await authedFetch('/api/auth/api-keys', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({ project_name: newProjectName.trim() })
+        body: JSON.stringify({ project_name: name }),
       });
-
       const data = await response.json();
-      
-      if (data.success) {
-        setSuccess(`API key created for project "${newProjectName}"`);
-        setNewProjectName('');
-        setShowCreateModal(false);
-        await fetchApiKeys();
-      } else {
-        throw new Error(data.error || 'Failed to create API key');
-      }
+      if (!data.success) throw new Error(data.error || 'Failed to create API key');
+      // The backend returns the raw key exactly once. Hand it to the reveal
+      // modal so the user can copy + save it; once they close the modal
+      // we never surface it again.
+      const raw = data.api_key || data.api_key_value || '';
+      setShowCreateModal(false);
+      setNewProjectName('');
+      setRevealedKey({ raw, name });
+      await fetchApiKeys();
     } catch (err: any) {
-      console.error('Failed to create API key:', err);
       setError(err.message);
     } finally {
       setIsCreating(false);
     }
-  };
+  }
 
-  const toggleKeyVisibility = (keyId: string) => {
-    setVisibleKeys(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(keyId)) {
-        newSet.delete(keyId);
-      } else {
-        newSet.add(keyId);
-      }
-      return newSet;
-    });
-  };
+  async function handleDeleteApiKey(key: ApiKey) {
+    setDeletingPrefix(key.key_prefix);
+    setError(null);
+    try {
+      const response = await authedFetch('/api/auth/api-keys', {
+        method: 'DELETE',
+        body: JSON.stringify({ key_prefix: key.key_prefix }),
+      });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error || 'Failed to revoke key');
+      toast.success('Key revoked');
+      setConfirmDelete(null);
+      await fetchApiKeys();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setDeletingPrefix(null);
+    }
+  }
 
-  const copyToClipboard = async (text: string, keyId: string) => {
+  async function copyToClipboard(text: string, id: string) {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedKey(keyId);
-      setTimeout(() => setCopiedKey(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1500);
+      toast.success('Copied');
+    } catch {
+      toast.error('Copy failed');
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const maskApiKey = (key: string) => {
-    if (key.length <= 8) return key;
-    return `${key.substring(0, 8)}${'•'.repeat(8)}${key.substring(key.length - 4)}`;
-  };
-
-  const getProjectColor = (projectName: string) => {
-    const colors = [
-      'from-blue-500 to-blue-600',
-      'from-purple-500 to-purple-600',
-      'from-green-500 to-green-600',
-      'from-orange-500 to-orange-600',
-      'from-pink-500 to-pink-600',
-      'from-indigo-500 to-indigo-600',
-      'from-teal-500 to-teal-600',
-      'from-red-500 to-red-600'
-    ];
-    
-    let hash = 0;
-    for (let i = 0; i < projectName.length; i++) {
-      hash = projectName.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    return colors[Math.abs(hash) % colors.length];
-  };
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">API Keys</h2>
-          <p className="text-gray-600 mt-1">Manage your VRIN API access tokens and projects</p>
+          <p className="text-sm text-muted-foreground max-w-xl">
+            Keys are shown in full exactly once at creation. After that we only keep a hash —
+            rotate the key if you lost the original.
+          </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <motion.button
-            onClick={fetchApiKeys}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </motion.button>
-          
-          <motion.button
-            onClick={() => setShowCreateModal(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium shadow-lg"
-          >
-            <Plus className="w-4 h-4" />
-            New API Key
-          </motion.button>
+        <motion.button
+          onClick={() => setShowCreateModal(true)}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="inline-flex items-center gap-2 h-9 px-3 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
+        >
+          <Plus className="w-4 h-4" />
+          New key
+        </motion.button>
+      </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/30 bg-destructive/5 text-destructive text-sm">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError(null)} className="text-xs underline">
+            dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="rounded-xl border border-border/60 bg-surface-2/40 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/60 text-[11px] uppercase tracking-wider text-muted-foreground">
+                <th className="text-left font-medium px-4 py-3">Name</th>
+                <th className="text-left font-medium px-4 py-3">Status</th>
+                <th className="text-left font-medium px-4 py-3">Secret key</th>
+                <th className="text-left font-medium px-4 py-3">Created</th>
+                <th className="text-left font-medium px-4 py-3">Last used</th>
+                <th className="text-right font-medium px-4 py-3 w-[80px]" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
+                    <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
+                    Loading…
+                  </td>
+                </tr>
+              ) : apiKeys.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center">
+                    <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                      <Key className="w-5 h-5" />
+                      <p className="text-sm text-foreground">No API keys yet</p>
+                      <p className="text-xs">Click <span className="font-medium">New key</span> to create one.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                apiKeys.map((key) => {
+                  const active = (key.status || 'active') === 'active';
+                  const prefixLabel = `${key.key_prefix}…`;
+                  return (
+                    <tr key={key.key_prefix} className="hover:bg-surface-3/40 transition-colors">
+                      <td className="px-4 py-3 font-medium text-foreground">
+                        {key.key_name || <span className="text-muted-foreground italic">unnamed</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1.5 text-xs">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-500' : 'bg-muted-foreground'}`}
+                          />
+                          <span className="capitalize">{key.status || 'active'}</span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {/* Prefix is a read-only identifier — not a secret,
+                            not the full key. No copy affordance because there
+                            is nothing useful to paste anywhere. The raw key
+                            was shown once at creation and is gone. */}
+                        <code className="font-mono text-xs text-muted-foreground">
+                          {prefixLabel}
+                        </code>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground tabular-nums">{formatDate(key.created_at)}</td>
+                      <td className="px-4 py-3 text-muted-foreground tabular-nums">{formatRelative(key.last_used_at)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => setConfirmDelete(key)}
+                          disabled={deletingPrefix === key.key_prefix}
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+                          title="Revoke key"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Error/Success Messages */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
-          >
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            <p className="text-red-700">{error}</p>
-            <button
-              onClick={() => setError(null)}
-              className="ml-auto text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </motion.div>
-        )}
-
-        {success && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3"
-          >
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-            <p className="text-green-700">{success}</p>
-            <button
-              onClick={() => setSuccess(null)}
-              className="ml-auto text-green-500 hover:text-green-700"
-            >
-              ×
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* API Keys List */}
-      {isLoading ? (
-        <div className="bg-white rounded-2xl border border-gray-200 p-8">
-          <div className="flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-3"></div>
-            <span className="text-gray-600">Loading API keys...</span>
-          </div>
-        </div>
-      ) : apiKeys.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Key className="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No API Keys</h3>
-          <p className="text-gray-600 mb-6">Create your first API key to start using the VRIN API</p>
-          <motion.button
-            onClick={() => setShowCreateModal(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium"
-          >
-            Create API Key
-          </motion.button>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {apiKeys.map((key, index) => (
-            <motion.div
-              key={key.api_key}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  {/* Project Info */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${getProjectColor(key.project_name || 'Default')} rounded-xl flex items-center justify-center`}>
-                      <Folder className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{key.project_name || 'Default Project'}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>Created {formatDate(key.created_at)}</span>
-                        </div>
-                        {key.last_used && (
-                          <div className="flex items-center gap-1">
-                            <Activity className="w-4 h-4" />
-                            <span>Last used {formatDate(key.last_used)}</span>
-                          </div>
-                        )}
-                        {key.usage_count && (
-                          <div className="flex items-center gap-1">
-                            <span>{key.usage_count} requests</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* API Key */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1 block">
-                          API Key
-                        </label>
-                        <code className="text-sm font-mono text-gray-900">
-                          {visibleKeys.has(key.api_key) ? key.api_key : maskApiKey(key.api_key)}
-                        </code>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <motion.button
-                          onClick={() => toggleKeyVisibility(key.api_key)}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
-                          title={visibleKeys.has(key.api_key) ? 'Hide API key' : 'Show API key'}
-                        >
-                          {visibleKeys.has(key.api_key) ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => copyToClipboard(key.api_key, key.api_key)}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
-                          title="Copy API key"
-                        >
-                          {copiedKey === key.api_key ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </motion.button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Usage Stats */}
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm text-gray-600">Active</span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        ID: {key.user_id?.substring(0, 8) || 'N/A'}...
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Settings"
-                      >
-                        <Settings className="w-4 h-4" />
-                      </motion.button>
-                      
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete API key"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* SDK Integration Examples */}
-      {apiKeys.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Start</h3>
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Install VRIN SDK</h4>
-              <div className="bg-gray-50 text-gray-800 border border-gray-200 rounded-lg p-4 font-mono text-sm">
-                pip install vrin==0.3.4
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Initialize Client</h4>
-              <div className="bg-gray-50 text-gray-800 border border-gray-200 rounded-lg p-4 font-mono text-sm">
-                <pre className="whitespace-pre text-sm">
-                  <code>
-                    <span className="text-gray-500"># Python</span>
-                    {'\n'}<span className="text-blue-600">from</span> <span className="text-amber-600">vrin</span> <span className="text-blue-600">import</span> <span className="text-amber-600">VRINClient</span>
-                    {'\n'}
-                    {'\n'}<span className="text-amber-600">client</span> <span className="text-gray-800">=</span> <span className="text-amber-600">VRINClient</span><span className="text-gray-800">(</span><span className="text-green-600">api_key</span><span className="text-gray-800">=</span><span className="text-red-600">&quot;your_api_key&quot;</span><span className="text-gray-800">)</span>
-                  </code>
-                </pre>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-4 flex items-center gap-2 text-sm text-blue-600">
-            <ExternalLink className="w-4 h-4" />
-            <button 
-              onClick={() => window.location.href = '/dashboard?tab=api-docs'}
-              className="hover:underline"
-            >
-              View full documentation
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Create API Key Modal */}
+      {/* Create modal */}
       <AnimatePresence>
         {showCreateModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowCreateModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="bg-background rounded-xl p-6 max-w-md w-full shadow-xl border border-border/60"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Create New API Key</h3>
-              
-              <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-1">Create API key</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                You&apos;ll see the raw key once, then only the prefix.
+              </p>
+              <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
+                Key name
+              </label>
+              <input
+                type="text"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="e.g. Production API, Local development"
+                className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm outline-none focus:border-foreground/40"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newProjectName.trim() && !isCreating) handleCreateApiKey();
+                }}
+              />
+              <div className="flex gap-2 pt-5">
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 h-9 px-3 rounded-md border border-border text-sm hover:bg-surface-3"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateApiKey}
+                  disabled={isCreating || !newProjectName.trim()}
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-9 px-3 rounded-md bg-foreground text-background text-sm font-medium disabled:opacity-50"
+                >
+                  {isCreating ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                      Creating…
+                    </>
+                  ) : (
+                    <>
+                      <Key className="w-3.5 h-3.5" />
+                      Create
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Copy-once reveal modal — closing this wipes the raw key from memory */}
+      <AnimatePresence>
+        {revealedKey && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="bg-background rounded-xl p-6 max-w-lg w-full shadow-xl border border-border/60"
+            >
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-9 h-9 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Project Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    placeholder="Enter project name (e.g., 'Healthcare AI', 'Legal Assistant')"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    autoFocus
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    This will help you organize your knowledge graphs by project
+                  <h3 className="text-lg font-semibold">Save this key now</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {revealedKey.name} · we never store the raw key, so you won&apos;t see it again.
+                    If you lose it, create a new key and revoke this one.
                   </p>
                 </div>
+              </div>
 
-                <div className="flex gap-3 pt-4">
-                  <motion.button
-                    onClick={() => setShowCreateModal(false)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </motion.button>
-                  
-                  <motion.button
-                    onClick={handleCreateApiKey}
-                    disabled={isCreating || !newProjectName.trim()}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium disabled:opacity-50"
-                  >
-                    {isCreating ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <Key className="w-4 h-4" />
-                        Create Key
-                      </>
-                    )}
-                  </motion.button>
-                </div>
+              <div className="rounded-md border border-border bg-surface-3/50 p-3 flex items-center gap-2">
+                <code className="flex-1 font-mono text-xs text-foreground break-all select-all">
+                  {revealedKey.raw}
+                </code>
+                <button
+                  onClick={() => copyToClipboard(revealedKey.raw, 'revealed')}
+                  className="shrink-0 inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-border text-xs hover:bg-surface-3"
+                >
+                  {copiedId === 'revealed' ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" /> Copy
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex justify-end pt-5">
+                <button
+                  onClick={() => setRevealedKey(null)}
+                  className="h-9 px-3 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
+                >
+                  I&apos;ve saved it
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete confirmation */}
+      <AnimatePresence>
+        {confirmDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => deletingPrefix ? null : setConfirmDelete(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="bg-background rounded-xl p-6 max-w-md w-full shadow-xl border border-border/60"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-1">Revoke API key?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                <span className="font-medium text-foreground">{confirmDelete.key_name || 'unnamed'}</span> ·{' '}
+                <code className="font-mono text-xs">{confirmDelete.key_prefix}…</code>
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                Any application using this key will start seeing 401 errors immediately. This can&apos;t be undone.
+              </p>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setConfirmDelete(null)}
+                  disabled={!!deletingPrefix}
+                  className="h-9 px-3 rounded-md border border-border text-sm hover:bg-surface-3 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteApiKey(confirmDelete)}
+                  disabled={!!deletingPrefix}
+                  className="inline-flex items-center gap-2 h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                >
+                  {deletingPrefix ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-destructive-foreground/30 border-t-destructive-foreground rounded-full animate-spin" />
+                      Revoking…
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Revoke
+                    </>
+                  )}
+                </button>
               </div>
             </motion.div>
           </motion.div>

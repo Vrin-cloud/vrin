@@ -66,6 +66,37 @@
     --surface: 0 100% 99.6%;       /* page background — cream */
     --surface-2: 36 32% 96%;       /* cards / panels — paper */
     --surface-3: 36 27% 89%;       /* hover / inset — sand */
+
+    /* Dashboard v2 override: pure white surfaces, neutral-grey borders.
+       The rest of the marketing site keeps the warm cream/paper palette;
+       the dashboard uses a cleaner developer-tool aesthetic (Linear,
+       Vercel, Supabase, OpenAI console) with a pure white backdrop and
+       visible separation via borders, not colored fills. */
+  }
+
+  .dashboard-v2 {
+    --background: 0 0% 100%;            /* pure white page */
+    --foreground: 0 0% 9%;              /* near-black text */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --border: 0 0% 90%;                 /* neutral grey border */
+    --input: 0 0% 90%;
+    --ring: 0 0% 72%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+
+    /* Semantic surfaces: flat white; differentiation comes from borders. */
+    --surface: 0 0% 100%;
+    --surface-2: 0 0% 100%;
+    --surface-3: 0 0% 96%;              /* subtle hover / inset fill */
   }
 
   .dark {

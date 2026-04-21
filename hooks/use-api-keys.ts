@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { API_CONFIG, apiCall } from '../config/api';
-import { useAuth } from './use-auth';
+import { API_CONFIG } from '../config/api';
+import { useDashboardAuth } from '../components/dashboard/v2/shell/auth-context';
 import toast from 'react-hot-toast';
 
 export interface ApiKey {
@@ -45,77 +44,53 @@ interface DeleteApiKeyResponse {
 }
 
 export function useApiKeys() {
-  const { apiKey, isAuthenticated } = useAuth();
+  const { credential, authedJson } = useDashboardAuth();
   const queryClient = useQueryClient();
 
-  // Fetch API keys
+  // Cache-key discriminator. We never want to put the raw credential value
+  // into the query key, so hash it down to a short prefix. Different users
+  // get different cache partitions; same user across JWT rotations reuses
+  // the cache as long as the underlying session is the same.
+  const credKey = credential ? `${credential.type}:${credential.value.slice(0, 12)}` : 'anon';
+
   const {
     data: apiKeys = [],
     isLoading,
     error,
     refetch
   } = useQuery({
-    queryKey: ['api-keys', apiKey],
+    queryKey: ['api-keys', credKey],
     queryFn: async (): Promise<ApiKey[]> => {
-      if (!apiKey || !isAuthenticated) {
-        return [];
-      }
-
       try {
-        const response = await apiCall(API_CONFIG.ENDPOINTS.GET_API_KEYS, {}, apiKey);
-        console.log('API keys response:', response);
-        
-        if (response.success) {
-          return response.api_keys || [];
-        } else {
-          throw new Error(response.message || 'Failed to fetch API keys');
-        }
+        const response = await authedJson<{ success: boolean; api_keys?: ApiKey[]; message?: string }>(
+          API_CONFIG.ENDPOINTS.GET_API_KEYS
+        );
+        if (response.success) return response.api_keys || [];
+        throw new Error(response.message || 'Failed to fetch API keys');
       } catch (error) {
         console.error('Error fetching API keys:', error);
-        // If the endpoint doesn't exist yet, return the current API key as a fallback
-        if (apiKey) {
-          return [{
-            id: 'default',
-            name: 'Default API Key',
-            key: apiKey,
-            created_at: new Date().toISOString(),
-            is_active: true,
-            permissions: ['full_access']
-          }];
-        }
         return [];
       }
     },
-    enabled: !!apiKey && isAuthenticated,
-    staleTime: 30000, // 30 seconds
+    enabled: !!credential,
+    staleTime: 30000,
   });
 
-  // Create new API key
   const createApiKeyMutation = useMutation({
     mutationFn: async (request: CreateApiKeyRequest): Promise<ApiKey> => {
-      if (!apiKey) {
-        throw new Error('No API key available');
-      }
-
-      const response = await apiCall(
+      const response = await authedJson<{ success: boolean; api_key: ApiKey; message?: string }>(
         API_CONFIG.ENDPOINTS.CREATE_API_KEY,
-        {
-          method: 'POST',
-          body: JSON.stringify(request),
-        },
-        apiKey
+        { method: 'POST', body: JSON.stringify(request) }
       );
-
       if (!response.success) {
         throw new Error(response.message || 'Failed to create API key');
       }
-      // Backend returns the raw key ONCE at creation. Surface it so the UI
-      // can show a copy-once modal. Consumers must persist immediately —
-      // the backend never returns the raw key again.
+      // Backend returns the raw key ONCE at creation — the caller's modal
+      // must show it immediately and the user must persist it themselves.
       return response.api_key;
     },
     onSuccess: (newApiKey) => {
-      queryClient.setQueryData(['api-keys', apiKey], (oldData: ApiKey[] = []) => {
+      queryClient.setQueryData(['api-keys', credKey], (oldData: ApiKey[] = []) => {
         return [...oldData, newApiKey];
       });
       toast.success('API key created successfully');
@@ -126,38 +101,24 @@ export function useApiKeys() {
     }
   });
 
-  // Delete API key
   const deleteApiKeyMutation = useMutation({
     mutationFn: async (apiKeyId: string): Promise<void> => {
-      if (!apiKey) {
-        throw new Error('No API key available');
-      }
-
       try {
-        const response = await apiCall(
+        const response = await authedJson<{ success: boolean; message?: string }>(
           API_CONFIG.ENDPOINTS.DELETE_API_KEY,
-          {
-            method: 'DELETE',
-            body: JSON.stringify({ api_key_id: apiKeyId })
-          },
-          apiKey
+          { method: 'DELETE', body: JSON.stringify({ api_key_id: apiKeyId }) }
         );
-
         if (!response.success) {
           throw new Error(response.message || 'Failed to delete API key');
         }
       } catch (error) {
-        // If the endpoint doesn't exist yet, just log a warning
         console.warn('Delete API key endpoint not available:', error);
-        // For mock keys, we can still "delete" them from the local state
-        if (apiKeyId.startsWith('mock_')) {
-          return; // Allow deletion of mock keys
-        }
+        if (apiKeyId.startsWith('mock_')) return;
         throw new Error('Delete API key endpoint not available');
       }
     },
     onSuccess: (_, deletedApiKeyId) => {
-      queryClient.setQueryData(['api-keys', apiKey], (oldData: ApiKey[] = []) => {
+      queryClient.setQueryData(['api-keys', credKey], (oldData: ApiKey[] = []) => {
         return oldData.filter(key => key.id !== deletedApiKeyId);
       });
       toast.success('API key deleted successfully');
