@@ -39,6 +39,54 @@ export interface ForceGraphData {
   colorFor: (nodeId: string) => string
 }
 
+/**
+ * Display-side filter for nodes that are technically present in the graph
+ * but shouldn't appear in the dashboard UI.
+ *
+ * What this catches:
+ *   1. The backend's `_literal_values_{user_id}` placeholder vertex. The
+ *      fact-extraction pipeline creates one per user to funnel non-entity
+ *      literal values (monetary amounts, percentages, bare years) instead
+ *      of creating a vertex per literal — a sensible internal design, but
+ *      the placeholder itself is an ops artifact that shouldn't be rendered.
+ *   2. Entity vertices whose name is a bare literal that slipped past the
+ *      backend's `_is_literal_value` regex: booleans, yes/no, n/a, very
+ *      short tokens, etc. These show up as high-degree hubs of meaninglessness.
+ *
+ * This is purely display-side. The underlying Neptune data is untouched —
+ * the backend still reads / writes these nodes for its own query needs.
+ * Removing this filter is a one-line change if a pattern is too aggressive.
+ */
+const LITERAL_LIKE_NAMES = new Set([
+  "true",
+  "false",
+  "yes",
+  "no",
+  "n/a",
+  "na",
+  "none",
+  "null",
+  "unknown",
+  "undefined",
+  "n",
+  "y",
+])
+
+function isDisplayHiddenNode(n: Node): boolean {
+  const name = (n.name || "").trim()
+  // Backend-generated literal-values placeholder (one per user).
+  if (name.startsWith("_literal_values_")) return true
+  // Any node whose type is explicitly marked as a literal placeholder.
+  if (n.type === "literal_placeholder") return true
+  // Bare-literal names that escaped the ingestion regex.
+  const lower = name.toLowerCase()
+  if (LITERAL_LIKE_NAMES.has(lower)) return true
+  // Super-short names (1–2 chars) are almost never real entities. Keep 3+
+  // so acronyms like "RAG", "LLM", "API" survive.
+  if (name.length > 0 && name.length < 3) return true
+  return false
+}
+
 export function toForceGraphData(nodes: Node[], edges: Edge[]): ForceGraphData {
   if (!nodes?.length) {
     return {
@@ -50,12 +98,29 @@ export function toForceGraphData(nodes: Node[], edges: Edge[]): ForceGraphData {
     }
   }
 
-  const degree = computeDegreeMap(nodes, edges)
-  const communities = computeCommunities(nodes, edges)
+  // Drop hidden nodes AND any edge that touches one. This happens BEFORE
+  // degree / community computation so hubs that only exist because of
+  // literal-value edges don't inflate the visible graph's stats.
+  const hiddenIds = new Set<string>()
+  const visibleNodes: Node[] = []
+  for (const n of nodes) {
+    if (isDisplayHiddenNode(n)) {
+      hiddenIds.add(n.id)
+    } else {
+      visibleNodes.push(n)
+    }
+  }
+  const visibleEdges =
+    hiddenIds.size === 0
+      ? edges
+      : edges.filter((e) => !hiddenIds.has(e.from) && !hiddenIds.has(e.to))
 
-  const nodeIds = new Set(nodes.map((n) => n.id))
+  const degree = computeDegreeMap(visibleNodes, visibleEdges)
+  const communities = computeCommunities(visibleNodes, visibleEdges)
 
-  const fgNodes: ForceGraphNode[] = nodes.map((n) => ({
+  const nodeIds = new Set(visibleNodes.map((n) => n.id))
+
+  const fgNodes: ForceGraphNode[] = visibleNodes.map((n) => ({
     id: n.id,
     name: n.name || n.id,
     type: n.type || "entity",
@@ -67,7 +132,7 @@ export function toForceGraphData(nodes: Node[], edges: Edge[]): ForceGraphData {
 
   const fgLinks: ForceGraphLink[] = []
   const seenEdgeKeys = new Set<string>()
-  for (const e of edges) {
+  for (const e of visibleEdges) {
     if (!e.from || !e.to || e.from === e.to) continue
     if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) continue
     // De-duplicate reciprocal entries (a→b and b→a with same label) — still

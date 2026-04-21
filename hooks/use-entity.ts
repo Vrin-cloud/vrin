@@ -16,7 +16,10 @@ export interface EntityDetail {
 }
 
 export function useEntity(entityId: string | null): EntityDetail {
-  const { data: response, isLoading, error, refetch } = useAccountKnowledgeGraph({ limit: 5000 })
+  // See note in use-entity-list: 2k is the proven working envelope for the
+  // /graph Lambda. Entity-detail pages for nodes beyond this window will
+  // show "not found" until we add a dedicated /entity/{id} endpoint.
+  const { data: response, isLoading, error, refetch } = useAccountKnowledgeGraph({ limit: 2000 })
 
   const nodes = response?.data?.nodes || []
   const edges = response?.data?.edges || []

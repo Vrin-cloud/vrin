@@ -29,9 +29,11 @@ const EMPTY_GRAPH: ForceGraphData = {
 }
 
 export function useEntityList(filters: EntityListFilters): EntityListState {
-  // The wiki can reasonably ask for more than the graph view's 2k window since
-  // Louvain isn't on the critical path here.
-  const { data: response, isLoading, error, refetch } = useAccountKnowledgeGraph({ limit: 5000 })
+  // Match the graph view's 2k ceiling. The /graph Lambda crashes with
+  // Runtime.ExitError around ~5k nodes; 2k is the proven working envelope
+  // (same as /dashboard/knowledge). A dedicated /entity/{id} + paginated
+  // /entities endpoint would let us cover the long tail — deferred.
+  const { data: response, isLoading, error, refetch } = useAccountKnowledgeGraph({ limit: 2000 })
 
   const nodes = response?.data?.nodes || []
   const edges = response?.data?.edges || []
