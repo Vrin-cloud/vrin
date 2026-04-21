@@ -2,19 +2,26 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { useStytchB2BClient, useStytchMemberSession } from '@stytch/nextjs/b2b';
 import type { KnowledgeGraphResponse } from '@/types/knowledge-graph';
 import { VRINService } from '@/lib/services/vrin-service';
 
-// Real API function using VRIN service - Single Knowledge Graph per Account
-const fetchKnowledgeGraph = async (apiKey: string, options?: { limit?: number }): Promise<KnowledgeGraphResponse> => {
-  if (!apiKey) {
-    throw new Error('API key required to fetch knowledge graph');
+// Real API function using VRIN service - Single Knowledge Graph per Account.
+// Accepts either a raw API key (SDK / legacy path) or a Stytch session JWT
+// (dashboard path). VRINService prefers the session JWT internally.
+const fetchKnowledgeGraph = async (
+  credential: { apiKey: string | null; sessionJwt: string | null },
+  options?: { limit?: number }
+): Promise<KnowledgeGraphResponse> => {
+  if (!credential.apiKey && !credential.sessionJwt) {
+    throw new Error('Credential required to fetch knowledge graph');
   }
 
-  const vrinService = new VRINService(apiKey);
+  const vrinService = new VRINService(credential);
   
   try {
-    console.log('🔍 Fetching knowledge graph with API key:', apiKey.substring(0, 8) + '...', 'options:', options);
+    const credKind = credential.sessionJwt ? 'stytch-jwt' : 'api-key';
+    console.log(`🔍 Fetching knowledge graph via ${credKind}, options:`, options);
     
     // Get the unified knowledge graph for the account
     const result = await vrinService.getKnowledgeGraph(options?.limit);
@@ -75,36 +82,52 @@ const fetchKnowledgeGraph = async (apiKey: string, options?: { limit?: number })
   }
 };
 
-// Updated hook for unified Knowledge Graph per account (v0.3.2)
-export function useKnowledgeGraph(apiKey?: string, options?: { limit?: number }) {
+// Updated hook for unified Knowledge Graph per account (v0.3.2).
+// Accepts either a raw API key or a Stytch session JWT (or both — if both
+// are provided, VRINService will prefer the session JWT).
+export function useKnowledgeGraph(
+  credential: { apiKey?: string | null; sessionJwt?: string | null },
+  options?: { limit?: number }
+) {
+  const apiKey = credential.apiKey || null;
+  const sessionJwt = credential.sessionJwt || null;
+  const hasCredential = !!(apiKey || sessionJwt);
+
   return useQuery({
-    queryKey: ['knowledge-graph-unified', apiKey, options?.limit], // Include limit in cache key
-    queryFn: () => fetchKnowledgeGraph(apiKey!, options),
-    enabled: !!apiKey, // Only run query if API key is provided
-    staleTime: 5 * 60 * 1000, // 5 minutes — graph data rarely changes
+    // Key on the prefix to avoid leaking secrets into cache keys while still
+    // segmenting across credentials.
+    queryKey: ['knowledge-graph-unified', apiKey?.slice(0, 12) || sessionJwt?.slice(0, 12), options?.limit],
+    queryFn: () => fetchKnowledgeGraph({ apiKey, sessionJwt }, options),
+    enabled: hasCredential,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
 }
 
-// Helper hook to get the user's API key and return unified graph
+// Helper hook: resolves the current credential (Stytch session JWT first,
+// localStorage api_key fallback) and returns the unified account graph.
 export function useAccountKnowledgeGraph(options?: { limit?: number }) {
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const stytchClient = useStytchB2BClient();
+  const { isInitialized: stytchInitialized } = useStytchMemberSession();
 
   useEffect(() => {
-    // Get API key from localStorage
     const storedApiKey = localStorage.getItem('vrin_api_key');
     setApiKey(storedApiKey);
   }, []);
 
-  const graphQuery = useKnowledgeGraph(apiKey || undefined, options);
+  // Read the session JWT fresh on each render so rotation is transparent.
+  const sessionJwt = stytchInitialized
+    ? (stytchClient?.session?.getTokens?.()?.session_jwt || null)
+    : null;
+
+  const graphQuery = useKnowledgeGraph({ apiKey, sessionJwt }, options);
 
   return {
     ...graphQuery,
-    hasApiKey: !!apiKey,
-    // Single unified knowledge graph for the entire account
-    // All API keys associated with the account contribute to this single graph
+    hasApiKey: !!(apiKey || sessionJwt),
     isAccountGraph: true
   };
 } 

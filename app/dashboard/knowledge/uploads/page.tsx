@@ -13,8 +13,9 @@ import { cn } from "@/lib/utils"
 import type { FileUpload } from "@/types/chat"
 
 export default function UploadsPage() {
-  const { apiKey } = useDashboardAuth()
-  const { uploads, uploadFile, clearCompletedUploads } = useFileUploads(apiKey)
+  const { apiKey, sessionJwt } = useDashboardAuth()
+  const bearer = sessionJwt || apiKey || ""
+  const { uploads, uploadFile, clearCompletedUploads } = useFileUploads(bearer)
   const [dragging, setDragging] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 

@@ -17,8 +17,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [paletteOpen, setPaletteOpen] = React.useState(false)
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
 
-  const { apiKey } = useDashboardAuth()
-  const { conversations, fetchConversations } = useConversations(apiKey)
+  const { apiKey, sessionJwt } = useDashboardAuth()
+  const bearer = sessionJwt || apiKey || ""
+  const { conversations, fetchConversations } = useConversations(bearer)
 
   const router = useRouter()
   const pathname = usePathname()

@@ -13,9 +13,12 @@ import { MarkdownRenderer } from "@/components/chat/markdown-renderer"
 import type { ChatMessage } from "@/types/chat"
 
 export function DashboardChatView() {
-  const { apiKey, user } = useDashboardAuth()
-  const chat = useChatSession(apiKey)
-  const { loadConversation } = useConversations(apiKey)
+  const { apiKey, sessionJwt, user } = useDashboardAuth()
+  // Prefer the Stytch session JWT when present — it's the dashboard's canonical
+  // credential. Backend authenticate_with_routing accepts either format.
+  const bearer = sessionJwt || apiKey || ""
+  const chat = useChatSession(bearer)
+  const { loadConversation } = useConversations(bearer)
   const router = useRouter()
   const searchParams = useSearchParams()
 

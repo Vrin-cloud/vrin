@@ -12,7 +12,7 @@ export default function SpecializationPage() {
       title="AI specialization"
       description="Define custom experts — reasoning focus, analysis depth, and domain prompts."
     >
-      <AISpecializationSection apiKey={apiKey} />
+      <AISpecializationSection apiKey={apiKey ?? ""} />
     </PageShell>
   )
 }
