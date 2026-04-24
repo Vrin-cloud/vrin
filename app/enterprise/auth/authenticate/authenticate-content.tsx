@@ -72,10 +72,15 @@ function EnterpriseAuthenticateInner() {
     setStatusMessage('Creating your organization...');
 
     try {
-      const orgSlug = orgInfo.organizationDomain
+      // Domain-prefixed slug with random suffix — ensures uniqueness across
+      // enterprises that happen to share a TLD root (e.g. acme-consulting.com
+      // and acme-corp.com both deriving `acme`). Discovery still matches
+      // subsequent employees via verified email domain, not slug.
+      const domainPrefix = orgInfo.organizationDomain
         .split('.')[0]
         .toLowerCase()
         .replace(/[^a-z0-9]/g, '-');
+      const orgSlug = `${domainPrefix}-${crypto.randomUUID().replace(/-/g, '').slice(0, 6)}`;
 
       const createOrgResponse = await stytch.discovery.organizations.create({
         organization_name: orgInfo.organizationName,

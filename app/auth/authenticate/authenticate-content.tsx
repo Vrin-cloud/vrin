@@ -185,7 +185,10 @@ function AuthenticateContentInner() {
           console.log('[Stytch] No orgs found, creating personal workspace for:', email);
 
           const orgName = `${fullName}'s Workspace`;
-          const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') + '-workspace';
+          // Opaque, collision-proof slug. Never derived from email so two users
+          // sharing an email local part (vedant@a.com / vedant@b.com) can both
+          // sign up. Detection heuristic matches the `ws-` prefix.
+          const orgSlug = `ws-${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
 
           const createOrgResponse = await stytch.discovery.organizations.create({
             organization_name: orgName,
@@ -200,14 +203,20 @@ function AuthenticateContentInner() {
           // Has existing organizations — prefer enterprise org over personal workspace
           console.log('[Stytch] Found', discoveredOrgs.length, 'organization(s)');
 
-          // Enterprise orgs don't have slugs ending in "-workspace"
+          // Personal workspaces are identified by slug format:
+          //   - new: `ws-{random}` prefix
+          //   - legacy: `{local}-workspace` suffix (pre-April-2026 signups)
+          // Anything else is treated as an enterprise org.
+          const isPersonalSlug = (slug: string | undefined) =>
+            !!slug && (slug.startsWith('ws-') || slug.endsWith('-workspace'));
+
           const enterpriseOrg = discoveredOrgs.find(
-            (o: any) => !o.organization?.organization_slug?.endsWith('-workspace')
+            (o: any) => !isPersonalSlug(o.organization?.organization_slug)
           );
           const selectedOrg = enterpriseOrg || discoveredOrgs[0];
           const orgId = selectedOrg.organization?.organization_id;
           const orgSlug = selectedOrg.organization?.organization_slug || '';
-          isEnterprise = !orgSlug.endsWith('-workspace');
+          isEnterprise = !isPersonalSlug(orgSlug);
 
           console.log('[Stytch] Auto-selecting organization:', orgId, isEnterprise ? '(enterprise)' : '(personal)');
 
