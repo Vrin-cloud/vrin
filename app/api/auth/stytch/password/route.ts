@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
     }
 
     const fullName = [first_name, last_name].filter(Boolean).join(' ');
-    const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') + '-workspace';
 
     // Step 1: Find the user's org — search by member email first, then by slug
     let existingOrgId: string | null = null;
@@ -57,22 +56,6 @@ export async function POST(request: NextRequest) {
       // Not fatal — Stytch may legitimately return no matches. Detailed
       // Stytch error fields are logged on the subsequent signup fallback
       // if we actually fail to proceed.
-    }
-
-    if (!existingOrgId) {
-      try {
-        const slugResult = await stytch.organizations.search({
-          query: {
-            operands: [{ filter_name: 'organization_slugs', filter_value: [orgSlug] }],
-            operator: 'AND',
-          },
-        });
-        if (slugResult.organizations.length > 0) {
-          existingOrgId = slugResult.organizations[0].organization_id;
-        }
-      } catch (slugSearchErr: any) {
-        // Non-fatal — slug fallback lookup miss is normal for first-time users.
-      }
     }
 
     // Step 2: Authenticate if org found
@@ -122,6 +105,9 @@ export async function POST(request: NextRequest) {
     // Step 3: Signup — create org + member with password
     try {
       const orgName = fullName ? `${fullName}'s Workspace` : `${email.split('@')[0]}'s Workspace`;
+      // Opaque, collision-proof slug. Decoupled from email so two users sharing
+      // an email local part (e.g. vedant@a.com / vedant@b.com) can both sign up.
+      const orgSlug = `ws-${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
 
       const createOrgResponse = await stytch.organizations.create({
         organization_name: orgName,
