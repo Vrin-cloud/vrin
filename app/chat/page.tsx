@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useSession, signOut } from 'next-auth/react'
+import { useStytchB2BClient, useStytchMemberSession, useStytchMember } from '@stytch/nextjs/b2b'
 import {
   ArrowUp,
   Plus,
@@ -178,9 +179,40 @@ export default function ChatPage() {
 
   // NextAuth session for Google OAuth
   const { data: nextAuthSession, status: sessionStatus } = useSession()
+  // Stytch B2B session — the dashboard's canonical auth path. When a user
+  // logs in via the dashboard and clicks through to /chat, they have a
+  // Stytch session cookie / SDK state but may have no api_key in
+  // localStorage (Stytch-only flow). Reading the Stytch session here lets
+  // /chat recognize them as authed and use the session JWT as the bearer.
+  const stytchClient = useStytchB2BClient()
+  const { session: stytchSession, isInitialized: stytchInitialized } = useStytchMemberSession()
+  const { member: stytchMember } = useStytchMember()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const authService = new AuthService()
+
+  // Read the freshest Stytch session JWT on demand. Mirrors the dashboard's
+  // AuthProvider helper: the SDK state can lag a beat after a fresh-login
+  // redirect, so we also peek the cookie directly as a fallback.
+  const getStytchSessionJwt = (): string | null => {
+    try {
+      const tokens = stytchClient?.session?.getTokens?.()
+      if (tokens?.session_jwt) return tokens.session_jwt
+    } catch {
+      // fall through
+    }
+    if (typeof document === 'undefined') return null
+    const match = document.cookie
+      .split(';')
+      .map((c) => c.trim())
+      .find((c) => c.startsWith('stytch_session_jwt='))
+    if (!match) return null
+    try {
+      return decodeURIComponent(match.slice('stytch_session_jwt='.length)) || null
+    } catch {
+      return null
+    }
+  }
 
   // Auto-resize textarea based on content
   const adjustTextareaHeight = () => {
@@ -251,6 +283,11 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
+    // Wait for Stytch SDK to initialize before resolving auth — otherwise
+    // a user with only a Stytch cookie (no api_key) would fall through to
+    // the "please log in" branch on the very first render.
+    if (!stytchInitialized) return
+
     // Check for existing auth from localStorage first
     let storedUser = authService.getStoredUser()
     let storedApiKey = authService.getStoredApiKey()
@@ -268,6 +305,32 @@ export default function ChatPage() {
         storedApiKey = null
         storedUser = null
       }
+    }
+
+    // Stytch path — the dashboard's canonical auth. If a Stytch session is
+    // present, treat the user as authed even if there's no localStorage
+    // api_key. The session JWT itself becomes the bearer for downstream
+    // chat API calls (backend authenticate_with_routing accepts both
+    // session JWT and api_key bearers, so the chat API client doesn't
+    // need to know which one it's holding).
+    const stytchJwt = getStytchSessionJwt()
+    if (stytchSession && stytchMember && stytchJwt) {
+      const derivedUser = {
+        user_id: storedUser?.user_id || stytchMember.member_id,
+        email: stytchMember.email_address || storedUser?.email || '',
+        name: stytchMember.name || storedUser?.name || (stytchMember.email_address || '').split('@')[0],
+        created_at: storedUser?.created_at || new Date().toISOString(),
+      }
+      // Persist so future renders + sibling tabs see a consistent identity.
+      localStorage.setItem('vrin_user', JSON.stringify(derivedUser))
+      setUser(derivedUser as User)
+      // Use the JWT as the bearer. Don't write to vrin_api_key — that
+      // would mask future api_key-based logins and create a stale-token
+      // situation when the JWT rotates.
+      setApiKey(stytchJwt)
+      setIsCheckingAuth(false)
+      console.log('Chat: authed via Stytch session, member:', derivedUser.email)
+      return
     }
 
     if (storedUser && storedApiKey) {
@@ -316,7 +379,8 @@ export default function ChatPage() {
       console.warn('Missing authentication:', { hasUser: !!storedUser, hasApiKey: !!storedApiKey })
       setIsCheckingAuth(false)
     }
-  }, [nextAuthSession, sessionStatus])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextAuthSession, sessionStatus, stytchInitialized, stytchSession, stytchMember])
 
   // Fetch conversations when API key is available
   useEffect(() => {
@@ -763,7 +827,7 @@ export default function ChatPage() {
   }
 
   // Show loading state while checking authentication
-  if (isCheckingAuth || sessionStatus === 'loading') {
+  if (isCheckingAuth || sessionStatus === 'loading' || !stytchInitialized) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 max-w-md w-full mx-4">
