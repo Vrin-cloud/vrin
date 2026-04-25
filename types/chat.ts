@@ -39,6 +39,50 @@ export interface SourceDocument {
   sample_facts: SampleFact[];
 }
 
+// Reasoning chain — graph-shaped traversal payload produced by the
+// backend's ``_build_reasoning_chain`` helper. Surfaced in the metadata
+// event for the chat-page graph dialog. Keep this shape in lock-step
+// with ``lambda_deployment/enhanced_query_handler.py:_build_reasoning_chain``.
+export interface ReasoningChainNode {
+  id: string;
+  name: string;
+  hop_distance: number;
+  is_seed: boolean;
+  fact_count: number;
+}
+
+export interface ReasoningChainEdge {
+  id: string;
+  source: string;  // node id
+  target: string;  // node id
+  predicate: string;
+  confidence: number;
+  hop_distance: number;
+  source_document: string;
+}
+
+export interface ReasoningChainHopGroup {
+  hop: number;
+  node_ids: string[];
+  node_count: number;
+}
+
+export interface ReasoningChainStats {
+  total_nodes: number;
+  total_edges: number;
+  max_hop: number;
+  seed_count: number;
+  documents_traversed: number;
+  truncated: boolean;
+}
+
+export interface ReasoningChain {
+  nodes: ReasoningChainNode[];
+  edges: ReasoningChainEdge[];
+  hop_groups: ReasoningChainHopGroup[];
+  stats: ReasoningChainStats;
+}
+
 export interface MessageMetadata {
   constraints_applied?: number;
   facts_retrieved?: number;
@@ -64,6 +108,7 @@ export interface MessageMetadata {
   sources?: any[];  // Source documents
   entities?: string[];  // Discovered entities
   chunks_retrieved?: number;  // Number of chunks retrieved
+  reasoning_chain?: ReasoningChain;  // Graph-shaped traversal for chat-page dialog
 }
 
 export interface ExpertAnalysis {

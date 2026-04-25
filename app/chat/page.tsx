@@ -47,6 +47,8 @@ import { useConversations } from '@/hooks/use-conversations'
 import { FileUploadZone } from '@/components/chat/file-upload-zone'
 import { MarkdownRenderer } from '@/components/chat/markdown-renderer'
 import { SourcesPanel } from '@/components/chat/sources-panel'
+import { ReasoningGraphPanel } from '@/components/chat/reasoning-graph-panel'
+import type { ReasoningChain as ReasoningChainData } from '@/types/chat'
 import { ThinkingPanel } from '@/components/dashboard/thinking-panel'
 import { LoadingAnimation } from '@/components/chat/loading-animation'
 import { ReasoningChain } from '@/components/chat/reasoning-chain'
@@ -152,6 +154,10 @@ export default function ChatPage() {
   const [sourcesOpen, setSourcesOpen] = useState(false)
   const [currentSources, setCurrentSources] = useState<SourceDocument[]>([])
   const [currentMetadata, setCurrentMetadata] = useState<any>({})
+  // Reasoning graph dialog (per-message, opened from the AI reply).
+  const [reasoningOpen, setReasoningOpen] = useState(false)
+  const [currentReasoningChain, setCurrentReasoningChain] = useState<ReasoningChainData | null>(null)
+  const [currentReasoningQuestion, setCurrentReasoningQuestion] = useState<string>('')
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
@@ -1533,7 +1539,7 @@ export default function ChatPage() {
               {/* Scrollable Messages Area */}
               <div className="flex-1 overflow-y-auto pb-4">
                 <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-              {messages.map((message) => (
+              {messages.map((message, messageIndex) => (
                 <motion.div
                   key={message.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -1611,19 +1617,53 @@ export default function ChatPage() {
                         </div>
                       </div>
 
-                      {/* Sources button for assistant messages */}
-                      {message.sources && message.sources.length > 0 && (
-                        <button
-                          onClick={() => {
-                            setCurrentSources(message.sources || [])
-                            setCurrentMetadata(message.metadata || {})
-                            setSourcesOpen(true)
-                          }}
-                          className="mt-2 flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors"
-                        >
-                          📚 Sources ({message.metadata?.documents_used || message.sources.length})
-                        </button>
-                      )}
+                      {/* Action buttons for assistant messages — Sources +
+                          Reasoning. Both open right-side panels mirroring
+                          each other's animation so they feel like siblings. */}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {message.sources && message.sources.length > 0 && (
+                          <button
+                            onClick={() => {
+                              setCurrentSources(message.sources || [])
+                              setCurrentMetadata(message.metadata || {})
+                              setSourcesOpen(true)
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors"
+                          >
+                            📚 Sources ({message.metadata?.documents_used || message.sources.length})
+                          </button>
+                        )}
+
+                        {/* Show reasoning button — only when the backend
+                            shipped a reasoning_chain with at least one
+                            traversed entity. The chain is the same data
+                            the CLI prints below context. */}
+                        {message.metadata?.reasoning_chain &&
+                          (message.metadata.reasoning_chain.stats?.total_nodes ?? 0) > 0 && (
+                          <button
+                            onClick={() => {
+                              // The user message immediately preceding this
+                              // AI reply is the question that produced this
+                              // reasoning chain. Walk back the messages
+                              // array — the typical case is index-1.
+                              let q = ''
+                              for (let i = messageIndex - 1; i >= 0; i--) {
+                                if (messages[i].role === 'user') {
+                                  q = messages[i].content
+                                  break
+                                }
+                              }
+                              setCurrentReasoningChain(message.metadata!.reasoning_chain || null)
+                              setCurrentReasoningQuestion(q)
+                              setReasoningOpen(true)
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-purple-700 hover:text-purple-900 border border-purple-300 hover:border-purple-400 rounded-lg transition-colors"
+                            title="Show entities and predicates Vrin traversed to answer"
+                          >
+                            🧠 Reasoning ({message.metadata.reasoning_chain.stats?.total_nodes ?? 0} entities, {message.metadata.reasoning_chain.stats?.total_edges ?? 0} facts)
+                          </button>
+                        )}
+                      </div>
 
                       {/* Expert analysis panel for expert mode */}
                       {message.expert_analysis && (
@@ -2059,6 +2099,16 @@ export default function ChatPage() {
         onClose={() => setSourcesOpen(false)}
         sources={currentSources}
         metadata={currentMetadata}
+      />
+
+      {/* Reasoning Graph Panel — shows the entities + predicate edges
+          Vrin traversed for the selected AI message. Driven by the
+          ReasoningChain payload that ships in MessageMetadata. */}
+      <ReasoningGraphPanel
+        isOpen={reasoningOpen}
+        onClose={() => setReasoningOpen(false)}
+        chain={currentReasoningChain}
+        question={currentReasoningQuestion}
       />
 
       {/* Upgrade Modal - Perplexity Style */}
