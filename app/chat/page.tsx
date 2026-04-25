@@ -283,12 +283,39 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
-    // Wait for Stytch SDK to initialize before resolving auth — otherwise
-    // a user with only a Stytch cookie (no api_key) would fall through to
-    // the "please log in" branch on the very first render.
+    // Wait for Stytch SDK to initialize before resolving auth.
     if (!stytchInitialized) return
 
-    // Check for existing auth from localStorage first
+    // Once authenticated, this effect's only job is credential refresh —
+    // never re-evaluate the gate. Without this guard, a Stytch JWT
+    // rotation (which mutates the `stytchSession` object) would re-fire
+    // the whole resolution flow mid-stream, briefly drop `user` to the
+    // pre-auth state, and abort any in-flight chat request. Refresh the
+    // bearer if the JWT changed; otherwise no-op.
+    if (user) {
+      const freshJwt = getStytchSessionJwt()
+      if (freshJwt && freshJwt !== apiKey) {
+        setApiKey(freshJwt)
+      }
+      return
+    }
+
+    // Pre-fetch a Stytch JWT from cookie/SDK before deciding anything.
+    // The cookie set by the dashboard's Stytch login is authoritative —
+    // even when the SDK hooks (`stytchSession`, `stytchMember`) haven't
+    // hydrated yet on this route's first client-side render, the cookie
+    // tells us a Stytch auth is in flight. In that case we MUST keep
+    // `isCheckingAuth=true` and wait for the hooks to populate, instead
+    // of falling through to the "please log in" gate (which used to
+    // flash for a frame on every dashboard→chat navigation).
+    const stytchJwt = getStytchSessionJwt()
+    if (stytchJwt && (!stytchSession || !stytchMember)) {
+      // Hooks will re-fire this effect once they hydrate; bail without
+      // touching state so the loader keeps showing.
+      return
+    }
+
+    // Check for existing auth from localStorage.
     let storedUser = authService.getStoredUser()
     let storedApiKey = authService.getStoredApiKey()
 
@@ -301,35 +328,42 @@ export default function ChatPage() {
         localStorage.removeItem('vrin_api_key')
         localStorage.removeItem('vrin_user')
         localStorage.removeItem('vrin_chat_session_id')
-        // Clear local variables so we fall through to NextAuth sync
         storedApiKey = null
         storedUser = null
       }
     }
 
-    // Stytch path — the dashboard's canonical auth. If a Stytch session is
-    // present, treat the user as authed even if there's no localStorage
-    // api_key. The session JWT itself becomes the bearer for downstream
-    // chat API calls (backend authenticate_with_routing accepts both
-    // session JWT and api_key bearers, so the chat API client doesn't
-    // need to know which one it's holding).
-    const stytchJwt = getStytchSessionJwt()
+    // Stytch path — the dashboard's canonical auth. Both hooks have
+    // populated by this point (we returned early above otherwise).
     if (stytchSession && stytchMember && stytchJwt) {
+      // Critical: prefer the stored user_id over stytchMember.member_id.
+      // The chat backend keys data on the VRIN user_id (resolved
+      // server-side from the Stytch session at login). Using
+      // member_id as a fallback means queries hit the wrong tenant —
+      // which is what made queries silently disappear after submit:
+      // request authed as user_id_X (resolved from JWT), payload
+      // claimed user_id=stytch_member_id, conversation persisted
+      // under the wrong key, sidebar never saw it.
+      const resolvedUserId = storedUser?.user_id || stytchMember.member_id
       const derivedUser = {
-        user_id: storedUser?.user_id || stytchMember.member_id,
+        user_id: resolvedUserId,
         email: stytchMember.email_address || storedUser?.email || '',
         name: stytchMember.name || storedUser?.name || (stytchMember.email_address || '').split('@')[0],
         created_at: storedUser?.created_at || new Date().toISOString(),
       }
-      // Persist so future renders + sibling tabs see a consistent identity.
       localStorage.setItem('vrin_user', JSON.stringify(derivedUser))
       setUser(derivedUser as User)
-      // Use the JWT as the bearer. Don't write to vrin_api_key — that
-      // would mask future api_key-based logins and create a stale-token
-      // situation when the JWT rotates.
       setApiKey(stytchJwt)
       setIsCheckingAuth(false)
-      console.log('Chat: authed via Stytch session, member:', derivedUser.email)
+      if (!storedUser?.user_id) {
+        console.warn(
+          'Chat: derived user_id from Stytch member_id (no prior VRIN user_id in localStorage). ' +
+          'Chat queries may not surface in the conversation list until the dashboard auth ' +
+          'flow has run at least once for this account.'
+        )
+      } else {
+        console.log('Chat: authed via Stytch session, member:', derivedUser.email)
+      }
       return
     }
 
@@ -347,32 +381,25 @@ export default function ChatPage() {
       setApiKey(storedApiKey)
       setIsCheckingAuth(false)
       console.log('Chat initialized with user:', storedUser.email)
-      console.log('API key loaded:', storedApiKey.substring(0, 10) + '...')
     } else if (sessionStatus === 'loading') {
-      // Wait for NextAuth session to load
       return
     } else if (nextAuthSession?.user) {
-      // Google OAuth: Sync NextAuth session to localStorage
       const nextAuthUser = nextAuthSession.user as any
       const nextAuthApiKey = nextAuthUser.apiKey
       const nextAuthUserId = nextAuthUser.userId
 
       if (nextAuthApiKey && nextAuthUserId) {
-        // Save to localStorage for compatibility
         const userData = {
           user_id: nextAuthUserId,
           email: nextAuthUser.email || '',
           name: nextAuthUser.name || nextAuthUser.email?.split('@')[0] || '',
           created_at: new Date().toISOString()
         }
-
         localStorage.setItem('vrin_api_key', nextAuthApiKey)
         localStorage.setItem('vrin_user', JSON.stringify(userData))
-
-        // Update component state
         setApiKey(nextAuthApiKey)
         setUser(userData)
-        console.log('Chat: Synced NextAuth session to localStorage:', { apiKey: nextAuthApiKey, user: userData })
+        console.log('Chat: Synced NextAuth session to localStorage')
       }
       setIsCheckingAuth(false)
     } else {
@@ -380,7 +407,7 @@ export default function ChatPage() {
       setIsCheckingAuth(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nextAuthSession, sessionStatus, stytchInitialized, stytchSession, stytchMember])
+  }, [user, apiKey, nextAuthSession, sessionStatus, stytchInitialized, stytchSession, stytchMember])
 
   // Fetch conversations when API key is available
   useEffect(() => {
