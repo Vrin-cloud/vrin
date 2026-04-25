@@ -174,7 +174,7 @@ function SidebarItem({ item, pathname, collapsed, recentConversations }: Sidebar
       {recentConversations && recentConversations.length > 0 && (
         <div className="mt-1 ml-6 space-y-0.5 border-l border-border/60 pl-2">
           <Link
-            href="/dashboard/chat"
+            href="/chat"
             className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-surface-3"
           >
             <MessageSquarePlus className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ function SidebarItem({ item, pathname, collapsed, recentConversations }: Sidebar
           {recentConversations.slice(0, 6).map((conv) => (
             <Link
               key={conv.id}
-              href={`/dashboard/chat?session=${conv.id}`}
+              href={`/chat?session=${conv.id}`}
               className="block px-2 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-surface-3 truncate"
               title={conv.title}
             >

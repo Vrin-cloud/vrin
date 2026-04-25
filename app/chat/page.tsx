@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -421,6 +422,23 @@ export default function ChatPage() {
       document.removeEventListener('click', handleClickOutside)
     }
   }, [showOptionsMenu])
+
+  // Session deep-linking. The dashboard sidebar's per-conversation links
+  // ship `?session=<id>` in the URL — when /chat is opened that way, load
+  // the conversation immediately so the user lands inside the chosen
+  // thread instead of an empty new chat. Fires once per session id.
+  const searchParams = useSearchParams()
+  const sessionDeepLinkParam = searchParams?.get('session') ?? null
+  const lastLoadedSessionParamRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!sessionDeepLinkParam) return
+    if (isCheckingAuth) return  // wait until auth resolves so loadConversation has a key
+    if (lastLoadedSessionParamRef.current === sessionDeepLinkParam) return
+    lastLoadedSessionParamRef.current = sessionDeepLinkParam
+    handleLoadConversation(sessionDeepLinkParam)
+    // handleLoadConversation is stable enough; intentionally narrow deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionDeepLinkParam, isCheckingAuth])
 
   const handleLogout = async () => {
     if (session) {

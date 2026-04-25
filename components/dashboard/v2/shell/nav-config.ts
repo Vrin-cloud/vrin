@@ -34,7 +34,9 @@ export interface NavItem {
  */
 export const PRIMARY_NAV: NavItem[] = [
   { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { id: "chat", label: "Chat", href: "/dashboard/chat", icon: MessageSquare },
+  // Chat lives at the standalone /chat route — full-page experience
+  // outside the dashboard chrome.
+  { id: "chat", label: "Chat", href: "/chat", icon: MessageSquare },
   {
     id: "knowledge",
     label: "Knowledge",

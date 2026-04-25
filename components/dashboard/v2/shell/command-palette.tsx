@@ -79,7 +79,7 @@ export function DashboardCommandPalette({ open, onOpenChange, recentConversation
                 <CommandItem
                   key={c.id}
                   value={`conversation ${c.title}`}
-                  onSelect={() => run(() => router.push(`/dashboard/chat?session=${c.id}`))}
+                  onSelect={() => run(() => router.push(`/chat?session=${c.id}`))}
                 >
                   <span className="truncate">{c.title}</span>
                 </CommandItem>
@@ -90,7 +90,7 @@ export function DashboardCommandPalette({ open, onOpenChange, recentConversation
 
         <CommandSeparator />
         <CommandGroup heading="Quick actions">
-          <CommandItem value="new chat conversation" onSelect={() => run(() => router.push("/dashboard/chat"))}>
+          <CommandItem value="new chat conversation" onSelect={() => run(() => router.push("/chat"))}>
             <Plus className="text-muted-foreground" />
             <span>New chat</span>
             <CommandShortcut>⌘N</CommandShortcut>
